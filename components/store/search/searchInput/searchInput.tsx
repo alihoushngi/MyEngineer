@@ -1,14 +1,20 @@
 "use client";
 
 import { type FormEvent, useState } from "react";
+
 import { useRouter } from "next/navigation";
+
 import { SearchIcon, XIcon } from "lucide-react";
+
 import { Button } from "@/components/ui/button/button";
 import { Field, FieldLabel } from "@/components/ui/field/field";
 import { Input } from "@/components/ui/input/input";
+
 import { searchCopy } from "@/config/search.config/search.config";
 import { storePaths } from "@/config/navigation.config/navigation.config";
+
 import { buildSearchHref } from "@/lib/search/search-params/search-params";
+
 import { type SearchInputProps } from "@/components/store/search/searchInput/type/searchInput.types";
 
 export function SearchInput({
@@ -22,7 +28,9 @@ export function SearchInput({
   onSubmitted,
 }: SearchInputProps) {
   const router = useRouter();
+
   const [value, setValue] = useState(initialQuery);
+
   const trimmedValue = value.trim();
   const hasValue = trimmedValue !== "";
   const canSubmit = !requireQuery || hasValue;
@@ -35,8 +43,26 @@ export function SearchInput({
       return;
     }
 
-    router.push(buildSearchHref({ q: value, cities }));
+    router.push(
+      buildSearchHref({
+        q: value,
+        cities,
+      }),
+    );
+
     onSubmitted?.();
+  }
+
+  function clearSearch() {
+    setValue("");
+
+    if (navigateOnClear) {
+      router.push(
+        buildSearchHref({
+          cities,
+        }),
+      );
+    }
   }
 
   return (
@@ -49,19 +75,50 @@ export function SearchInput({
       {citiesValue !== "" ? (
         <input type="hidden" name="cities" value={citiesValue} />
       ) : null}
-      <Field>
+
+      <Field className="gap-0">
         <FieldLabel
           htmlFor={id}
           className={labelHidden ? "sr-only" : undefined}
         >
           {searchCopy.inputLabel}
         </FieldLabel>
-        <div className="flex items-end gap-2 sm:gap-3">
-          <div className="relative min-w-0 flex-1">
+
+        <div
+          className="
+            flex
+            w-full
+            items-stretch
+            gap-2
+            p-1
+          "
+        >
+          {/* Input */}
+          <div
+            className="
+              group/input
+              relative
+              min-w-0
+              flex-1
+            "
+          >
             <SearchIcon
               aria-hidden="true"
-              className="pointer-events-none absolute top-1/2 start-3 size-4 -translate-y-1/2 text-muted-foreground"
+              className="
+                pointer-events-none
+                absolute inset-s-3.5 top-1/2
+                z-10
+                size-4.5
+                -translate-y-1/2
+                text-muted-foreground
+
+                transition-colors
+                duration-200
+
+                group-focus-within/input:text-primary
+              "
             />
+
             <Input
               id={id}
               name="q"
@@ -71,32 +128,93 @@ export function SearchInput({
               autoComplete="off"
               enterKeyHint="search"
               placeholder={searchCopy.placeholder}
-              className="ps-10 pe-12 [&::-webkit-search-cancel-button]:hidden"
+              className="
+                h-12
+                w-full
+                rounded-xl
+
+                border-transparent
+                bg-transparent
+
+                ps-11
+                pe-12
+
+                shadow-none
+
+                transition-all
+                duration-200
+
+                placeholder:text-muted-foreground/70
+
+                hover:bg-muted/40
+
+                focus-visible:border-primary/20
+                focus-visible:bg-muted/35
+                focus-visible:ring-2
+                focus-visible:ring-primary/15
+
+                [&::-webkit-search-cancel-button]:hidden
+              "
               onChange={(event) => {
                 setValue(event.currentTarget.value);
               }}
             />
+
             {hasValue ? (
               <Button
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="absolute top-1/2 end-1 size-11 -translate-y-1/2 text-muted-foreground"
-                aria-label={searchCopy.clearLabel}
-                onClick={() => {
-                  setValue("");
+                className="
+                  absolute inset-e-1 top-1/2
+                  size-10
+                  -translate-y-1/2
+                  rounded-lg
 
-                  if (navigateOnClear) {
-                    router.push(buildSearchHref({ cities }));
-                  }
-                }}
+                  text-muted-foreground
+
+                  hover:bg-muted
+                  hover:text-foreground
+                "
+                aria-label={searchCopy.clearLabel}
+                onClick={clearSearch}
               >
-                <XIcon aria-hidden="true" />
+                <XIcon aria-hidden="true" className="size-4" />
               </Button>
             ) : null}
           </div>
-          <Button type="submit" disabled={!canSubmit} className="px-4 sm:px-6">
-            {searchCopy.submitLabel}
+
+          {/* Submit */}
+          <Button
+            type="submit"
+            disabled={!canSubmit}
+            className="
+              h-12
+              shrink-0
+              rounded-xl
+              px-4
+              shadow-sm
+
+              transition-all
+              duration-200
+
+              active:scale-[0.98]
+
+              sm:min-w-24
+              sm:px-6
+            "
+          >
+            <SearchIcon
+              aria-hidden="true"
+              className="
+                size-4
+                sm:hidden
+              "
+            />
+
+            <span className="hidden sm:inline">{searchCopy.submitLabel}</span>
+
+            <span className="sr-only sm:hidden">{searchCopy.submitLabel}</span>
           </Button>
         </div>
       </Field>
