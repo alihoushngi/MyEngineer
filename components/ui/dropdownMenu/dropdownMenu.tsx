@@ -3,6 +3,7 @@
 import { CheckIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { DropdownMenu as DropdownMenuPrimitive } from "radix-ui";
 import { type ComponentProps } from "react";
+
 import { cn } from "@/lib/utils/cn/cn";
 
 export function DropdownMenu(
@@ -24,7 +25,7 @@ export function DropdownMenuTrigger(
 
 export function DropdownMenuContent({
   className,
-  sideOffset = 4,
+  sideOffset = 8,
   ...props
 }: ComponentProps<typeof DropdownMenuPrimitive.Content>) {
   return (
@@ -33,8 +34,40 @@ export function DropdownMenuContent({
         data-slot="dropdown-menu-content"
         sideOffset={sideOffset}
         className={cn(
-          "z-50 min-w-40 overflow-hidden rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-md",
-          "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0",
+          `
+            z-50
+
+            min-w-44
+            max-w-[min(20rem,calc(100vw-2rem))]
+
+            overflow-hidden
+
+            rounded-2xl
+            border
+            border-border-subtle
+
+            bg-popover
+            p-1.5
+
+            text-popover-foreground
+
+            shadow-lg
+
+            outline-none
+
+            data-[state=closed]:animate-out
+            data-[state=closed]:fade-out-0
+            data-[state=closed]:zoom-out-95
+
+            data-[state=open]:animate-in
+            data-[state=open]:fade-in-0
+            data-[state=open]:zoom-in-95
+
+            data-[side=bottom]:slide-in-from-top-2
+            data-[side=left]:slide-in-from-right-2
+            data-[side=right]:slide-in-from-left-2
+            data-[side=top]:slide-in-from-bottom-2
+          `,
           className,
         )}
         {...props}
@@ -66,7 +99,58 @@ export function DropdownMenuItem({
       data-inset={inset}
       data-variant={variant}
       className={cn(
-        "relative flex min-h-11 cursor-default items-center gap-2 rounded-sm px-2 py-2 type-body-sm outline-none select-none focus:bg-accent-subtle focus:text-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[inset]:ps-8 data-[variant=danger]:text-danger data-[variant=danger]:focus:bg-danger/10 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        `
+          relative
+
+          flex
+          min-h-11
+          min-w-0
+          cursor-default
+          select-none
+          items-center
+          gap-2.5
+
+          rounded-xl
+
+          px-3
+          py-2
+
+          type-body-sm
+          text-foreground
+
+          outline-none
+
+          transition-[background-color,color]
+          duration-(--duration-fast)
+          ease-(--ease-standard)
+
+          focus:bg-surface-muted
+          focus:text-foreground
+
+          data-highlighted:bg-surface-muted
+          data-highlighted:text-foreground
+
+          data-disabled:pointer-events-none
+          data-disabled:opacity-45
+
+          data-inset:ps-9
+
+          data-[variant=danger]:text-danger
+
+          data-[variant=danger]:focus:bg-danger/10
+          data-[variant=danger]:focus:text-danger
+
+          data-[variant=danger]:data-highlighted:bg-danger/10
+          data-[variant=danger]:data-highlighted:text-danger
+
+          [&_svg]:pointer-events-none
+          [&_svg]:shrink-0
+          [&_svg]:text-foreground-muted
+
+          data-[variant=danger]:[&_svg]:text-danger
+
+          [&_svg:not([class*='size-'])]:size-4
+        `,
         className,
       )}
       {...props}
@@ -83,18 +167,68 @@ export function DropdownMenuCheckboxItem({
   return (
     <DropdownMenuPrimitive.CheckboxItem
       data-slot="dropdown-menu-checkbox-item"
+      checked={checked}
       className={cn(
-        "relative flex min-h-11 cursor-default items-center gap-2 rounded-sm py-2 pe-2 ps-8 type-body-sm outline-none select-none focus:bg-accent-subtle focus:text-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+        `
+          relative
+
+          flex
+          min-h-11
+          min-w-0
+          cursor-default
+          select-none
+          items-center
+          gap-2.5
+
+          rounded-xl
+
+          py-2
+          pe-3
+          ps-9
+
+          type-body-sm
+          text-foreground
+
+          outline-none
+
+          transition-[background-color,color]
+          duration-(--duration-fast)
+          ease-(--ease-standard)
+
+          focus:bg-surface-muted
+
+          data-highlighted:bg-surface-muted
+
+          data-disabled:pointer-events-none
+          data-disabled:opacity-45
+
+          data-[state=checked]:text-primary
+        `,
         className,
       )}
-      checked={checked}
       {...props}
     >
-      <span className="pointer-events-none absolute start-2 flex size-3.5 items-center justify-center">
+      <span
+        className="
+          pointer-events-none
+          absolute
+          inset-s-2.5
+
+          flex
+          size-5
+          items-center
+          justify-center
+
+          rounded-md
+
+          text-primary
+        "
+      >
         <DropdownMenuPrimitive.ItemIndicator>
-          <CheckIcon className="size-4" />
+          <CheckIcon aria-hidden="true" className="size-4" strokeWidth={2.5} />
         </DropdownMenuPrimitive.ItemIndicator>
       </span>
+
       {children}
     </DropdownMenuPrimitive.CheckboxItem>
   );
@@ -104,13 +238,25 @@ export function DropdownMenuLabel({
   className,
   inset,
   ...props
-}: ComponentProps<typeof DropdownMenuPrimitive.Label> & { inset?: boolean }) {
+}: ComponentProps<typeof DropdownMenuPrimitive.Label> & {
+  inset?: boolean;
+}) {
   return (
     <DropdownMenuPrimitive.Label
       data-slot="dropdown-menu-label"
       data-inset={inset}
       className={cn(
-        "px-2 py-1.5 type-body-sm font-medium data-[inset]:ps-8",
+        `
+          px-3
+          pb-1.5
+          pt-2.5
+
+          type-caption
+          font-semibold
+          text-foreground-muted
+
+          data-inset:ps-9
+        `,
         className,
       )}
       {...props}
@@ -125,7 +271,15 @@ export function DropdownMenuSeparator({
   return (
     <DropdownMenuPrimitive.Separator
       data-slot="dropdown-menu-separator"
-      className={cn("-mx-1 my-1 h-px bg-border", className)}
+      className={cn(
+        `
+          -mx-1.5
+          my-1.5
+          h-px
+          bg-border-subtle
+        `,
+        className,
+      )}
       {...props}
     />
   );
@@ -150,27 +304,113 @@ export function DropdownMenuSubTrigger({
       data-slot="dropdown-menu-sub-trigger"
       data-inset={inset}
       className={cn(
-        "flex min-h-11 cursor-default items-center gap-2 rounded-sm px-2 py-2 type-body-sm outline-none select-none focus:bg-accent-subtle data-[inset]:ps-8 data-[state=open]:bg-accent-subtle",
+        `
+          flex
+          min-h-11
+          min-w-0
+          cursor-default
+          select-none
+          items-center
+          gap-2.5
+
+          rounded-xl
+
+          px-3
+          py-2
+
+          type-body-sm
+          text-foreground
+
+          outline-none
+
+          transition-[background-color,color]
+          duration-(--duration-fast)
+          ease-(--ease-standard)
+
+          focus:bg-surface-muted
+
+          data-highlighted:bg-surface-muted
+          data-[state=open]:bg-surface-muted
+          data-[state=open]:text-primary
+
+          data-inset:ps-9
+
+          [&_svg]:shrink-0
+          [&_svg]:text-foreground-muted
+
+          data-[state=open]:[&_svg]:text-primary
+        `,
         className,
       )}
       {...props}
     >
       {children}
-      <ChevronLeftIcon className="ms-auto size-4 ltr:hidden" />
-      <ChevronRightIcon className="ms-auto size-4 rtl:hidden" />
+
+      <ChevronLeftIcon
+        aria-hidden="true"
+        className="
+          ms-auto
+          size-4
+          ltr:hidden
+        "
+      />
+
+      <ChevronRightIcon
+        aria-hidden="true"
+        className="
+          ms-auto
+          size-4
+          rtl:hidden
+        "
+      />
     </DropdownMenuPrimitive.SubTrigger>
   );
 }
 
 export function DropdownMenuSubContent({
   className,
+  sideOffset = 6,
   ...props
 }: ComponentProps<typeof DropdownMenuPrimitive.SubContent>) {
   return (
     <DropdownMenuPrimitive.SubContent
       data-slot="dropdown-menu-sub-content"
+      sideOffset={sideOffset}
       className={cn(
-        "z-50 min-w-40 overflow-hidden rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-md",
+        `
+          z-50
+
+          min-w-44
+          max-w-[min(20rem,calc(100vw-2rem))]
+
+          overflow-hidden
+
+          rounded-2xl
+          border
+          border-border-subtle
+
+          bg-popover
+          p-1.5
+
+          text-popover-foreground
+
+          shadow-lg
+
+          outline-none
+
+          data-[state=closed]:animate-out
+          data-[state=closed]:fade-out-0
+          data-[state=closed]:zoom-out-95
+
+          data-[state=open]:animate-in
+          data-[state=open]:fade-in-0
+          data-[state=open]:zoom-in-95
+
+          data-[side=bottom]:slide-in-from-top-2
+          data-[side=left]:slide-in-from-right-2
+          data-[side=right]:slide-in-from-left-2
+          data-[side=top]:slide-in-from-bottom-2
+        `,
         className,
       )}
       {...props}

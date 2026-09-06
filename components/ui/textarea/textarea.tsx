@@ -1,4 +1,5 @@
 import { type ComponentProps } from "react";
+
 import { cn } from "@/lib/utils/cn/cn";
 
 type TextareaProps = ComponentProps<"textarea">;
@@ -8,9 +9,57 @@ export function Textarea({ className, ...props }: TextareaProps) {
     <textarea
       data-slot="textarea"
       className={cn(
-        "field-sizing-content min-h-24 w-full rounded-md border border-input bg-input-background px-3 py-2.5 type-body  transition-colors duration-(--duration-fast) outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50",
-        "focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/20",
-        "aria-invalid:border-danger aria-invalid:ring-2 aria-invalid:ring-danger/20",
+        `
+          field-sizing-content
+
+          min-h-28
+          w-full
+          min-w-0
+
+          resize-y
+
+          rounded-xl
+          border
+          border-input
+
+          bg-input-background
+
+          px-3.5
+          py-3
+
+          type-body
+          text-foreground
+
+          shadow-xs
+
+          outline-none
+
+          transition-[background-color,border-color,box-shadow]
+          duration-(--duration-fast)
+          ease-(--ease-standard)
+
+          placeholder:text-foreground-subtle
+
+          hover:border-border-interactive
+
+          focus-visible:border-ring
+          focus-visible:bg-surface
+          focus-visible:ring-2
+          focus-visible:ring-ring/15
+
+          aria-invalid:border-danger
+          aria-invalid:ring-2
+          aria-invalid:ring-danger/15
+
+          disabled:pointer-events-none
+          disabled:cursor-not-allowed
+          disabled:bg-surface-muted
+          disabled:text-foreground-muted
+          disabled:opacity-60
+
+          read-only:bg-surface-subtle
+          read-only:text-foreground-muted
+        `,
         className,
       )}
       {...props}

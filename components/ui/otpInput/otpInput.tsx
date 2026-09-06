@@ -2,7 +2,9 @@
 
 import { OTPInput, type SlotProps } from "input-otp";
 import { useState, type ComponentProps } from "react";
+
 import { cn } from "@/lib/utils/cn/cn";
+
 import {
   LOCAL_DIGIT_PATTERN,
   toLatinDigits,
@@ -21,24 +23,88 @@ function OtpSlot({
   isActive,
   hasFakeCaret,
   invalid,
-}: SlotProps & { invalid: boolean }) {
+}: SlotProps & {
+  invalid: boolean;
+}) {
   return (
     <div
       data-slot="otp-input-slot"
       data-active={isActive || undefined}
-      data-filled={char ? true : undefined}
-      className={cn(
-        "relative flex h-14 min-w-0 flex-1 items-center justify-center rounded-md border bg-input-background type-h3 font-medium tabular-nums  transition-colors",
-        "border-border text-foreground",
-        "data-[filled=true]:border-border-strong",
-        "data-[active=true]:z-10 data-[active=true]:border-ring data-[active=true]:ring-2 data-[active=true]:ring-ring/30",
-        invalid &&
-          "border-danger data-[active=true]:border-danger data-[active=true]:ring-danger/20",
-      )}
+      data-filled={Boolean(char) || undefined}
+      data-invalid={invalid || undefined}
+      className="
+        relative
+        flex
+        h-14
+        min-w-0
+        flex-1
+        items-center
+        justify-center
+
+        overflow-hidden
+
+        rounded-xl
+        border
+        border-input
+
+        bg-input-background
+
+        type-h3
+        font-semibold
+        tabular-nums
+        text-foreground
+
+        shadow-xs
+
+        transition-[background-color,border-color,box-shadow,transform]
+        duration-(--duration-fast)
+        ease-(--ease-standard)
+
+        data-[filled=true]:border-border-interactive
+        data-[filled=true]:bg-surface
+
+        data-[active=true]:z-10
+        data-[active=true]:border-ring
+        data-[active=true]:bg-surface
+        data-[active=true]:ring-2
+        data-[active=true]:ring-ring/15
+        data-[active=true]:shadow-sm
+
+        data-[invalid=true]:border-danger
+
+        data-[invalid=true]:data-[active=true]:border-danger
+        data-[invalid=true]:data-[active=true]:ring-danger/15
+
+        sm:h-16
+        sm:rounded-2xl
+      "
     >
       {char}
+
       {hasFakeCaret ? (
-        <span className="pointer-events-none absolute inset-y-3 start-1/2 w-px -translate-x-1/2 bg-foreground motion-reduce:animate-none animate-pulse" />
+        <span
+          aria-hidden="true"
+          className="
+            pointer-events-none
+
+            absolute
+            inset-s-1/2
+            top-1/2
+
+            h-6
+            w-px
+
+            -translate-x-1/2
+            -translate-y-1/2
+
+            animate-pulse
+
+            rounded-full
+            bg-primary
+
+            motion-reduce:animate-none
+          "
+        />
       ) : null}
     </div>
   );
@@ -57,19 +123,23 @@ export function OtpInput({
   ...props
 }: OtpInputProps) {
   const isControlled = value !== undefined;
+
   const [uncontrolledValue, setUncontrolledValue] = useState(() =>
     toLatinDigits(String(defaultValue ?? "")),
   );
-  const currentValue = isControlled ? toLatinDigits(value) : uncontrolledValue;
 
-  function handleChange(next: string) {
-    const latin = toLatinDigits(next);
+  const currentValue = isControlled
+    ? toLatinDigits(String(value ?? ""))
+    : uncontrolledValue;
+
+  function handleChange(nextValue: string) {
+    const latinValue = toLatinDigits(nextValue);
 
     if (!isControlled) {
-      setUncontrolledValue(latin);
+      setUncontrolledValue(latinValue);
     }
 
-    onChange?.(latin);
+    onChange?.(latinValue);
   }
 
   return (
@@ -84,19 +154,47 @@ export function OtpInput({
       aria-invalid={invalid || undefined}
       pushPasswordManagerStrategy="none"
       value={currentValue}
+      dir="ltr"
       containerClassName={cn(
-        "flex w-full max-w-sm justify-center has-disabled:opacity-50",
+        `
+          w-full
+          max-w-sm
+
+          transition-opacity
+          duration-(--duration-fast)
+
+          has-disabled:cursor-not-allowed
+          has-disabled:opacity-55
+        `,
         containerClassName,
       )}
-      className={cn("disabled:cursor-not-allowed", className)}
+      className={cn(
+        `
+          disabled:cursor-not-allowed
+        `,
+        className,
+      )}
       {...props}
-      dir="ltr"
       onChange={handleChange}
-      pasteTransformer={(pasted) =>
-        toLatinDigits(pasteTransformer ? pasteTransformer(pasted) : pasted)
+      pasteTransformer={(pastedValue) =>
+        toLatinDigits(
+          pasteTransformer ? pasteTransformer(pastedValue) : pastedValue,
+        )
       }
       render={({ slots }) => (
-        <div dir="ltr" className="flex w-full flex-row gap-2">
+        <div
+          dir="ltr"
+          data-slot="otp-input-group"
+          className="
+            flex
+            w-full
+            flex-row
+            justify-center
+            gap-2
+
+            sm:gap-3
+          "
+        >
           {slots.map((slot, index) => (
             <OtpSlot key={index} {...slot} invalid={invalid} />
           ))}

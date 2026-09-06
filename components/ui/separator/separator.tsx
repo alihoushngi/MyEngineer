@@ -2,6 +2,7 @@
 
 import { Separator as SeparatorPrimitive } from "radix-ui";
 import { type ComponentProps } from "react";
+
 import { cn } from "@/lib/utils/cn/cn";
 
 type SeparatorProps = ComponentProps<typeof SeparatorPrimitive.Root>;
@@ -18,7 +19,17 @@ export function Separator({
       decorative={decorative}
       orientation={orientation}
       className={cn(
-        "shrink-0 bg-border data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px",
+        `
+          shrink-0
+          bg-border-subtle
+
+          data-[orientation=horizontal]:h-px
+          data-[orientation=horizontal]:w-full
+
+          data-[orientation=vertical]:h-full
+          data-[orientation=vertical]:min-h-4
+          data-[orientation=vertical]:w-px
+        `,
         className,
       )}
       {...props}
