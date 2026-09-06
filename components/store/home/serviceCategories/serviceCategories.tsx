@@ -10,7 +10,7 @@ export function ServiceCategories() {
     <section
       id="service-categories"
       aria-labelledby="service-categories-heading"
-      className="bg-background-subtle"
+      className="scroll-mt-[calc(5.75rem+env(safe-area-inset-top))] bg-background-subtle"
     >
       <div className="container-app py-section">
         <div className="space-y-8">

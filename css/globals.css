@@ -535,6 +535,10 @@ button {
   }
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -555,27 +559,28 @@ button {
   height: 100%;
 }
 
-.home-hero-swiper .swiper-pagination,
+.home-hero-swiper {
+  pointer-events: none;
+}
+
+.home-hero-swiper .swiper-slide {
+  pointer-events: none;
+}
+
 .home-knowledge-swiper .swiper-pagination {
   inset-inline: 0;
   bottom: 0.75rem;
 }
 
-.home-hero-swiper .swiper-pagination-bullet,
 .home-knowledge-swiper .swiper-pagination-bullet {
   width: 0.7rem;
   height: 0.7rem;
   margin-inline: 0.3rem;
-  background: var(--primary-deep-foreground);
+  background: var(--primary);
   opacity: 0.45;
 }
 
-.home-hero-swiper .swiper-pagination-bullet-active,
 .home-knowledge-swiper .swiper-pagination-bullet-active {
   background: var(--accent);
   opacity: 1;
-}
-
-.home-knowledge-swiper .swiper-pagination-bullet {
-  background: var(--primary);
 }

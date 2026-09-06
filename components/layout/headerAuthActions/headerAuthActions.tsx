@@ -82,7 +82,7 @@ export function HeaderAuthActions({
     <div className={cn("hidden items-center gap-2 lg:flex", className)}>
       <Button
         asChild
-        variant="ghost"
+        variant="danger"
         className="text-primary-deep-foreground hover:bg-primary-foreground/10 hover:text-primary-deep-foreground"
       >
         <Link href={engineerLoginNavigation.href}>
