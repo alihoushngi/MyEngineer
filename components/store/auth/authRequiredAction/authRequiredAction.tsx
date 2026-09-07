@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { type ReactNode } from "react";
+
 import { Button } from "@/components/ui/button/button";
+
 import { userLoginHref } from "@/lib/auth/safe-user-next/safe-user-next";
 
 type AuthRequiredActionProps = {
@@ -35,7 +37,7 @@ export function AuthRequiredAction({
   if (!isAuthenticated) {
     return (
       <Button asChild variant={variant} size={size} className={className}>
-        <Link href={loginHref}>
+        <Link href={loginHref} className="gap-2">
           {icon}
           {label}
         </Link>
