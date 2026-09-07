@@ -1,6 +1,9 @@
 import { type ReactNode } from "react";
+
 import { UserUnauthorized } from "@/components/store/userAccount/userUnauthorized/userUnauthorized";
+
 import { userAuthPaths } from "@/config/user-auth.config/user-auth.config";
+
 import { type UserAccessResult } from "@/types/store/user-auth.types";
 
 type UserAuthGuardProps = {

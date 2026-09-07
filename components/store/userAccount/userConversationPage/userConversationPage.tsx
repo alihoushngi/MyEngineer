@@ -1,14 +1,17 @@
 import Link from "next/link";
-import { AccountPageHeader } from "@/components/store/userAccount/accountPageHeader/accountPageHeader";
-import { UserConversationRow } from "@/components/store/userAccount/userConversationRow/userConversationRow";
+
 import { MessagingConversationPane } from "@/components/store/messaging/messagingConversationPane/messagingConversationPane";
 import { MessagingSplitLayout } from "@/components/store/messaging/messagingSplitLayout/messagingSplitLayout";
+import { AccountPageHeader } from "@/components/store/userAccount/accountPageHeader/accountPageHeader";
+import { UserConversationRow } from "@/components/store/userAccount/userConversationRow/userConversationRow";
 import { Button } from "@/components/ui/button/button";
+
 import {
   userAccountCopy,
   userAccountPageTitles,
   userAccountPaths,
 } from "@/config/user-account.config/user-account.config";
+
 import {
   type UserConversation,
   type UserMessage,
@@ -26,11 +29,12 @@ export function UserConversationPage({
   conversations,
 }: UserConversationPageProps) {
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-4">
+    <div className="flex min-h-0 flex-1 flex-col gap-5">
       <AccountPageHeader
         title={conversation.participantName}
         description={userAccountCopy.conversationDescription}
       />
+
       <MessagingSplitLayout
         sidebar={conversations.map((item) => (
           <li key={item.id}>

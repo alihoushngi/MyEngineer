@@ -1,9 +1,11 @@
 import { AccountPageHeader } from "@/components/store/userAccount/accountPageHeader/accountPageHeader";
 import { UserRequestList } from "@/components/store/userAccount/userRequestList/userRequestList";
+
 import {
   userAccountCopy,
   userAccountPageTitles,
 } from "@/config/user-account.config/user-account.config";
+
 import { type UserRequest } from "@/types/store/user-account.types";
 
 type UserRequestsPageProps = {

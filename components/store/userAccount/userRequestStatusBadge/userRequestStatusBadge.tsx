@@ -1,5 +1,7 @@
 import { Badge } from "@/components/ui/badge/badge";
+
 import { userAccountCopy } from "@/config/user-account.config/user-account.config";
+
 import { type UserRequestStatus } from "@/types/store/user-account.types";
 
 export function userRequestStatusBadge(status: UserRequestStatus): {
@@ -8,12 +10,17 @@ export function userRequestStatusBadge(status: UserRequestStatus): {
 } {
   switch (status) {
     case "sent":
-      return { label: userAccountCopy.requestStatusSent, variant: "info" };
+      return {
+        label: userAccountCopy.requestStatusSent,
+        variant: "info",
+      };
+
     case "in_review":
       return {
         label: userAccountCopy.requestStatusInReview,
         variant: "warning",
       };
+
     case "closed":
       return {
         label: userAccountCopy.requestStatusClosed,
@@ -28,5 +35,10 @@ export function UserRequestStatusBadge({
   status: UserRequestStatus;
 }) {
   const badge = userRequestStatusBadge(status);
-  return <Badge variant={badge.variant}>{badge.label}</Badge>;
+
+  return (
+    <Badge variant={badge.variant} className="rounded-lg">
+      {badge.label}
+    </Badge>
+  );
 }

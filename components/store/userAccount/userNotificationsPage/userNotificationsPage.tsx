@@ -1,12 +1,17 @@
+import { BellIcon } from "lucide-react";
+
 import { Pagination } from "@/components/common/pagination/pagination";
 import { NotificationLink } from "@/components/store/notifications/notificationLink/notificationLink";
 import { AccountPageHeader } from "@/components/store/userAccount/accountPageHeader/accountPageHeader";
 import { Empty } from "@/components/ui/empty/empty";
+
 import {
   userAccountCopy,
   userAccountPageTitles,
 } from "@/config/user-account.config/user-account.config";
+
 import { type PaginatedItems } from "@/lib/pagination/paginate-items/paginate-items";
+
 import { type UserNotification } from "@/types/store/user-account.types";
 
 type UserNotificationsPageProps = {
@@ -26,11 +31,17 @@ export function UserNotificationsPage({
         title={userAccountPageTitles.notifications}
         description={userAccountCopy.notificationsDescription}
       />
+
       {pagination.total === 0 ? (
-        <Empty title={userAccountCopy.emptyNotifications} />
+        <div className="rounded-3xl border border-border-subtle bg-surface p-3 shadow-xs">
+          <Empty
+            icon={<BellIcon aria-hidden="true" />}
+            title={userAccountCopy.emptyNotifications}
+          />
+        </div>
       ) : (
         <>
-          <ul className="divide-y divide-border rounded-lg border border-border bg-surface">
+          <ul className="rounded-3xl border border-border-subtle bg-surface p-2 shadow-xs">
             {notifications.map((item) => (
               <li key={item.id}>
                 <NotificationLink
@@ -38,19 +49,21 @@ export function UserNotificationsPage({
                   href={item.href}
                   isRead={item.isRead}
                 >
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <p className="type-body font-medium text-foreground">
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <p className="type-body-sm font-semibold text-foreground">
                       {item.title}
                     </p>
-                    <p className="type-caption text-muted-foreground">
+                    <p className="type-caption text-foreground-subtle">
                       {item.createdAtLabel}
                     </p>
                   </div>
-                  <p className="type-body-sm text-muted-foreground">
+
+                  <p className="type-body-sm leading-relaxed text-foreground-muted">
                     {item.body}
                   </p>
+
                   {!item.isRead ? (
-                    <span className="type-caption text-primary">
+                    <span className="type-caption font-medium text-primary">
                       {userAccountCopy.unreadLabel}
                     </span>
                   ) : null}
@@ -58,6 +71,7 @@ export function UserNotificationsPage({
               </li>
             ))}
           </ul>
+
           <Pagination
             page={pagination.page}
             pageCount={pagination.pageCount}
