@@ -1,6 +1,8 @@
 import { IphoneStepVisual } from "@/components/store/install/iphoneInstallGuide/iphoneStepVisual";
 import { Card } from "@/components/ui/card/card";
 
+import { formatFaNumber } from "@/lib/format/format-fa-number/format-fa-number";
+
 const installSteps = [
   {
     title: "صفحه را در Safari باز کنید",
@@ -19,7 +21,7 @@ const installSteps = [
     description: (
       <>
         در فهرست بازشده گزینه{" "}
-        <bdi dir="ltr" className="font-medium">
+        <bdi dir="ltr" className="font-semibold text-foreground">
           Add to Home Screen
         </bdi>{" "}
         را پیدا کنید. اگر دیده نمی‌شود، فهرست را به پایین پیمایش کنید.
@@ -37,8 +39,11 @@ const installSteps = [
     title: "روی Add بزنید",
     description: (
       <>
-        دکمه <bdi dir="ltr">Add</bdi> را در بالای صفحه بزنید تا وب‌اپ به صفحه
-        اصلی اضافه شود.
+        دکمه{" "}
+        <bdi dir="ltr" className="font-semibold text-foreground">
+          Add
+        </bdi>{" "}
+        را در بالای صفحه بزنید تا وب‌اپ به صفحه اصلی اضافه شود.
       </>
     ),
     variant: "confirm",
@@ -53,17 +58,22 @@ const installSteps = [
 
 export function IphoneInstallSteps() {
   return (
-    <ol className="grid gap-4 lg:grid-cols-2">
+    <ol className="grid items-stretch gap-4 lg:grid-cols-2">
       {installSteps.map((step, index) => (
-        <li key={step.variant}>
-          <Card className="h-full gap-5 sm:flex-row sm:items-center">
+        <li key={step.variant} className="h-full">
+          <Card className="group flex h-full flex-col gap-6 rounded-3xl border border-border-subtle bg-surface p-5 shadow-xs transition-all duration-200 ease-in-out hover:-translate-y-1 hover:border-primary/15 hover:shadow-md motion-reduce:transform-none sm:flex-row sm:items-center sm:p-6">
             <IphoneStepVisual variant={step.variant} />
+
             <div className="min-w-0 flex-1">
-              <span className="mb-3 inline-flex size-9 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
-                {index + 1}
+              <span className="mb-4 inline-flex size-9 items-center justify-center rounded-xl bg-primary type-body-sm font-semibold text-primary-foreground shadow-xs">
+                {formatFaNumber(index + 1)}
               </span>
-              <h2 className="type-h3">{step.title}</h2>
-              <p className="mt-2 type-body-sm text-muted-foreground">
+
+              <h2 className="type-h3 text-foreground transition-all duration-200 ease-in-out group-hover:text-primary">
+                {step.title}
+              </h2>
+
+              <p className="mt-2 type-body-sm leading-relaxed text-foreground-muted">
                 {step.description}
               </p>
             </div>

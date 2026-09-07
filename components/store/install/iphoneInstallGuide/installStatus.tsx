@@ -1,7 +1,8 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
 import { CircleCheckIcon, InfoIcon } from "lucide-react";
+import { useSyncExternalStore } from "react";
+
 import {
   Alert,
   AlertDescription,
@@ -10,8 +11,18 @@ import {
 
 type InstallStatus = "browser" | "standalone" | "supported" | "unknown";
 
-function subscribe() {
-  return () => undefined;
+const standaloneMediaQuery = "(display-mode: standalone)";
+
+function subscribe(onStoreChange: () => void) {
+  const mediaQuery = window.matchMedia(standaloneMediaQuery);
+
+  mediaQuery.addEventListener("change", onStoreChange);
+  window.addEventListener("pageshow", onStoreChange);
+
+  return () => {
+    mediaQuery.removeEventListener("change", onStoreChange);
+    window.removeEventListener("pageshow", onStoreChange);
+  };
 }
 
 function detectInstallStatus(): InstallStatus {
@@ -23,14 +34,23 @@ function detectInstallStatus(): InstallStatus {
   const isSafari =
     /WebKit/.test(userAgent) && !/CriOS|FxiOS|EdgiOS|OPiOS/.test(userAgent);
   const isStandalone =
-    window.matchMedia("(display-mode: standalone)").matches ||
+    window.matchMedia(standaloneMediaQuery).matches ||
     Boolean(
       (window.navigator as Navigator & { standalone?: boolean }).standalone,
     );
 
-  if (isStandalone) return "standalone";
-  if (isIOS && !isSafari) return "browser";
-  if (isIOS && isSafari) return "supported";
+  if (isStandalone) {
+    return "standalone";
+  }
+
+  if (isIOS && !isSafari) {
+    return "browser";
+  }
+
+  if (isIOS && isSafari) {
+    return "supported";
+  }
+
   return "unknown";
 }
 
@@ -43,7 +63,7 @@ export function InstallStatusBanner() {
 
   if (status === "standalone") {
     return (
-      <Alert variant="success">
+      <Alert variant="success" className="rounded-2xl shadow-xs">
         <CircleCheckIcon aria-hidden="true" />
         <AlertTitle>مهندس من به‌صورت مستقل باز شده است</AlertTitle>
         <AlertDescription>
@@ -55,7 +75,7 @@ export function InstallStatusBanner() {
 
   if (status === "browser") {
     return (
-      <Alert variant="info">
+      <Alert variant="info" className="rounded-2xl shadow-xs">
         <InfoIcon aria-hidden="true" />
         <AlertTitle>این صفحه را در Safari باز کنید</AlertTitle>
         <AlertDescription>
