@@ -23,9 +23,9 @@ const buttonVariants = cva(
 
     outline-none
 
-    transition-[background-color,border-color,color,box-shadow,transform,opacity]
-    duration-(--duration-fast)
-    ease-[var(--ease-standard)]
+    transition-all
+    duration-200
+    ease-in-out
 
     focus-visible:ring-2
     focus-visible:ring-ring
