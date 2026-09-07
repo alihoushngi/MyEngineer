@@ -24,5 +24,6 @@ const ICONS: Record<UserAccountNavIconName, LucideIcon> = {
 
 export function AccountNavIcon({ name }: { name: UserAccountNavIconName }) {
   const Icon = ICONS[name];
-  return <Icon aria-hidden="true" className="size-4 shrink-0" />;
+
+  return <Icon aria-hidden="true" className="size-4 shrink-0 stroke-[1.8]" />;
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { ArrowLeftIcon } from "lucide-react";
 import { SheetClose } from "@/components/ui/sheet/sheet";
 import { cn } from "@/lib/utils/cn/cn";
 
@@ -17,13 +18,19 @@ export function MobileNavLink({ href, label, isActive }: MobileNavLinkProps) {
         href={href}
         aria-current={isActive ? "page" : undefined}
         className={cn(
-          "flex min-h-11 items-center rounded-md px-3 type-body",
-          "text-foreground transition-colors hover:bg-primary-subtle",
-          "focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
-          isActive && "bg-primary-subtle font-medium text-primary",
+          "group flex min-h-12 items-center justify-between gap-3 rounded-2xl px-3 type-body text-foreground outline-none transition-all duration-200 ease-in-out hover:bg-surface-muted focus-visible:ring-2 focus-visible:ring-ring",
+          isActive &&
+            "bg-primary-subtle font-semibold text-primary hover:bg-primary-subtle",
         )}
       >
-        {label}
+        <span>{label}</span>
+        <ArrowLeftIcon
+          aria-hidden="true"
+          className={cn(
+            "size-4 shrink-0 text-foreground-subtle transition-all duration-200 ease-in-out group-hover:-translate-x-1 group-hover:text-primary motion-reduce:transform-none",
+            isActive && "text-primary",
+          )}
+        />
       </Link>
     </SheetClose>
   );

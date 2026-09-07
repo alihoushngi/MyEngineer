@@ -17,9 +17,11 @@ export async function StoreHeader({ selectedCityLabel }: StoreHeaderProps) {
     getUserSession(),
     getEngineerSession(),
   ]);
+
   const unreadNotificationCount = userSession
     ? unreadCount(await readRecipientNotifications("user", mockCurrentUser.id))
     : 0;
+
   const authChrome = toStoreAuthChrome({
     userSession,
     engineerSession,
@@ -27,11 +29,11 @@ export async function StoreHeader({ selectedCityLabel }: StoreHeaderProps) {
   });
 
   return (
-    <header className="sticky top-0 z-40 border-b border-primary-foreground/10 bg-primary-deep pt-[env(safe-area-inset-top)] text-primary-deep-foreground shadow-sm">
-      <div className="container-app flex min-w-0 items-center gap-2 py-3 sm:gap-3 lg:gap-6 lg:py-3">
-        <BrandLogo className="min-w-0 max-w-[8.5rem] truncate text-primary-deep-foreground sm:max-w-none" />
+    <header className="sticky top-0 z-40 border-b border-primary-deep-foreground/10 bg-primary-deep/95 pt-[env(safe-area-inset-top)] text-primary-deep-foreground shadow-sm backdrop-blur-xl">
+      <div className="container-app flex min-w-0 items-center gap-1.5 py-2 sm:gap-2 sm:py-2.5 lg:gap-4">
+        <BrandLogo className="min-w-0 max-w-34 text-primary-deep-foreground sm:max-w-none" />
         <HeaderNavigation />
-        <div className="ms-auto flex items-center gap-1 text-primary-deep-foreground sm:gap-2 [&>button]:text-primary-deep-foreground [&>button]:hover:bg-primary-foreground/10 [&>button]:hover:text-primary-deep-foreground sm:[&>a]:border-primary-foreground/40 sm:[&>a]:text-primary-deep-foreground">
+        <div className="ms-auto flex min-w-0 items-center gap-1 sm:gap-1.5">
           <HeaderSearchButton />
           <HeaderCityButton selectedCityLabel={selectedCityLabel} />
           <HeaderAuthActions chrome={authChrome} />

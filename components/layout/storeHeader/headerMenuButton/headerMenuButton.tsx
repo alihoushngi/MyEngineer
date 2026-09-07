@@ -19,17 +19,16 @@ export function HeaderMenuButton({ authChrome }: HeaderMenuButtonProps) {
         type="button"
         variant="ghost"
         size="icon"
-        className="xl:hidden"
+        className="rounded-xl text-primary-deep-foreground/75 transition-all duration-200 ease-in-out hover:bg-primary-deep-foreground/8 hover:text-primary-deep-foreground focus-visible:ring-offset-primary-deep xl:hidden"
         aria-label="منو"
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-controls="mobile-navigation"
-        onClick={() => {
-          setOpen(true);
-        }}
+        onClick={() => setOpen(true)}
       >
-        <MenuIcon aria-hidden="true" />
+        <MenuIcon aria-hidden="true" className="size-5" />
       </Button>
+
       <MobileNavigation
         open={open}
         onOpenChange={setOpen}

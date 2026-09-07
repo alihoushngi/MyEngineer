@@ -20,11 +20,9 @@ import { cn } from "@/lib/utils/cn/cn";
 
 function navLinkClassName(isActive: boolean) {
   return cn(
-    "inline-flex min-h-11 items-center rounded-md px-3 type-body-sm outline-none",
-    "text-primary-foreground/70 transition-colors hover:bg-primary-foreground/10 hover:text-primary-foreground",
-    "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+    "relative inline-flex min-h-10 items-center rounded-xl px-3 type-body-sm font-medium text-primary-deep-foreground/65 outline-none transition-all duration-200 ease-in-out hover:bg-primary-deep-foreground/8 hover:text-primary-deep-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-primary-deep after:absolute after:inset-x-3 after:bottom-0 after:h-0.5 after:scale-x-0 after:rounded-full after:bg-primary after:transition-all after:duration-200 after:ease-in-out",
     isActive &&
-      "bg-primary-foreground/10 font-semibold text-primary-foreground",
+      "bg-primary-deep-foreground/8 font-semibold text-primary-deep-foreground after:scale-x-100",
   );
 }
 
@@ -36,7 +34,7 @@ export function HeaderNavigation() {
 
   return (
     <nav aria-label="ناوبری اصلی" className="hidden xl:block">
-      <ul className="flex items-center gap-1">
+      <ul className="flex items-center gap-0.5">
         {homeLink ? (
           <li>
             <Link
@@ -52,6 +50,7 @@ export function HeaderNavigation() {
             </Link>
           </li>
         ) : null}
+
         <li>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -59,17 +58,21 @@ export function HeaderNavigation() {
                 type="button"
                 variant="ghost"
                 className={cn(
-                  "px-3 type-body-sm text-primary-foreground/70 hover:bg-primary-foreground/10 hover:text-primary-foreground",
+                  "group min-h-10 rounded-xl px-3 type-body-sm font-medium text-primary-deep-foreground/65 transition-all duration-200 ease-in-out hover:bg-primary-deep-foreground/8 hover:text-primary-deep-foreground focus-visible:ring-offset-primary-deep",
                   servicesActive &&
-                    "bg-primary-foreground/10 font-semibold text-primary-foreground",
+                    "bg-primary-deep-foreground/8 font-semibold text-primary-deep-foreground",
                 )}
                 aria-current={servicesActive ? "true" : undefined}
               >
                 {servicesNavigation.label}
-                <ChevronDownIcon aria-hidden="true" className="size-4" />
+                <ChevronDownIcon
+                  aria-hidden="true"
+                  className="size-4 transition-all duration-200 ease-in-out group-data-[state=open]:rotate-180 motion-reduce:transform-none"
+                />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="min-w-52">
+
+            <DropdownMenuContent align="start" className="min-w-56">
               {servicesNavigation.items.map((item) => {
                 const isActive = isActivePath(pathname, item.href);
 
@@ -78,7 +81,11 @@ export function HeaderNavigation() {
                     <Link
                       href={item.href}
                       aria-current={isActive ? "page" : undefined}
-                      className={cn(isActive && "font-medium text-foreground")}
+                      className={cn(
+                        "transition-all duration-200 ease-in-out",
+                        isActive &&
+                          "bg-primary-subtle font-semibold text-primary",
+                      )}
                     >
                       {item.label}
                     </Link>
@@ -88,6 +95,7 @@ export function HeaderNavigation() {
             </DropdownMenuContent>
           </DropdownMenu>
         </li>
+
         {restLinks.map((item) => {
           const isActive = isActivePath(pathname, item.href);
 

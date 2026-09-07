@@ -29,12 +29,12 @@ export function HeaderAuthActions({
 }: HeaderAuthActionsProps) {
   if (chrome.status === "user") {
     return (
-      <div className={cn("hidden items-center gap-1 lg:flex", className)}>
+      <div className={cn("hidden items-center gap-1.5 lg:flex", className)}>
         <Button
           asChild
           variant="ghost"
           size="icon"
-          className="relative text-primary-deep-foreground hover:bg-primary-foreground/10 hover:text-primary-deep-foreground"
+          className="relative rounded-xl text-primary-deep-foreground/75 transition-all duration-200 ease-in-out hover:bg-primary-deep-foreground/8 hover:text-primary-deep-foreground focus-visible:ring-offset-primary-deep"
         >
           <Link
             href={userAccountPaths.notifications}
@@ -42,7 +42,7 @@ export function HeaderAuthActions({
           >
             <BellIcon aria-hidden="true" />
             {chrome.unreadNotificationCount > 0 ? (
-              <span className="absolute top-1 end-1 size-2 rounded-full bg-accent">
+              <span className="absolute inset-e-2 top-2 size-2 rounded-full bg-accent ring-2 ring-primary-deep">
                 <span className="sr-only">
                   {userAccountPageTitles.notifications}
                 </span>
@@ -50,9 +50,14 @@ export function HeaderAuthActions({
             ) : null}
           </Link>
         </Button>
-        <Button asChild variant="secondary">
+
+        <Button
+          asChild
+          variant="secondary"
+          className="min-h-10 rounded-xl px-2.5 pe-4 shadow-none transition-all duration-200 ease-in-out hover:-translate-y-0.5 hover:shadow-sm motion-reduce:transform-none"
+        >
           <Link href={userAuthPaths.account} className="gap-2">
-            <Avatar size="sm" className="size-7">
+            <Avatar size="sm" className="size-7 border-primary/15">
               <AvatarFallback className="bg-primary text-primary-foreground type-caption">
                 {getDisplayInitials(chrome.displayName)}
               </AvatarFallback>
@@ -69,7 +74,10 @@ export function HeaderAuthActions({
       <Button
         asChild
         variant="secondary"
-        className={cn("hidden lg:inline-flex", className)}
+        className={cn(
+          "hidden min-h-10 rounded-xl shadow-none transition-all duration-200 ease-in-out hover:-translate-y-0.5 hover:shadow-sm lg:inline-flex motion-reduce:transform-none",
+          className,
+        )}
       >
         <Link href={engineerPanelNavigation.href}>
           {engineerPanelNavigation.label}
@@ -79,17 +87,22 @@ export function HeaderAuthActions({
   }
 
   return (
-    <div className={cn("hidden items-center gap-2 lg:flex", className)}>
+    <div className={cn("hidden items-center gap-1.5 lg:flex", className)}>
       <Button
         asChild
-        variant="danger"
-        className="text-primary-deep-foreground hover:bg-primary-foreground/10 hover:text-primary-deep-foreground"
+        variant="ghost"
+        className="min-h-10 rounded-xl px-4 text-primary-deep-foreground/70 transition-all duration-200 ease-in-out hover:bg-primary-deep-foreground/8 hover:text-primary-deep-foreground focus-visible:ring-offset-primary-deep"
       >
         <Link href={engineerLoginNavigation.href}>
           {engineerLoginNavigation.label}
         </Link>
       </Button>
-      <Button asChild variant="secondary">
+
+      <Button
+        asChild
+        variant="secondary"
+        className="min-h-10 rounded-xl shadow-none transition-all duration-200 ease-in-out hover:-translate-y-0.5 hover:shadow-sm motion-reduce:transform-none"
+      >
         <Link href={userAuthPaths.login}>{userAuthCopy.loginCta}</Link>
       </Button>
     </div>

@@ -1,4 +1,4 @@
-import { CircleAlertIcon } from "lucide-react";
+import { CircleAlertIcon, RotateCcwIcon } from "lucide-react";
 import {
   Alert,
   AlertDescription,
@@ -21,19 +21,22 @@ export function EngineerActionError({
   }
 
   return (
-    <Alert variant="danger">
-      <CircleAlertIcon />
+    <Alert variant="danger" className="rounded-2xl">
+      <CircleAlertIcon aria-hidden="true" />
       <AlertTitle>عملیات انجام نشد</AlertTitle>
+
       <AlertDescription>
         <p>{message}</p>
+
         {onRetry ? (
           <Button
             type="button"
             variant="outline"
             size="sm"
-            className="mt-3"
+            className="mt-3 gap-2 transition-all duration-200 ease-in-out"
             onClick={onRetry}
           >
+            <RotateCcwIcon aria-hidden="true" className="size-4" />
             {engineerPanelCopy.retryLabel}
           </Button>
         ) : null}

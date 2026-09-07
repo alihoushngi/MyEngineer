@@ -13,32 +13,30 @@ export function HeaderSearchButton() {
       <Button
         type="button"
         variant="ghost"
-        className="hidden justify-start gap-2 px-3 text-primary-deep-foreground/80 lg:inline-flex"
+        className="hidden min-h-10 justify-start gap-2 rounded-xl px-3 text-primary-deep-foreground/70 transition-all duration-200 ease-in-out hover:bg-primary-deep-foreground/8 hover:text-primary-deep-foreground focus-visible:ring-offset-primary-deep lg:inline-flex"
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-controls="search-surface"
-        onClick={() => {
-          setOpen(true);
-        }}
+        onClick={() => setOpen(true)}
       >
-        <SearchIcon aria-hidden="true" />
+        <SearchIcon aria-hidden="true" className="size-4" />
         جستجو
       </Button>
+
       <Button
         type="button"
         variant="ghost"
         size="icon"
-        className="lg:hidden"
+        className="rounded-xl text-primary-deep-foreground/75 transition-all duration-200 ease-in-out hover:bg-primary-deep-foreground/8 hover:text-primary-deep-foreground focus-visible:ring-offset-primary-deep lg:hidden"
         aria-label="جستجو"
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-controls="search-surface"
-        onClick={() => {
-          setOpen(true);
-        }}
+        onClick={() => setOpen(true)}
       >
-        <SearchIcon aria-hidden="true" />
+        <SearchIcon aria-hidden="true" className="size-5" />
       </Button>
+
       <SearchSurface open={open} onOpenChange={setOpen} />
     </>
   );

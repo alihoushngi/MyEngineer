@@ -12,6 +12,7 @@ import {
   StarIcon,
   UserIcon,
 } from "lucide-react";
+
 import { type EngineerNavIconName } from "@/config/engineer-panel.config/engineer-panel.config";
 
 const ICONS: Record<EngineerNavIconName, LucideIcon> = {
@@ -30,5 +31,6 @@ const ICONS: Record<EngineerNavIconName, LucideIcon> = {
 
 export function EngineerNavIcon({ name }: { name: EngineerNavIconName }) {
   const Icon = ICONS[name];
-  return <Icon aria-hidden="true" className="size-4 shrink-0" />;
+
+  return <Icon aria-hidden="true" className="size-4 shrink-0 stroke-[1.8]" />;
 }
