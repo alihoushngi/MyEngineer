@@ -4,11 +4,14 @@ import { SearchEmptyState } from "@/components/store/search/searchEmptyState/sea
 import { SearchHeader } from "@/components/store/search/searchHeader/searchHeader";
 import { SearchResults } from "@/components/store/search/searchResults/searchResults";
 import { SearchSummary } from "@/components/store/search/searchSummary/searchSummary";
+
+import { storePaths } from "@/config/navigation.config/navigation.config";
 import { searchCopy } from "@/config/search.config/search.config";
 import { siteConfig } from "@/config/site.config/site.config";
-import { storePaths } from "@/config/navigation.config/navigation.config";
+
 import { paginateItems } from "@/lib/pagination/paginate-items/paginate-items";
 import { buildSearchHref } from "@/lib/search/search-params/search-params";
+
 import {
   type SearchCatalogResult,
   type SearchQueryState,
@@ -24,9 +27,12 @@ export function SearchResultsPage({
   result,
 }: SearchResultsPageProps) {
   const { q, cities, page } = queryState;
+
   const hasQuery = q !== "";
   const hasResults = result.services.length > 0 || result.experts.length > 0;
+
   const expertPagination = paginateItems(result.experts, page);
+
   const paginationQuery = new URLSearchParams();
 
   if (q !== "") {
@@ -42,30 +48,41 @@ export function SearchResultsPage({
   }
 
   return (
-    <div className="container-app flex flex-col gap-8 py-page">
+    <div className="container-app flex flex-col gap-7 py-page sm:gap-8">
       <StoreBreadcrumb
         items={[
-          { label: "خانه", href: siteConfig.homeHref },
-          { label: searchCopy.breadcrumb },
+          {
+            label: "خانه",
+            href: siteConfig.homeHref,
+          },
+          {
+            label: searchCopy.breadcrumb,
+          },
         ]}
       />
+
       <SearchHeader initialQuery={q} cities={cities} />
-      <SearchSummary
-        query={q}
-        serviceCount={result.services.length}
-        expertCount={result.experts.length}
-      />
-      <ActiveFilters
-        items={cities.map((city) => ({
-          id: city,
-          label: city,
-          href: buildSearchHref({
-            q,
-            cities: cities.filter((item) => item !== city),
-          }),
-        }))}
-        clearHref={buildSearchHref({ q })}
-      />
+
+      <div className="space-y-3">
+        <SearchSummary
+          query={q}
+          serviceCount={result.services.length}
+          expertCount={result.experts.length}
+        />
+
+        <ActiveFilters
+          items={cities.map((city) => ({
+            id: city,
+            label: city,
+            href: buildSearchHref({
+              q,
+              cities: cities.filter((item) => item !== city),
+            }),
+          }))}
+          clearHref={buildSearchHref({ q })}
+        />
+      </div>
+
       {hasQuery && hasResults ? (
         <SearchResults
           services={result.services}
