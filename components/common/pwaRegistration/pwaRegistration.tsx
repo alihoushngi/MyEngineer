@@ -2,17 +2,43 @@
 
 import { useEffect } from "react";
 
+import { resolveServiceWorkerAction } from "@/lib/pwa/resolve-service-worker-action/resolve-service-worker-action";
+
+const CACHE_PREFIX = "mohandes-man-";
+
+async function unregisterStaleServiceWorkers() {
+  const registrations = await navigator.serviceWorker.getRegistrations();
+  await Promise.all(
+    registrations.map((registration) => registration.unregister()),
+  );
+
+  if (!("caches" in window)) {
+    return;
+  }
+
+  const cacheNames = await caches.keys();
+  await Promise.all(
+    cacheNames
+      .filter((name) => name.startsWith(CACHE_PREFIX))
+      .map((name) => caches.delete(name)),
+  );
+}
+
 export function PwaRegistration() {
   useEffect(() => {
-    const isLocalhost =
-      window.location.hostname === "localhost" ||
-      window.location.hostname === "127.0.0.1";
+    const action = resolveServiceWorkerAction({
+      nodeEnv: process.env.NODE_ENV,
+      hasServiceWorker: "serviceWorker" in navigator,
+      isSecureContext: window.isSecureContext,
+      hostname: window.location.hostname,
+    });
 
-    if (
-      process.env.NODE_ENV !== "production" ||
-      !("serviceWorker" in navigator) ||
-      (!window.isSecureContext && !isLocalhost)
-    ) {
+    if (action === "none") {
+      return;
+    }
+
+    if (action === "unregister") {
+      void unregisterStaleServiceWorkers();
       return;
     }
 
