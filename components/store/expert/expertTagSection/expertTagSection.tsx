@@ -18,16 +18,17 @@ export function ExpertTagSection({
 
   return (
     <section aria-labelledby={titleId} className="py-8 first:pt-0">
-      <div className="space-y-6">
-        <SectionHeader titleId={titleId} title={title} />
-        <ul className="flex flex-wrap gap-2">
-          {items.map((item) => (
-            <li key={item}>
-              <Badge variant="secondary">{item}</Badge>
-            </li>
-          ))}
-        </ul>
-      </div>
+      <SectionHeader titleId={titleId} title={title} />
+
+      <ul className="mt-6 flex flex-wrap gap-2">
+        {items.map((item) => (
+          <li key={item}>
+            <Badge variant="secondary" className="min-h-8 px-3">
+              {item}
+            </Badge>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }

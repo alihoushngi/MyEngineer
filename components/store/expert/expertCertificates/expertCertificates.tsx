@@ -1,7 +1,8 @@
+import { AwardIcon } from "lucide-react";
 import { SectionHeader } from "@/components/common/sectionHeader/sectionHeader";
 import { expertProfileCopy } from "@/config/experts.config/experts.config";
-import { type ExpertCertificate } from "@/types/store/expert.types";
 import { hasItems } from "@/lib/experts/expert-profile/expert-profile";
+import { type ExpertCertificate } from "@/types/store/expert.types";
 
 type ExpertCertificatesProps = {
   certificates?: readonly ExpertCertificate[];
@@ -17,25 +18,31 @@ export function ExpertCertificates({ certificates }: ExpertCertificatesProps) {
       aria-labelledby="expert-certificates-heading"
       className="py-8 first:pt-0"
     >
-      <div className="max-w-3xl space-y-6">
+      <div className="max-w-3xl">
         <SectionHeader
           titleId="expert-certificates-heading"
           title={expertProfileCopy.certificatesTitle}
         />
-        <ul className="space-y-4">
+
+        <ul className="mt-6 grid gap-3 sm:grid-cols-2">
           {certificates.map((item) => (
             <li
               key={item.id}
-              className="border-b border-border pb-4 last:border-b-0 last:pb-0"
+              className="flex items-start gap-3 rounded-2xl border border-border-subtle bg-surface p-4 shadow-xs"
             >
-              <p className="type-body font-medium text-foreground">
-                {item.title}
-              </p>
-              {item.issuer ? (
-                <p className="mt-1 type-body-sm text-muted-foreground">
-                  {item.issuer}
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary-subtle text-primary">
+                <AwardIcon aria-hidden="true" className="size-4" />
+              </span>
+              <div className="min-w-0">
+                <p className="type-body font-semibold text-foreground">
+                  {item.title}
                 </p>
-              ) : null}
+                {item.issuer ? (
+                  <p className="mt-1 type-body-sm text-foreground-muted">
+                    {item.issuer}
+                  </p>
+                ) : null}
+              </div>
             </li>
           ))}
         </ul>

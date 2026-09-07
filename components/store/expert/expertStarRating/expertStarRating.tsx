@@ -16,16 +16,17 @@ export function ExpertStarRating({
   const filled = getFilledStarCount(rating);
 
   return (
-    <p className={cn("flex items-center gap-1", className)} aria-label={label}>
+    <p
+      className={cn("flex items-center gap-0.5", className)}
+      aria-label={label}
+    >
       {Array.from({ length: 5 }, (_, index) => (
         <StarIcon
           key={index}
           aria-hidden="true"
           className={cn(
             "size-4",
-            index < filled
-              ? "fill-accent text-accent"
-              : "text-muted-foreground",
+            index < filled ? "fill-accent text-accent" : "text-border-strong",
           )}
         />
       ))}

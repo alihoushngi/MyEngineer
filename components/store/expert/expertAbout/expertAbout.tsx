@@ -1,8 +1,9 @@
 "use client";
 
+import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import { useState } from "react";
-import { Button } from "@/components/ui/button/button";
 import { SectionHeader } from "@/components/common/sectionHeader/sectionHeader";
+import { Button } from "@/components/ui/button/button";
 import { expertProfileCopy } from "@/config/experts.config/experts.config";
 
 const COLLAPSE_LENGTH = 180;
@@ -25,7 +26,7 @@ export function ExpertAbout({ about }: ExpertAboutProps) {
           titleId="expert-about-heading"
           title={expertProfileCopy.aboutTitle}
         />
-        <p className="mt-6 type-body text-muted-foreground">
+        <p className="mt-6 rounded-2xl bg-surface-subtle p-4 type-body text-foreground-muted">
           {expertProfileCopy.aboutEmpty}
         </p>
       </section>
@@ -40,33 +41,40 @@ export function ExpertAbout({ about }: ExpertAboutProps) {
 
   return (
     <section aria-labelledby="expert-about-heading" className="py-8 first:pt-0">
-      <div className="max-w-3xl space-y-6">
+      <div className="max-w-3xl">
         <SectionHeader
           titleId="expert-about-heading"
           title={expertProfileCopy.aboutTitle}
         />
-        <div className="space-y-4">
+
+        <div className="mt-6 space-y-4">
           {visibleText.split("\n\n").map((paragraph) => (
             <p
               key={paragraph.slice(0, 24)}
-              className="type-body leading-loose text-foreground"
+              className="type-body leading-loose text-foreground-muted"
             >
               {paragraph}
             </p>
           ))}
         </div>
+
         {canCollapse ? (
           <Button
             type="button"
             variant="ghost"
-            onClick={() => {
-              setExpanded((current) => !current);
-            }}
+            size="sm"
+            className="mt-4 gap-2 px-2"
+            onClick={() => setExpanded((current) => !current)}
             aria-expanded={expanded}
           >
             {expanded
               ? expertProfileCopy.aboutCollapse
               : expertProfileCopy.aboutExpand}
+            {expanded ? (
+              <ChevronUpIcon aria-hidden="true" className="size-4" />
+            ) : (
+              <ChevronDownIcon aria-hidden="true" className="size-4" />
+            )}
           </Button>
         ) : null}
       </div>

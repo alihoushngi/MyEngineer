@@ -18,22 +18,27 @@ export function RelatedExperts({ experts, excludeId }: RelatedExpertsProps) {
   return (
     <section
       aria-labelledby="related-experts-heading"
-      className="border-t border-border bg-surface-muted"
+      className="relative isolate overflow-hidden border-t border-border-subtle bg-surface-subtle py-section"
     >
-      <div className="container-app py-page">
-        <div className="space-y-8">
-          <SectionHeader
-            titleId="related-experts-heading"
-            title={expertProfileCopy.relatedTitle}
-          />
-          <ul className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            {items.map((expert) => (
-              <li key={expert.id} className="min-w-0">
-                <ExpertCard expert={expert} />
-              </li>
-            ))}
-          </ul>
-        </div>
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -inset-s-40 top-0 -z-10 size-96 rounded-full bg-primary/5 blur-[130px]"
+      />
+
+      <div className="container-app">
+        <SectionHeader
+          eyebrow="متخصصان پیشنهادی"
+          titleId="related-experts-heading"
+          title={expertProfileCopy.relatedTitle}
+        />
+
+        <ul className="mt-8 grid items-stretch gap-4 md:grid-cols-2">
+          {items.map((expert) => (
+            <li key={expert.id} className="min-w-0">
+              <ExpertCard expert={expert} />
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );

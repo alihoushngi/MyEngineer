@@ -1,8 +1,9 @@
 "use client";
 
+import { InfoIcon } from "lucide-react";
 import { useState, type ReactNode } from "react";
-import { AuthRequiredAction } from "@/components/store/auth/authRequiredAction/authRequiredAction";
 import { ResponsiveDialog } from "@/components/common/responsiveDialog/responsiveDialog";
+import { AuthRequiredAction } from "@/components/store/auth/authRequiredAction/authRequiredAction";
 import { Button } from "@/components/ui/button/button";
 
 type ExpertLegacyFeatureProps = {
@@ -37,18 +38,14 @@ export function ExpertLegacyFeature({
       variant={variant}
       icon={icon}
       className={className}
-      onAuthenticatedClick={() => {
-        setOpen(true);
-      }}
+      onAuthenticatedClick={() => setOpen(true)}
     />
   ) : (
     <Button
       type="button"
       variant={variant}
       className={className}
-      onClick={() => {
-        setOpen(true);
-      }}
+      onClick={() => setOpen(true)}
     >
       {icon}
       {label}
@@ -64,7 +61,15 @@ export function ExpertLegacyFeature({
         description={description}
         onOpenChange={setOpen}
       >
-        <p className="type-body leading-loose text-foreground">{description}</p>
+        <div className="flex items-start gap-3 rounded-2xl bg-surface-subtle p-4">
+          <InfoIcon
+            aria-hidden="true"
+            className="mt-0.5 size-5 shrink-0 text-primary"
+          />
+          <p className="type-body leading-loose text-foreground-muted">
+            {description}
+          </p>
+        </div>
       </ResponsiveDialog>
     </>
   );

@@ -1,9 +1,6 @@
 import { BadgeCheckIcon, CircleDotIcon } from "lucide-react";
-
 import { Badge } from "@/components/ui/badge/badge";
-
 import { expertProfileCopy } from "@/config/experts.config/experts.config";
-
 import { cn } from "@/lib/utils/cn/cn";
 
 type ExpertStatusBadgesProps = {
@@ -22,17 +19,7 @@ export function ExpertStatusBadges({
   }
 
   return (
-    <ul
-      className={cn(
-        `
-          flex
-          flex-wrap
-          items-center
-          gap-1.5
-        `,
-        className,
-      )}
-    >
+    <ul className={cn("flex flex-wrap items-center gap-1.5", className)}>
       {isVerified ? (
         <li>
           <Badge variant="success">
@@ -46,11 +33,7 @@ export function ExpertStatusBadges({
         <li>
           <Badge
             variant="outline"
-            className="
-              border-primary/15
-              bg-primary-subtle/60
-              text-primary
-            "
+            className="border-primary/15 bg-primary-subtle/60 text-primary"
           >
             <CircleDotIcon aria-hidden="true" />
             {expertProfileCopy.activeLabel}

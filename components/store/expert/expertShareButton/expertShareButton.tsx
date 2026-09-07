@@ -1,7 +1,7 @@
 "use client";
 
+import { CheckIcon, Share2Icon } from "lucide-react";
 import { useState } from "react";
-import { Share2Icon } from "lucide-react";
 import { Button } from "@/components/ui/button/button";
 import { expertProfileCopy } from "@/config/experts.config/experts.config";
 
@@ -53,22 +53,29 @@ export function ExpertShareButton({
       <Button
         type="button"
         variant="ghost"
-        className="w-full"
-        onClick={() => {
-          void shareProfile();
-        }}
+        className="w-full transition-all duration-200 ease-in-out border-white text-white"
+        onClick={() => void shareProfile()}
         aria-label={expertProfileCopy.shareLabel}
       >
-        <Share2Icon aria-hidden="true" />
+        {status === "copied" ? (
+          <CheckIcon aria-hidden="true" />
+        ) : (
+          <Share2Icon aria-hidden="true" />
+        )}
         {label}
       </Button>
+
       {status === "error" ? (
-        <p className="mt-2 type-caption text-danger" role="status">
+        <p
+          className="mt-2 rounded-lg bg-danger/10 px-2.5 py-2 type-caption text-danger"
+          role="status"
+        >
           {expertProfileCopy.shareError}
         </p>
       ) : null}
+
       {status === "copied" ? (
-        <p className="mt-2 type-caption text-muted-foreground" role="status">
+        <p className="mt-2 type-caption text-primary" role="status">
           {expertProfileCopy.shareCopied}
         </p>
       ) : null}

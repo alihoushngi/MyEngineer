@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { BookmarkIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { AuthRequiredAction } from "@/components/store/auth/authRequiredAction/authRequiredAction";
 import { marketplaceCopy } from "@/config/marketplace.config/marketplace.config";
 import { useApiMutation } from "@/hooks/use-api-mutation/use-api-mutation";
@@ -42,7 +42,7 @@ export function ExpertSaveButton({
         nextPath={nextPath}
         label={label}
         variant="ghost"
-        className="w-full"
+        className="w-full transition-all duration-200 ease-in-out border-white text-white"
         pressed={saved}
         loading={mutation.isPending}
         icon={
@@ -54,6 +54,7 @@ export function ExpertSaveButton({
         onAuthenticatedClick={() => {
           setError(null);
           setOptimisticSaved(!saved);
+
           void mutation
             .mutateAsync(expertId)
             .then((result) => {
@@ -68,8 +69,12 @@ export function ExpertSaveButton({
             });
         }}
       />
+
       {error ? (
-        <p className="mt-2 type-caption text-danger" role="alert">
+        <p
+          className="mt-2 rounded-lg bg-danger/10 px-2.5 py-2 type-caption text-danger"
+          role="alert"
+        >
           {error}
         </p>
       ) : null}

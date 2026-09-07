@@ -1,5 +1,6 @@
 "use client";
 
+import { StarIcon } from "lucide-react";
 import { useState } from "react";
 import { Pagination } from "@/components/common/pagination/pagination";
 import { SectionHeader } from "@/components/common/sectionHeader/sectionHeader";
@@ -38,49 +39,74 @@ export function ExpertReviews({
       aria-labelledby="expert-reviews-heading"
       className="py-8 first:pt-0"
     >
-      <div className="max-w-3xl space-y-8">
-        <div className="space-y-4">
-          <SectionHeader
-            titleId="expert-reviews-heading"
-            title={`${expertProfileCopy.reviewsTitle} ${expertName}`}
-          />
-          {typeof rating === "number" ? (
-            <div className="flex flex-wrap items-center gap-3">
-              <ExpertStarRating
-                rating={rating}
-                label={`${expertProfileCopy.ratingLabel} ${formatFaNumber(rating)}`}
-              />
-              <ExpertRating rating={rating} reviewCount={count} />
+      <div className="max-w-3xl">
+        <SectionHeader
+          titleId="expert-reviews-heading"
+          title={`${expertProfileCopy.reviewsTitle} ${expertName}`}
+        />
+
+        <div className="mt-6 rounded-2xl border border-border-subtle bg-surface p-5 shadow-xs">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              {typeof rating === "number" ? (
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className="flex size-10 items-center justify-center rounded-xl bg-accent-subtle text-accent">
+                    <StarIcon
+                      aria-hidden="true"
+                      className="size-5 fill-current"
+                    />
+                  </span>
+                  <div>
+                    <ExpertStarRating
+                      rating={rating}
+                      label={`${expertProfileCopy.ratingLabel} ${formatFaNumber(rating)}`}
+                    />
+                    <ExpertRating
+                      rating={rating}
+                      reviewCount={count}
+                      className="mt-1"
+                    />
+                  </div>
+                </div>
+              ) : count !== undefined ? (
+                <p className="type-body-sm text-foreground-muted">
+                  {formatFaNumber(count)} {expertProfileCopy.reviewCountNoun}
+                </p>
+              ) : null}
             </div>
-          ) : count !== undefined ? (
-            <p className="type-body-sm text-muted-foreground">
-              {formatFaNumber(count)} {expertProfileCopy.reviewCountNoun}
-            </p>
-          ) : null}
-          <p className="type-body-sm leading-loose text-muted-foreground">
+
+            {eligibleRequestId ? (
+              <ReviewSubmitDialog requestId={eligibleRequestId} />
+            ) : null}
+          </div>
+
+          <p className="mt-4 type-body-sm leading-loose text-foreground-muted">
             {expertProfileCopy.reviewsIntro}
           </p>
-          {eligibleRequestId ? (
-            <ReviewSubmitDialog requestId={eligibleRequestId} />
-          ) : null}
         </div>
+
         {items.length === 0 ? (
-          <Empty title={expertProfileCopy.reviewsEmpty} />
+          <div className="mt-6">
+            <Empty title={expertProfileCopy.reviewsEmpty} />
+          </div>
         ) : (
           <>
-            <ul className="space-y-6">
+            <ul className="mt-6 grid gap-4">
               {pagination.items.map((review) => (
                 <li key={review.id}>
                   <ExpertReviewCard review={review} />
                 </li>
               ))}
             </ul>
-            <Pagination
-              page={pagination.page}
-              pageCount={pagination.pageCount}
-              ariaLabel={expertProfileCopy.reviewPaginationLabel}
-              onPageChange={setPage}
-            />
+
+            <div className="mt-6">
+              <Pagination
+                page={pagination.page}
+                pageCount={pagination.pageCount}
+                ariaLabel={expertProfileCopy.reviewPaginationLabel}
+                onPageChange={setPage}
+              />
+            </div>
           </>
         )}
       </div>

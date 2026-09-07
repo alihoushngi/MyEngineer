@@ -1,10 +1,5 @@
 import { InfoIcon } from "lucide-react";
 import { StoreBreadcrumb } from "@/components/common/storeBreadcrumb/storeBreadcrumb";
-import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
-} from "@/components/ui/alert/alert";
 import { ExpertAbout } from "@/components/store/expert/expertAbout/expertAbout";
 import { ExpertCertificates } from "@/components/store/expert/expertCertificates/expertCertificates";
 import { ExpertContactCta } from "@/components/store/expert/expertContactCta/expertContactCta";
@@ -18,16 +13,21 @@ import { ExpertSpecialties } from "@/components/store/expert/expertSpecialties/e
 import { ExpertStickyContactBar } from "@/components/store/expert/expertStickyContactBar/expertStickyContactBar";
 import { ExpertTagSection } from "@/components/store/expert/expertTagSection/expertTagSection";
 import { RelatedExperts } from "@/components/store/expert/relatedExperts/relatedExperts";
-import { siteConfig } from "@/config/site.config/site.config";
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@/components/ui/alert/alert";
 import { expertProfileCopy } from "@/config/experts.config/experts.config";
-import { type ExpertProfile } from "@/types/store/expert.types";
-import { type City } from "@/types/store/registration.types";
-import { type RequestExpertOption } from "@/types/store/service-request.types";
+import { siteConfig } from "@/config/site.config/site.config";
 import {
   hasItems,
   hasPublicContact,
   hasText,
 } from "@/lib/experts/expert-profile/expert-profile";
+import { type ExpertProfile } from "@/types/store/expert.types";
+import { type City } from "@/types/store/registration.types";
+import { type RequestExpertOption } from "@/types/store/service-request.types";
 
 type ExpertProfilePageProps = {
   expert: ExpertProfile;
@@ -54,11 +54,11 @@ export function ExpertProfilePage({
     <div
       className={
         hasStickyContact
-          ? "pb-[calc(5.75rem+env(safe-area-inset-bottom))] lg:pb-0"
+          ? "pb-[calc(6.5rem+env(safe-area-inset-bottom))] lg:pb-0"
           : undefined
       }
     >
-      <div className="container-app pt-6 sm:pt-8">
+      <div className="container-app py-5 sm:py-6">
         <StoreBreadcrumb
           items={[
             {
@@ -70,10 +70,11 @@ export function ExpertProfilePage({
           ]}
         />
       </div>
+
       {isDevelopmentPreview ? (
-        <div className="container-app py-6">
-          <Alert variant="warning">
-            <InfoIcon />
+        <div className="container-app pb-6">
+          <Alert variant="warning" className="rounded-2xl">
+            <InfoIcon aria-hidden="true" />
             <AlertTitle>{expertProfileCopy.developmentPreviewTitle}</AlertTitle>
             <AlertDescription>
               {expertProfileCopy.developmentPreviewDescription}
@@ -81,6 +82,7 @@ export function ExpertProfilePage({
           </Alert>
         </div>
       ) : null}
+
       <ExpertProfileHero
         expert={expert}
         expertOption={expertOption}
@@ -88,8 +90,9 @@ export function ExpertProfilePage({
         isUserAuthenticated={isUserAuthenticated}
         isSaved={isSaved}
       />
-      <div className="container-app grid items-start gap-10 py-page lg:grid-cols-[minmax(0,1fr)_19rem] lg:gap-16">
-        <div className="min-w-0 divide-y divide-border">
+
+      <div className="container-app grid items-start gap-10 py-page lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-14">
+        <div className="min-w-0 divide-y divide-border-subtle">
           {hasText(expert.about) ? <ExpertAbout about={expert.about} /> : null}
           {hasItems(expert.specialties) ? (
             <ExpertSpecialties specialties={expert.specialties} />
@@ -130,11 +133,13 @@ export function ExpertProfilePage({
             />
           ) : null}
         </div>
-        <aside className="min-w-0 space-y-8 rounded-lg bg-surface-subtle p-6 lg:sticky lg:top-24">
+
+        <aside className="min-w-0 rounded-3xl border border-border-subtle bg-surface p-5 shadow-sm lg:sticky lg:top-24 lg:p-6">
           <ExpertQuickFacts expert={expert} />
           <ExpertContactCta expert={expert} />
         </aside>
       </div>
+
       <RelatedExperts experts={expert.relatedExperts} excludeId={expert.id} />
       <ExpertStickyContactBar expert={expert} />
     </div>
