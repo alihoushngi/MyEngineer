@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { type ReactNode } from "react";
-import { markNotificationRead } from "@/services/notification-service/notification-service";
+
 import { cn } from "@/lib/utils/cn/cn";
+
+import { markNotificationRead } from "@/services/notification-service/notification-service";
 
 type NotificationLinkProps = {
   id: string;
@@ -24,8 +26,8 @@ export function NotificationLink({
     <Link
       href={href}
       className={cn(
-        "flex min-h-14 flex-col gap-1 px-4 py-4 outline-none focus-visible:ring-2 focus-visible:ring-ring",
-        !isRead && "bg-primary-subtle/60",
+        "group relative flex min-h-16 flex-col gap-1.5 rounded-xl px-3 py-3 outline-none transition-all duration-200 ease-in-out hover:bg-surface-muted focus-visible:ring-2 focus-visible:ring-ring sm:px-4 sm:py-4",
+        !isRead && "bg-primary-subtle/60 hover:bg-primary-subtle",
         className,
       )}
       onClick={() => {
@@ -34,6 +36,13 @@ export function NotificationLink({
         }
       }}
     >
+      {!isRead ? (
+        <span
+          aria-hidden="true"
+          className="absolute inset-y-3 inset-s-0 w-0.5 rounded-full bg-primary"
+        />
+      ) : null}
+
       {children}
     </Link>
   );
