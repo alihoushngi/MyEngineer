@@ -27,8 +27,11 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet/sheet";
+
 import { type ResponsiveDialogProps } from "@/components/common/responsiveDialog/type/responsiveDialog.types";
+
 import { useIsDesktop } from "@/hooks/use-is-desktop/use-is-desktop";
+
 import { resolveResponsiveDialogSurface } from "@/lib/ui/responsive-dialog/responsive-dialog";
 import { cn } from "@/lib/utils/cn/cn";
 
@@ -51,6 +54,7 @@ export function ResponsiveDialog({
     useIsDesktop(),
     desktopVariant,
   );
+
   const descriptionText = description ?? title;
   const headerClassName = headerHidden ? "sr-only" : undefined;
   const descriptionId = id ? `${id}-description` : undefined;
@@ -59,15 +63,22 @@ export function ResponsiveDialog({
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
         {trigger ? <DialogTrigger asChild>{trigger}</DialogTrigger> : null}
-        <DialogContent id={id} className={contentClassName}>
-          <DialogHeader className={headerClassName}>
+
+        <DialogContent id={id} className={cn("gap-0", contentClassName)}>
+          <DialogHeader className={cn("pb-5", headerClassName)}>
             <DialogTitle>{title}</DialogTitle>
             <DialogDescription id={descriptionId}>
               {descriptionText}
             </DialogDescription>
           </DialogHeader>
-          {children}
-          {footer ? <DialogFooter>{footer}</DialogFooter> : null}
+
+          <div className={cn("min-h-0", bodyClassName)}>{children}</div>
+
+          {footer ? (
+            <DialogFooter className="mt-5 border-t border-border-subtle pt-4">
+              {footer}
+            </DialogFooter>
+          ) : null}
         </DialogContent>
       </Dialog>
     );
@@ -77,25 +88,36 @@ export function ResponsiveDialog({
     return (
       <Sheet open={open} onOpenChange={onOpenChange}>
         {trigger ? <SheetTrigger asChild>{trigger}</SheetTrigger> : null}
+
         <SheetContent
           id={id}
           side={sheetSide}
-          className={cn("w-full overflow-hidden sm:max-w-md", contentClassName)}
+          className={cn(
+            "w-full gap-0 overflow-hidden sm:max-w-md",
+            contentClassName,
+          )}
         >
-          <SheetHeader className={headerClassName}>
+          <SheetHeader
+            className={cn(
+              "border-b border-border-subtle bg-surface-elevated",
+              headerClassName,
+            )}
+          >
             <SheetTitle>{title}</SheetTitle>
             <SheetDescription id={descriptionId}>
               {descriptionText}
             </SheetDescription>
           </SheetHeader>
+
           <div
             className={cn(
-              "min-h-0 flex-1 overflow-y-auto px-5 pb-4",
+              "min-h-0 flex-1 overflow-y-auto px-5 py-5",
               bodyClassName,
             )}
           >
             {children}
           </div>
+
           {footer ? <SheetFooter>{footer}</SheetFooter> : null}
         </SheetContent>
       </Sheet>
@@ -105,6 +127,7 @@ export function ResponsiveDialog({
   return (
     <Drawer open={open} onOpenChange={onOpenChange} handleOnly>
       {trigger ? <DrawerTrigger asChild>{trigger}</DrawerTrigger> : null}
+
       <DrawerContent id={id} className={contentClassName}>
         <DrawerHeader className={headerClassName}>
           <DrawerTitle>{title}</DrawerTitle>
@@ -112,15 +135,17 @@ export function ResponsiveDialog({
             {descriptionText}
           </DrawerDescription>
         </DrawerHeader>
+
         <div
           className={cn(
             "min-h-0 flex-1 overflow-y-auto px-5",
-            footer ? "pb-2" : "pb-[max(1.25rem,env(safe-area-inset-bottom))]",
+            footer ? "pb-3" : "pb-[max(1.25rem,env(safe-area-inset-bottom))]",
             bodyClassName,
           )}
         >
           {children}
         </div>
+
         {footer ? <DrawerFooter>{footer}</DrawerFooter> : null}
       </DrawerContent>
     </Drawer>

@@ -8,6 +8,7 @@ const CACHE_PREFIX = "mohandes-man-";
 
 async function unregisterStaleServiceWorkers() {
   const registrations = await navigator.serviceWorker.getRegistrations();
+
   await Promise.all(
     registrations.map((registration) => registration.unregister()),
   );
@@ -17,6 +18,7 @@ async function unregisterStaleServiceWorkers() {
   }
 
   const cacheNames = await caches.keys();
+
   await Promise.all(
     cacheNames
       .filter((name) => name.startsWith(CACHE_PREFIX))
@@ -43,30 +45,43 @@ export function PwaRegistration() {
     }
 
     let registration: ServiceWorkerRegistration | undefined;
+    let disposed = false;
 
-    const register = async () => {
+    async function register() {
       try {
-        registration = await navigator.serviceWorker.register("/sw.js", {
-          scope: "/",
-          updateViaCache: "none",
-        });
+        const nextRegistration = await navigator.serviceWorker.register(
+          "/sw.js",
+          {
+            scope: "/",
+            updateViaCache: "none",
+          },
+        );
+
+        if (disposed) {
+          return;
+        }
+
+        registration = nextRegistration;
         await registration.update();
       } catch {
-        // PWA support is progressive: registration failure must not break the app.
+        // Progressive enhancement: registration failure must not break the app.
       }
-    };
+    }
 
     void register();
 
-    const handleVisibilityChange = () => {
+    function handleVisibilityChange() {
       if (document.visibilityState === "visible") {
         void registration?.update();
       }
-    };
+    }
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () =>
+
+    return () => {
+      disposed = true;
       document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
   }, []);
 
   return null;
