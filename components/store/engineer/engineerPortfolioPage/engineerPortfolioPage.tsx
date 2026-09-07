@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { ImageIcon } from "lucide-react";
 import { Pagination } from "@/components/common/pagination/pagination";
 import { EngineerPageHeader } from "@/components/store/engineer/engineerPageHeader/engineerPageHeader";
 import { EngineerPortfolioAddForm } from "@/components/store/engineer/engineerPortfolioAddForm/engineerPortfolioAddForm";
@@ -28,41 +29,55 @@ export function EngineerPortfolioPage({
         title={engineerPageTitles.portfolio}
         description="نمونه‌کارهای پروفایل عمومی. ترتیب‌دهی با کشیدن و رها کردن پشتیبانی نمی‌شود."
       />
+
       {pagination.total === 0 ? (
-        <Empty title={engineerPanelCopy.emptyPortfolio} />
+        <Empty
+          icon={<ImageIcon aria-hidden="true" />}
+          title={engineerPanelCopy.emptyPortfolio}
+        />
       ) : (
         <>
-          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <ul className="grid items-stretch gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {items.map((item) => (
               <li
                 key={item.id}
-                className="overflow-hidden rounded-lg border border-border bg-surface"
+                className="group flex h-full flex-col overflow-hidden rounded-3xl border border-border-subtle bg-surface shadow-xs transition-all duration-200 ease-in-out hover:-translate-y-1 hover:border-primary/15 hover:shadow-md motion-reduce:transform-none"
               >
-                {item.imageSrc ? (
-                  <div className="relative aspect-[4/3] bg-surface-subtle">
+                <div className="relative aspect-4/3 overflow-hidden bg-surface-subtle">
+                  {item.imageSrc ? (
                     <Image
                       src={item.imageSrc}
                       alt={item.imageAlt ?? item.title ?? "نمونه‌کار"}
                       fill
-                      className="object-cover"
+                      className="object-cover transition-all duration-200 ease-in-out group-hover:scale-[1.03] motion-reduce:transform-none"
                       sizes="(max-width: 640px) 100vw, 33vw"
                     />
-                  </div>
-                ) : (
-                  <div className="aspect-[4/3] bg-surface-subtle" />
-                )}
-                <div className="space-y-3 p-4">
-                  <h2 className="type-h4">{item.title ?? "نمونه‌کار"}</h2>
+                  ) : (
+                    <div className="flex size-full items-center justify-center text-foreground-subtle">
+                      <ImageIcon aria-hidden="true" className="size-8" />
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex flex-1 flex-col p-5">
+                  <h2 className="type-h4 text-foreground">
+                    {item.title ?? "نمونه‌کار"}
+                  </h2>
+
                   {item.description ? (
-                    <p className="type-body-sm text-muted-foreground">
+                    <p className="mt-2 type-body-sm leading-relaxed text-foreground-muted">
                       {item.description}
                     </p>
                   ) : null}
-                  <EngineerPortfolioRemoveButton id={item.id} />
+
+                  <div className="mt-auto pt-5">
+                    <EngineerPortfolioRemoveButton id={item.id} />
+                  </div>
                 </div>
               </li>
             ))}
           </ul>
+
           <Pagination
             page={pagination.page}
             pageCount={pagination.pageCount}
@@ -71,6 +86,7 @@ export function EngineerPortfolioPage({
           />
         </>
       )}
+
       <EngineerPortfolioAddForm />
     </div>
   );

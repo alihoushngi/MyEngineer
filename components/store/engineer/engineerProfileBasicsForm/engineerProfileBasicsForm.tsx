@@ -1,5 +1,6 @@
 "use client";
 
+import { PencilIcon } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -34,6 +35,7 @@ export function EngineerProfileBasicsForm({
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const mutation = useApiMutation(updateEngineerProfile);
+
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -65,10 +67,12 @@ export function EngineerProfileBasicsForm({
         type="button"
         variant="outline"
         size="sm"
+        icon={<PencilIcon aria-hidden="true" />}
         onClick={() => setOpen(true)}
       >
         {engineerPanelCopy.editLabel}
       </Button>
+
       <EngineerEditDialog
         open={open}
         onOpenChange={setOpen}
@@ -80,20 +84,24 @@ export function EngineerProfileBasicsForm({
         onSubmit={() => void form.handleSubmit(onSubmit)()}
         onRetry={() => void form.handleSubmit(onSubmit)()}
       >
-        <Field invalid={Boolean(form.formState.errors.firstName)}>
-          <FieldLabel htmlFor="engineer-first-name" required>
-            نام
-          </FieldLabel>
-          <Input id="engineer-first-name" {...form.register("firstName")} />
-          <FieldError>{form.formState.errors.firstName?.message}</FieldError>
-        </Field>
-        <Field invalid={Boolean(form.formState.errors.lastName)}>
-          <FieldLabel htmlFor="engineer-last-name" required>
-            نام خانوادگی
-          </FieldLabel>
-          <Input id="engineer-last-name" {...form.register("lastName")} />
-          <FieldError>{form.formState.errors.lastName?.message}</FieldError>
-        </Field>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field invalid={Boolean(form.formState.errors.firstName)}>
+            <FieldLabel htmlFor="engineer-first-name" required>
+              نام
+            </FieldLabel>
+            <Input id="engineer-first-name" {...form.register("firstName")} />
+            <FieldError>{form.formState.errors.firstName?.message}</FieldError>
+          </Field>
+
+          <Field invalid={Boolean(form.formState.errors.lastName)}>
+            <FieldLabel htmlFor="engineer-last-name" required>
+              نام خانوادگی
+            </FieldLabel>
+            <Input id="engineer-last-name" {...form.register("lastName")} />
+            <FieldError>{form.formState.errors.lastName?.message}</FieldError>
+          </Field>
+        </div>
+
         <Field invalid={Boolean(form.formState.errors.profession)}>
           <FieldLabel htmlFor="engineer-profession" required>
             عنوان حرفه‌ای
@@ -101,6 +109,7 @@ export function EngineerProfileBasicsForm({
           <Input id="engineer-profession" {...form.register("profession")} />
           <FieldError>{form.formState.errors.profession?.message}</FieldError>
         </Field>
+
         <Field>
           <FieldLabel htmlFor="engineer-about">درباره من</FieldLabel>
           <Textarea id="engineer-about" rows={5} {...form.register("about")} />

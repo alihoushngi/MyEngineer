@@ -1,13 +1,13 @@
+import { FileBadgeIcon, GraduationCapIcon, InfoIcon } from "lucide-react";
 import { EngineerPageHeader } from "@/components/store/engineer/engineerPageHeader/engineerPageHeader";
 import { credentialStatusBadge } from "@/components/store/engineer/engineerStatusLabel/engineerStatusLabel";
-import { Badge } from "@/components/ui/badge/badge";
-import { Empty } from "@/components/ui/empty/empty";
 import {
   Alert,
   AlertDescription,
   AlertTitle,
 } from "@/components/ui/alert/alert";
-import { InfoIcon } from "lucide-react";
+import { Badge } from "@/components/ui/badge/badge";
+import { Empty } from "@/components/ui/empty/empty";
 import {
   engineerPageTitles,
   engineerPanelCopy,
@@ -29,21 +29,29 @@ export function EngineerCredentialsPage({
         title={engineerPageTitles.credentials}
         description="تحصیلات، نظام مهندسی و مدارک حرفه‌ای. فایل خام مدارک در صفحات عمومی نمایش داده نمی‌شود."
       />
-      <Alert variant="info">
-        <InfoIcon />
+
+      <Alert variant="info" className="rounded-2xl">
+        <InfoIcon aria-hidden="true" />
         <AlertTitle>حریم مدارک</AlertTitle>
         <AlertDescription>
           {engineerPanelCopy.documentPrivateNote}
         </AlertDescription>
       </Alert>
+
       {profile.education.length > 0 ? (
-        <section className="rounded-lg border border-border bg-surface p-(--space-card)">
-          <h2 className="mb-3 type-h4">تحصیلات</h2>
-          <ul className="space-y-2">
+        <section className="rounded-3xl border border-border-subtle bg-surface p-5 shadow-xs sm:p-6">
+          <div className="mb-5 flex items-center gap-3">
+            <span className="flex size-10 items-center justify-center rounded-xl bg-primary-subtle text-primary">
+              <GraduationCapIcon aria-hidden="true" className="size-5" />
+            </span>
+            <h2 className="type-h4 text-foreground">تحصیلات</h2>
+          </div>
+
+          <ul className="grid gap-3">
             {profile.education.map((item) => (
               <li
                 key={`${item.degree}-${item.field ?? ""}`}
-                className="type-body"
+                className="rounded-2xl bg-surface-subtle px-4 py-3 type-body text-foreground"
               >
                 {[item.degree, item.field, item.institution]
                   .filter(Boolean)
@@ -53,31 +61,43 @@ export function EngineerCredentialsPage({
           </ul>
         </section>
       ) : null}
+
       {credentials.length === 0 ? (
-        <Empty title={engineerPanelCopy.emptyCredentials} />
+        <Empty
+          icon={<FileBadgeIcon aria-hidden="true" />}
+          title={engineerPanelCopy.emptyCredentials}
+        />
       ) : (
-        <ul className="space-y-3">
+        <ul className="grid gap-3">
           {credentials.map((item) => {
             const status = credentialStatusBadge(item.status);
 
             return (
               <li
                 key={item.id}
-                className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-(--space-card) sm:flex-row sm:items-start sm:justify-between"
+                className="flex flex-col gap-4 rounded-3xl border border-border-subtle bg-surface p-5 shadow-xs transition-all duration-200 ease-in-out hover:border-primary/15 hover:shadow-sm sm:flex-row sm:items-start sm:justify-between sm:p-6"
               >
-                <div className="space-y-1">
-                  <h2 className="type-h4">{item.title}</h2>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-3">
+                    <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary-subtle text-primary">
+                      <FileBadgeIcon aria-hidden="true" className="size-4.5" />
+                    </span>
+                    <h2 className="type-h4 text-foreground">{item.title}</h2>
+                  </div>
+
                   {item.description ? (
-                    <p className="type-body-sm text-muted-foreground">
+                    <p className="mt-3 type-body-sm leading-relaxed text-foreground-muted">
                       {item.description}
                     </p>
                   ) : null}
-                  <p className="type-caption text-muted-foreground">
+
+                  <p className="mt-2 type-caption text-foreground-subtle">
                     {item.hasDocument
                       ? "پرونده ارسال شده است"
                       : "پرونده‌ای پیوست نشده است"}
                   </p>
                 </div>
+
                 <Badge variant={status.variant}>{status.label}</Badge>
               </li>
             );

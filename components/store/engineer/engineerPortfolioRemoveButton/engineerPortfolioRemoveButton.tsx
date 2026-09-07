@@ -1,5 +1,6 @@
 "use client";
 
+import { Trash2Icon } from "lucide-react";
 import { useState } from "react";
 import { EngineerActionError } from "@/components/layout/engineerLogoutItem/engineerLogoutItem";
 import { Button } from "@/components/ui/button/button";
@@ -32,13 +33,16 @@ export function EngineerPortfolioRemoveButton({
     <div className="space-y-2">
       <Button
         type="button"
-        variant="outline"
+        variant="ghost"
         size="sm"
         loading={mutation.isPending}
+        icon={<Trash2Icon aria-hidden="true" />}
+        className="text-danger transition-all duration-200 ease-in-out hover:bg-danger/10 hover:text-danger"
         onClick={() => void handleRemove()}
       >
         {engineerPanelCopy.removeLabel}
       </Button>
+
       <EngineerActionError
         message={error}
         onRetry={() => void handleRemove()}

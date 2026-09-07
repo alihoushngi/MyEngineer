@@ -16,21 +16,31 @@ export function EngineerPageHeader({
   breadcrumbs,
 }: EngineerPageHeaderProps) {
   return (
-    <header className="flex flex-col gap-4">
+    <header>
       {breadcrumbs && breadcrumbs.length > 0 ? (
-        <StoreBreadcrumb items={breadcrumbs} />
+        <StoreBreadcrumb items={breadcrumbs} className="mb-4" />
       ) : null}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0 space-y-2">
+
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+        <div className="relative min-w-0 max-w-3xl ps-5">
+          <span
+            aria-hidden="true"
+            className="absolute inset-y-1 inset-s-0 w-1 rounded-full bg-primary"
+          />
+
           <h1 className="type-h1 text-foreground">{title}</h1>
+
           {description ? (
-            <p className="max-w-2xl type-body text-muted-foreground">
+            <p className="mt-2 max-w-2xl type-body leading-relaxed text-foreground-muted">
               {description}
             </p>
           ) : null}
         </div>
+
         {actions ? (
-          <div className="flex shrink-0 flex-wrap gap-2">{actions}</div>
+          <div className="flex w-full shrink-0 flex-wrap gap-2 *:w-full sm:w-auto sm:*:w-auto">
+            {actions}
+          </div>
         ) : null}
       </div>
     </header>

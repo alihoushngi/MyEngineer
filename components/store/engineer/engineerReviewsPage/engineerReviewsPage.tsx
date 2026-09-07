@@ -1,3 +1,4 @@
+import { StarIcon } from "lucide-react";
 import { Pagination } from "@/components/common/pagination/pagination";
 import { EngineerPageHeader } from "@/components/store/engineer/engineerPageHeader/engineerPageHeader";
 import { EngineerReviewRow } from "@/components/store/engineer/engineerReviewRow/engineerReviewRow";
@@ -34,17 +35,22 @@ export function EngineerReviewsPage({
           { label: engineerPageTitles.reviews },
         ]}
       />
+
       {pagination.total === 0 ? (
-        <Empty title={engineerPanelCopy.emptyReviews} />
+        <Empty
+          icon={<StarIcon aria-hidden="true" />}
+          title={engineerPanelCopy.emptyReviews}
+        />
       ) : (
         <>
-          <ul className="divide-y divide-border rounded-lg border border-border bg-surface px-(--space-card)">
+          <ul className="grid gap-1 rounded-3xl border border-border-subtle bg-surface p-2 shadow-xs sm:p-3">
             {reviews.map((review) => (
               <li key={review.id}>
                 <EngineerReviewRow review={review} />
               </li>
             ))}
           </ul>
+
           <Pagination
             page={pagination.page}
             pageCount={pagination.pageCount}

@@ -1,5 +1,6 @@
 "use client";
 
+import { ImagePlusIcon } from "lucide-react";
 import { useState, type ChangeEvent } from "react";
 import { EngineerActionError } from "@/components/layout/engineerLogoutItem/engineerLogoutItem";
 import { Button } from "@/components/ui/button/button";
@@ -43,55 +44,76 @@ export function EngineerPortfolioAddForm() {
 
   return (
     <form
-      className="flex flex-col gap-4 rounded-lg border border-border bg-surface p-(--space-card)"
+      className="rounded-3xl border border-border-subtle bg-surface p-5 shadow-xs sm:p-6"
       onSubmit={(event) => {
         event.preventDefault();
         void handleSubmit();
       }}
     >
-      <Field>
-        <FieldLabel htmlFor="portfolio-title">عنوان پروژه</FieldLabel>
-        <Input
-          id="portfolio-title"
-          value={title}
-          onChange={(event) => setTitle(event.target.value)}
+      <div className="mb-5 flex items-center gap-3">
+        <span className="flex size-10 items-center justify-center rounded-xl bg-primary-subtle text-primary">
+          <ImagePlusIcon aria-hidden="true" className="size-5" />
+        </span>
+        <div>
+          <h2 className="type-h4 text-foreground">افزودن نمونه‌کار</h2>
+          <p className="mt-0.5 type-caption text-foreground-muted">
+            پروژه جدید را به پروفایل حرفه‌ای خود اضافه کنید.
+          </p>
+        </div>
+      </div>
+
+      <div className="grid gap-5">
+        <Field>
+          <FieldLabel htmlFor="portfolio-title">عنوان پروژه</FieldLabel>
+          <Input
+            id="portfolio-title"
+            value={title}
+            onChange={(event) => setTitle(event.target.value)}
+          />
+        </Field>
+
+        <Field>
+          <FieldLabel htmlFor="portfolio-description">
+            توضیح (اختیاری)
+          </FieldLabel>
+          <Textarea
+            id="portfolio-description"
+            rows={4}
+            value={description}
+            onChange={(event) => setDescription(event.target.value)}
+          />
+        </Field>
+
+        <Field>
+          <FieldLabel>تصویر نمونه‌کار</FieldLabel>
+          <FileUpload
+            accept="image/*"
+            onChange={handleFile}
+            description={
+              fileName
+                ? `فایل انتخاب‌شده: ${fileName}`
+                : engineerPanelCopy.uploadUnavailable
+            }
+          />
+          <FieldDescription>
+            {engineerPanelCopy.uploadUnavailable}
+          </FieldDescription>
+        </Field>
+
+        <EngineerActionError
+          message={error}
+          onRetry={() => void handleSubmit()}
         />
-      </Field>
-      <Field>
-        <FieldLabel htmlFor="portfolio-description">توضیح (اختیاری)</FieldLabel>
-        <Textarea
-          id="portfolio-description"
-          rows={3}
-          value={description}
-          onChange={(event) => setDescription(event.target.value)}
-        />
-      </Field>
-      <Field>
-        <FieldLabel>تصویر نمونه‌کار</FieldLabel>
-        <FileUpload
-          accept="image/*"
-          onChange={handleFile}
-          description={
-            fileName
-              ? `فایل انتخاب‌شده: ${fileName}`
-              : engineerPanelCopy.uploadUnavailable
-          }
-        />
-        <FieldDescription>
-          {engineerPanelCopy.uploadUnavailable}
-        </FieldDescription>
-      </Field>
-      <EngineerActionError
-        message={error}
-        onRetry={() => void handleSubmit()}
-      />
-      <Button
-        type="submit"
-        loading={mutation.isPending}
-        disabled={mutation.isPending}
-      >
-        {engineerPanelCopy.addLabel}
-      </Button>
+
+        <Button
+          type="submit"
+          loading={mutation.isPending}
+          disabled={mutation.isPending}
+          className="w-full sm:w-auto sm:self-start"
+        >
+          {engineerPanelCopy.addLabel}
+        </Button>
+      </div>
     </form>
   );
 }

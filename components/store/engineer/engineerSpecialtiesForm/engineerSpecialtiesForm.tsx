@@ -1,110 +1,52 @@
-"use client";
-
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { EngineerEditDialog } from "@/components/store/engineer/engineerEditDialog/engineerEditDialog";
-import { Button } from "@/components/ui/button/button";
+import Link from "next/link";
 import {
-  Field,
-  FieldDescription,
-  FieldLabel,
-} from "@/components/ui/field/field";
-import { Textarea } from "@/components/ui/textarea/textarea";
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/ui/avatar/avatar";
+import { Badge } from "@/components/ui/badge/badge";
+import { Button } from "@/components/ui/button/button";
 import { engineerPanelCopy } from "@/config/engineer-panel.config/engineer-panel.config";
-import { useApiMutation } from "@/hooks/use-api-mutation/use-api-mutation";
-import { toUserErrorMessage } from "@/lib/errors/to-user-error-message/to-user-error-message";
-import { updateEngineerSpecialties } from "@/services/engineer-service/engineer-service";
+import { type EngineerWorkspace } from "@/types/store/engineer.types";
+import { verificationBadge } from "@/components/store/engineer/engineerStatusLabel/engineerStatusLabel";
 
-const schema = z.object({
-  specialtiesText: z.string(),
-  softwareText: z.string(),
-});
-
-type FormValues = z.infer<typeof schema>;
-
-type EngineerSpecialtiesFormProps = {
-  specialties: readonly string[];
-  software: readonly string[];
+type EngineerWelcomeProps = {
+  workspace: EngineerWorkspace;
 };
 
-export function EngineerSpecialtiesForm({
-  specialties,
-  software,
-}: EngineerSpecialtiesFormProps) {
-  const [open, setOpen] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const mutation = useApiMutation(updateEngineerSpecialties);
-  const form = useForm<FormValues>({
-    resolver: zodResolver(schema),
-    defaultValues: {
-      specialtiesText: specialties.join("\n"),
-      softwareText: software.join("\n"),
-    },
-  });
-
-  async function onSubmit(values: FormValues) {
-    setError(null);
-
-    try {
-      await mutation.mutateAsync({
-        specialties: splitLines(values.specialtiesText),
-        software: splitLines(values.softwareText),
-      });
-    } catch (err) {
-      setError(toUserErrorMessage(err, engineerPanelCopy.mutationUnavailable));
-    }
-  }
+export function EngineerWelcome({ workspace }: EngineerWelcomeProps) {
+  const { account } = workspace;
+  const publicHref = account.publicExpertId
+    ? `/experts/${account.publicExpertId}`
+    : undefined;
+  const badge = verificationBadge(account.verificationStatus);
 
   return (
-    <>
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        onClick={() => setOpen(true)}
-      >
-        {engineerPanelCopy.editLabel}
-      </Button>
-      <EngineerEditDialog
-        open={open}
-        onOpenChange={setOpen}
-        title="ویرایش تخصص‌ها و نرم‌افزارها"
-        description="هر مورد را در یک خط بنویسید. فهرست نهایی پس از اتصال سرویس تخصص ذخیره می‌شود."
-        pending={mutation.isPending}
-        error={error}
-        canSubmit={form.formState.isDirty && !mutation.isPending}
-        onSubmit={() => void form.handleSubmit(onSubmit)()}
-        onRetry={() => void form.handleSubmit(onSubmit)()}
-      >
-        <Field>
-          <FieldLabel htmlFor="engineer-specialties">تخصص‌ها</FieldLabel>
-          <FieldDescription>
-            مطابق حوزه‌های انتخاب‌شده در ثبت‌نام
-          </FieldDescription>
-          <Textarea
-            id="engineer-specialties"
-            rows={5}
-            {...form.register("specialtiesText")}
-          />
-        </Field>
-        <Field>
-          <FieldLabel htmlFor="engineer-software">نرم‌افزارها</FieldLabel>
-          <Textarea
-            id="engineer-software"
-            rows={4}
-            {...form.register("softwareText")}
-          />
-        </Field>
-      </EngineerEditDialog>
-    </>
+    <section className="rounded-lg border border-border bg-surface p-card">
+      <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
+        <Avatar className="size-16">
+          {account.avatarSrc ? (
+            <AvatarImage src={account.avatarSrc} alt="" />
+          ) : null}
+          <AvatarFallback>{account.displayName.slice(0, 1)}</AvatarFallback>
+        </Avatar>
+        <div className="min-w-0 flex-1 space-y-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="type-h3 text-foreground">{account.displayName}</h2>
+            <Badge variant={badge.variant}>{badge.label}</Badge>
+          </div>
+          <p className="type-body text-muted-foreground">
+            {account.profession}
+          </p>
+        </div>
+        {publicHref ? (
+          <Button asChild variant="outline">
+            <Link href={publicHref}>
+              {engineerPanelCopy.publicProfileLabel}
+            </Link>
+          </Button>
+        ) : null}
+      </div>
+    </section>
   );
-}
-
-function splitLines(value: string): string[] {
-  return value
-    .split("\n")
-    .map((line) => line.trim())
-    .filter((line) => line !== "");
 }

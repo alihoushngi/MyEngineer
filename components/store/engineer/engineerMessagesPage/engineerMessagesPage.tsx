@@ -1,3 +1,4 @@
+import { MessageSquareIcon } from "lucide-react";
 import { Pagination } from "@/components/common/pagination/pagination";
 import { EngineerConversationRow } from "@/components/store/engineer/engineerConversationRow/engineerConversationRow";
 import { EngineerPageHeader } from "@/components/store/engineer/engineerPageHeader/engineerPageHeader";
@@ -26,17 +27,22 @@ export function EngineerMessagesPage({
         title={engineerPageTitles.messages}
         description="گفت‌وگوهای مرتبط با درخواست‌ها. ارسال لحظه‌ای و پیوست در این نسخه وجود ندارد."
       />
+
       {pagination.total === 0 ? (
-        <Empty title={engineerPanelCopy.emptyMessages} />
+        <Empty
+          icon={<MessageSquareIcon aria-hidden="true" />}
+          title={engineerPanelCopy.emptyMessages}
+        />
       ) : (
         <>
-          <ul className="divide-y divide-border rounded-lg border border-border bg-surface px-(--space-card)">
+          <ul className="grid gap-1 rounded-3xl border border-border-subtle bg-surface p-2 shadow-xs sm:p-3">
             {conversations.map((conversation) => (
               <li key={conversation.id}>
                 <EngineerConversationRow conversation={conversation} />
               </li>
             ))}
           </ul>
+
           <Pagination
             page={pagination.page}
             pageCount={pagination.pageCount}

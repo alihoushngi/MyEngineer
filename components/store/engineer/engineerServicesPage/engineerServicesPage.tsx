@@ -1,3 +1,4 @@
+import { BriefcaseBusinessIcon } from "lucide-react";
 import { EngineerPageHeader } from "@/components/store/engineer/engineerPageHeader/engineerPageHeader";
 import { EngineerSpecialtiesForm } from "@/components/store/engineer/engineerSpecialtiesForm/engineerSpecialtiesForm";
 import { Badge } from "@/components/ui/badge/badge";
@@ -25,17 +26,27 @@ export function EngineerServicesPage({ workspace }: EngineerServicesPageProps) {
           />
         }
       />
+
       {workspace.services.length === 0 ? (
-        <Empty title={engineerPanelCopy.emptyServices} />
+        <Empty
+          icon={<BriefcaseBusinessIcon aria-hidden="true" />}
+          title={engineerPanelCopy.emptyServices}
+        />
       ) : (
-        <ul className="grid gap-4 md:grid-cols-2">
+        <ul className="grid items-stretch gap-4 md:grid-cols-2">
           {workspace.services.map((service) => (
             <li
               key={service.slug}
-              className="rounded-lg border border-border bg-surface p-(--space-card)"
+              className="group flex min-h-48 flex-col rounded-3xl border border-border-subtle bg-surface p-5 shadow-xs transition-all duration-200 ease-in-out hover:border-primary/15 hover:shadow-sm sm:p-6"
             >
-              <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
-                <h2 className="type-h4 text-foreground">{service.label}</h2>
+              <div className="flex items-start justify-between gap-3">
+                <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary-subtle text-primary">
+                  <BriefcaseBusinessIcon
+                    aria-hidden="true"
+                    className="size-5"
+                  />
+                </span>
+
                 <Badge
                   variant={service.isListedOnProfile ? "success" : "outline"}
                 >
@@ -44,19 +55,26 @@ export function EngineerServicesPage({ workspace }: EngineerServicesPageProps) {
                     : engineerPanelCopy.notListedOnProfile}
                 </Badge>
               </div>
-              {service.specialties.length > 0 ? (
-                <ul className="flex flex-wrap gap-2">
-                  {service.specialties.map((item) => (
-                    <li key={item}>
-                      <Badge variant="outline">{item}</Badge>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="type-body-sm text-muted-foreground">
-                  تخصصی برای این خدمت ثبت نشده است.
-                </p>
-              )}
+
+              <div className="mt-auto pt-6">
+                <h2 className="type-h4 text-foreground transition-all duration-200 ease-in-out group-hover:text-primary">
+                  {service.label}
+                </h2>
+
+                {service.specialties.length > 0 ? (
+                  <ul className="mt-3 flex flex-wrap gap-2">
+                    {service.specialties.map((item) => (
+                      <li key={item}>
+                        <Badge variant="outline">{item}</Badge>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="mt-2 type-body-sm text-foreground-muted">
+                    تخصصی برای این خدمت ثبت نشده است.
+                  </p>
+                )}
+              </div>
             </li>
           ))}
         </ul>

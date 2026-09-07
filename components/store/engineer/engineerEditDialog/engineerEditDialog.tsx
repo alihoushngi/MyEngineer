@@ -1,9 +1,9 @@
 "use client";
 
 import { type ReactNode, useId } from "react";
+import { EngineerActionError } from "@/components/layout/engineerLogoutItem/engineerLogoutItem";
 import { ResponsiveDialog } from "@/components/common/responsiveDialog/responsiveDialog";
 import { Button } from "@/components/ui/button/button";
-import { EngineerActionError } from "@/components/layout/engineerLogoutItem/engineerLogoutItem";
 import { engineerPanelCopy } from "@/config/engineer-panel.config/engineer-panel.config";
 
 type EngineerEditDialogProps = {
@@ -39,6 +39,7 @@ export function EngineerEditDialog({
       onOpenChange={onOpenChange}
       title={title}
       description={description}
+      contentClassName="sm:max-w-lg"
       footer={
         <>
           <Button
@@ -46,13 +47,16 @@ export function EngineerEditDialog({
             form={formId}
             loading={pending}
             disabled={!canSubmit}
+            className="w-full sm:w-auto"
           >
             {engineerPanelCopy.saveLabel}
           </Button>
+
           <Button
             type="button"
             variant="outline"
             disabled={pending}
+            className="w-full sm:w-auto"
             onClick={() => onOpenChange(false)}
           >
             {engineerPanelCopy.cancelLabel}
@@ -62,7 +66,7 @@ export function EngineerEditDialog({
     >
       <form
         id={formId}
-        className="flex flex-col gap-4"
+        className="flex flex-col gap-5"
         onSubmit={(event) => {
           event.preventDefault();
           onSubmit();

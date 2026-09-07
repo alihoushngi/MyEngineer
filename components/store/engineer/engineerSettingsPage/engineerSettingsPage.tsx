@@ -1,3 +1,10 @@
+import {
+  BellIcon,
+  LogOutIcon,
+  ShieldCheckIcon,
+  Trash2Icon,
+  UserRoundIcon,
+} from "lucide-react";
 import { EngineerLogoutButton } from "@/components/store/engineer/engineerLogoutButton/engineerLogoutButton";
 import { EngineerPageHeader } from "@/components/store/engineer/engineerPageHeader/engineerPageHeader";
 import {
@@ -5,7 +12,6 @@ import {
   AlertDescription,
   AlertTitle,
 } from "@/components/ui/alert/alert";
-import { InfoIcon } from "lucide-react";
 import {
   engineerPageTitles,
   engineerPanelCopy,
@@ -25,44 +31,74 @@ export function EngineerSettingsPage({ workspace }: EngineerSettingsPageProps) {
         title={engineerPageTitles.settings}
         description="تنظیمات حساب متخصص. گزینه‌هایی که محصول پشتیبانی نمی‌کند نمایش داده نمی‌شوند."
       />
-      <section className="rounded-lg border border-border bg-surface p-(--space-card)">
-        <h2 className="mb-4 type-h4">اطلاعات حساب</h2>
-        <dl className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <dt className="type-caption text-muted-foreground">نام نمایشی</dt>
-            <dd className="type-body">{account.displayName}</dd>
+
+      <section className="rounded-3xl border border-border-subtle bg-surface p-5 shadow-xs sm:p-6">
+        <div className="mb-5 flex items-center gap-3">
+          <span className="flex size-10 items-center justify-center rounded-xl bg-primary-subtle text-primary">
+            <UserRoundIcon aria-hidden="true" className="size-5" />
+          </span>
+          <h2 className="type-h4 text-foreground">اطلاعات حساب</h2>
+        </div>
+
+        <dl className="grid gap-3 sm:grid-cols-2">
+          <div className="rounded-xl bg-surface-subtle p-3">
+            <dt className="type-caption text-foreground-subtle">نام نمایشی</dt>
+            <dd className="mt-1 type-body text-foreground">
+              {account.displayName}
+            </dd>
           </div>
+
           {account.mobileDisplay ? (
-            <div>
-              <dt className="type-caption text-muted-foreground">موبایل</dt>
-              <dd className="type-body ltr-data" dir="ltr">
+            <div className="rounded-xl bg-surface-subtle p-3">
+              <dt className="type-caption text-foreground-subtle">موبایل</dt>
+              <dd className="mt-1 type-body text-foreground ltr-data" dir="ltr">
                 {account.mobileDisplay}
               </dd>
             </div>
           ) : null}
         </dl>
       </section>
-      <Alert variant="info">
-        <InfoIcon />
-        <AlertTitle>ورود با رمز یک‌بارمصرف</AlertTitle>
-        <AlertDescription>{engineerPanelCopy.otpAuthNote}</AlertDescription>
-      </Alert>
-      <Alert variant="info">
-        <InfoIcon />
-        <AlertTitle>ترجیحات اعلان</AlertTitle>
-        <AlertDescription>
-          {engineerPanelCopy.notificationPrefsUnavailable}
-        </AlertDescription>
-      </Alert>
-      <Alert variant="info">
-        <InfoIcon />
-        <AlertTitle>حذف حساب</AlertTitle>
-        <AlertDescription>
-          {engineerPanelCopy.accountDeletionUnavailable}
-        </AlertDescription>
-      </Alert>
-      <section className="rounded-lg border border-border bg-surface p-(--space-card)">
-        <h2 className="mb-4 type-h4">{engineerPanelCopy.logoutLabel}</h2>
+
+      <div className="grid gap-3">
+        <Alert variant="info" className="rounded-2xl">
+          <ShieldCheckIcon aria-hidden="true" />
+          <AlertTitle>ورود با رمز یک‌بارمصرف</AlertTitle>
+          <AlertDescription>{engineerPanelCopy.otpAuthNote}</AlertDescription>
+        </Alert>
+
+        <Alert variant="info" className="rounded-2xl">
+          <BellIcon aria-hidden="true" />
+          <AlertTitle>ترجیحات اعلان</AlertTitle>
+          <AlertDescription>
+            {engineerPanelCopy.notificationPrefsUnavailable}
+          </AlertDescription>
+        </Alert>
+
+        <Alert variant="info" className="rounded-2xl">
+          <Trash2Icon aria-hidden="true" />
+          <AlertTitle>حذف حساب</AlertTitle>
+          <AlertDescription>
+            {engineerPanelCopy.accountDeletionUnavailable}
+          </AlertDescription>
+        </Alert>
+      </div>
+
+      <section className="rounded-3xl border border-danger/15 bg-surface p-5 shadow-xs sm:p-6">
+        <div className="mb-4 flex items-center gap-3">
+          <span className="flex size-10 items-center justify-center rounded-xl bg-danger/10 text-danger">
+            <LogOutIcon aria-hidden="true" className="size-5" />
+          </span>
+
+          <div>
+            <h2 className="type-h4 text-foreground">
+              {engineerPanelCopy.logoutLabel}
+            </h2>
+            <p className="mt-0.5 type-caption text-foreground-muted">
+              با خروج از حساب، برای ورود دوباره نیاز به احراز هویت دارید.
+            </p>
+          </div>
+        </div>
+
         <EngineerLogoutButton />
       </section>
     </div>

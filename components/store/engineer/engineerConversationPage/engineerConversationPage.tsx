@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { FileTextIcon } from "lucide-react";
 import { EngineerConversationRow } from "@/components/store/engineer/engineerConversationRow/engineerConversationRow";
 import { EngineerPageHeader } from "@/components/store/engineer/engineerPageHeader/engineerPageHeader";
 import { MessagingConversationPane } from "@/components/store/messaging/messagingConversationPane/messagingConversationPane";
@@ -24,16 +25,18 @@ export function EngineerConversationPage({
   messages,
   conversations,
 }: EngineerConversationPageProps) {
+  const meta = [
+    conversation.relatedServiceLabel,
+    conversation.lastMessageAtLabel,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
       <EngineerPageHeader
         title={conversation.participantName}
-        description={[
-          conversation.relatedServiceLabel,
-          conversation.lastMessageAtLabel,
-        ]
-          .filter(Boolean)
-          .join(" · ")}
+        description={meta}
         breadcrumbs={[
           {
             label: engineerPageTitles.dashboard,
@@ -46,6 +49,7 @@ export function EngineerConversationPage({
           { label: engineerPageTitles.conversation },
         ]}
       />
+
       <MessagingSplitLayout
         sidebar={conversations.map((item) => (
           <li key={item.id}>
@@ -59,18 +63,15 @@ export function EngineerConversationPage({
         <MessagingConversationPane
           conversationId={conversation.id}
           title={conversation.participantName}
-          meta={[
-            conversation.relatedServiceLabel,
-            conversation.lastMessageAtLabel,
-          ]
-            .filter(Boolean)
-            .join(" · ")}
+          meta={meta}
           relatedLink={
             conversation.relatedRequestId ? (
               <Button asChild variant="outline" size="sm">
                 <Link
                   href={`${engineerPanelPaths.requests}/${conversation.relatedRequestId}`}
+                  className="gap-2"
                 >
+                  <FileTextIcon aria-hidden="true" className="size-4" />
                   {engineerPageTitles.requestDetail}
                 </Link>
               </Button>

@@ -23,15 +23,18 @@ export function EngineerDashboard({ workspace }: EngineerDashboardProps) {
         title={engineerPageTitles.dashboard}
         description="وضعیت پروفایل، درخواست‌ها و پیام‌های فضای کاری متخصص."
       />
+
       <EngineerWelcome workspace={workspace} />
       <EngineerQuickActions workspace={workspace} />
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(18rem,0.9fr)]">
+
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1.35fr)_minmax(18rem,.85fr)]">
         <div className="flex min-w-0 flex-col gap-6">
           <EngineerRecentRequests requests={workspace.requests} />
           <EngineerRecentMessages conversations={workspace.conversations} />
           <EngineerLatestReviews reviews={workspace.reviews} />
         </div>
-        <div className="flex min-w-0 flex-col gap-6">
+
+        <div className="flex min-w-0 flex-col gap-6 lg:sticky lg:top-24">
           <EngineerProfileCompletion completion={completion} />
           <EngineerCoverageSummary workspace={workspace} />
         </div>

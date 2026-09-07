@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ExternalLinkIcon } from "lucide-react";
 import { EngineerPageHeader } from "@/components/store/engineer/engineerPageHeader/engineerPageHeader";
 import { EngineerProfileBasicsForm } from "@/components/store/engineer/engineerProfileBasicsForm/engineerProfileBasicsForm";
 import { EngineerProfileSection } from "@/components/store/engineer/engineerProfileSection/engineerProfileSection";
@@ -20,6 +21,7 @@ export function EngineerProfileManagePage({
   workspace,
 }: EngineerProfilePageProps) {
   const { profile, account } = workspace;
+
   const publicHref = account.publicExpertId
     ? `/experts/${account.publicExpertId}`
     : undefined;
@@ -32,40 +34,43 @@ export function EngineerProfileManagePage({
         actions={
           publicHref ? (
             <Button asChild variant="outline">
-              <Link href={publicHref}>
+              <Link href={publicHref} className="gap-2">
                 {engineerPanelCopy.publicProfileLabel}
+                <ExternalLinkIcon aria-hidden="true" className="size-4" />
               </Link>
             </Button>
           ) : null
         }
       />
+
       <EngineerProfileSection
         title="نام و عنوان حرفه‌ای"
         action={<EngineerProfileBasicsForm profile={profile} />}
       >
         <dl className="grid gap-3 sm:grid-cols-2">
-          <div>
-            <dt className="type-caption text-muted-foreground">نام</dt>
-            <dd className="type-body">{profile.firstName}</dd>
-          </div>
-          <div>
-            <dt className="type-caption text-muted-foreground">نام خانوادگی</dt>
-            <dd className="type-body">{profile.lastName}</dd>
-          </div>
-          <div className="sm:col-span-2">
-            <dt className="type-caption text-muted-foreground">
+          <InfoCell label="نام" value={profile.firstName} />
+          <InfoCell label="نام خانوادگی" value={profile.lastName} />
+
+          <div className="rounded-xl bg-surface-subtle p-3 sm:col-span-2">
+            <dt className="type-caption text-foreground-subtle">
               عنوان حرفه‌ای
             </dt>
-            <dd className="type-body">{profile.profession}</dd>
+            <dd className="mt-1 type-body font-medium text-foreground">
+              {profile.profession}
+            </dd>
           </div>
+
           {profile.about ? (
-            <div className="sm:col-span-2">
-              <dt className="type-caption text-muted-foreground">درباره من</dt>
-              <dd className="type-body leading-loose">{profile.about}</dd>
+            <div className="rounded-xl bg-surface-subtle p-3 sm:col-span-2">
+              <dt className="type-caption text-foreground-subtle">درباره من</dt>
+              <dd className="mt-1 type-body leading-loose text-foreground-muted">
+                {profile.about}
+              </dd>
             </div>
           ) : null}
         </dl>
       </EngineerProfileSection>
+
       <EngineerProfileSection
         title="تخصص‌ها و نرم‌افزارها"
         action={
@@ -76,9 +81,14 @@ export function EngineerProfileManagePage({
         }
       >
         <TagList items={profile.specialties} empty="تخصصی ثبت نشده است." />
-        <p className="mt-4 type-caption text-muted-foreground">نرم‌افزارها</p>
+
+        <p className="mt-5 type-caption font-medium text-foreground-subtle">
+          نرم‌افزارها
+        </p>
+
         <TagList items={profile.software} empty="نرم‌افزاری ثبت نشده است." />
       </EngineerProfileSection>
+
       <EngineerProfileSection
         title="سوابق"
         description="ویرایش کامل سوابق از همین بخش انجام می‌شود؛ ثبت‌نام برای ورود اولیه است."
@@ -88,21 +98,32 @@ export function EngineerProfileManagePage({
           </Button>
         }
       >
-        <p className="type-body leading-loose text-foreground">
+        <p className="type-body leading-loose text-foreground-muted">
           {profile.history ?? "شرح سوابق هنوز تکمیل نشده است."}
         </p>
       </EngineerProfileSection>
+
       <EngineerProfileSection title="شهرهای فعالیت">
         <TagList
           items={profile.serviceCities}
           empty="محدوده فعالیت ثبت نشده است."
         />
-        <Button asChild variant="link" size="sm" className="mt-2 px-0">
+
+        <Button asChild variant="link" size="sm" className="mt-3 px-0">
           <Link href={engineerPanelPaths.serviceAreas}>
             مدیریت محدوده فعالیت
           </Link>
         </Button>
       </EngineerProfileSection>
+    </div>
+  );
+}
+
+function InfoCell({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl bg-surface-subtle p-3">
+      <dt className="type-caption text-foreground-subtle">{label}</dt>
+      <dd className="mt-1 type-body font-medium text-foreground">{value}</dd>
     </div>
   );
 }
@@ -115,7 +136,7 @@ function TagList({
   empty: string;
 }) {
   if (items.length === 0) {
-    return <p className="type-body-sm text-muted-foreground">{empty}</p>;
+    return <p className="type-body-sm text-foreground-muted">{empty}</p>;
   }
 
   return (
