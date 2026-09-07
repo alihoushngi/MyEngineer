@@ -1,14 +1,20 @@
 "use client";
 
+import { SendIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
+
 import { Button } from "@/components/ui/button/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field/field";
 import { Textarea } from "@/components/ui/textarea/textarea";
+
 import { messagingCopy } from "@/config/messaging.config/messaging.config";
+
 import { useApiMutation } from "@/hooks/use-api-mutation/use-api-mutation";
+
 import { toUserErrorMessage } from "@/lib/errors/to-user-error-message/to-user-error-message";
+
 import { sendMessage } from "@/services/messaging-service/messaging-service";
-import { useRouter } from "next/navigation";
 
 type MessagingComposerProps = {
   conversationId: string;
@@ -23,6 +29,7 @@ export function MessagingComposer({ conversationId }: MessagingComposerProps) {
 
   async function handleSubmit() {
     const trimmed = body.trim();
+
     setFieldError(null);
     setSendError(null);
 
@@ -32,7 +39,11 @@ export function MessagingComposer({ conversationId }: MessagingComposerProps) {
     }
 
     try {
-      await mutation.mutateAsync({ conversationId, body: trimmed });
+      await mutation.mutateAsync({
+        conversationId,
+        body: trimmed,
+      });
+
       setBody("");
       router.refresh();
     } catch (error) {
@@ -42,7 +53,7 @@ export function MessagingComposer({ conversationId }: MessagingComposerProps) {
 
   return (
     <form
-      className="shrink-0 space-y-3 border-t border-border bg-surface p-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
+      className="shrink-0 border-t border-border-subtle bg-surface-elevated p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:p-4"
       onSubmit={(event) => {
         event.preventDefault();
         void handleSubmit();
@@ -52,35 +63,61 @@ export function MessagingComposer({ conversationId }: MessagingComposerProps) {
         <FieldLabel htmlFor="messaging-composer">
           {messagingCopy.sendLabel}
         </FieldLabel>
-        <Textarea
-          id="messaging-composer"
-          value={body}
-          onChange={(event) => setBody(event.target.value)}
-          placeholder={messagingCopy.composerPlaceholder}
-          rows={3}
-        />
+
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
+          <Textarea
+            id="messaging-composer"
+            value={body}
+            onChange={(event) => {
+              setBody(event.target.value);
+
+              if (fieldError) {
+                setFieldError(null);
+              }
+
+              if (sendError) {
+                setSendError(null);
+              }
+            }}
+            placeholder={messagingCopy.composerPlaceholder}
+            rows={3}
+            className="min-h-24 flex-1 resize-none sm:min-h-20"
+          />
+
+          <Button
+            type="submit"
+            loading={mutation.isPending}
+            disabled={mutation.isPending}
+            className="w-full shrink-0 gap-2 sm:w-auto"
+          >
+            <SendIcon aria-hidden="true" className="size-4" />
+            {messagingCopy.sendLabel}
+          </Button>
+        </div>
+
         <FieldError>{fieldError}</FieldError>
       </Field>
+
       {sendError ? (
-        <div className="flex flex-wrap items-center gap-2" role="alert">
-          <p className="type-caption text-danger">{sendError}</p>
+        <div
+          className="mt-3 flex flex-col gap-2 rounded-xl bg-danger/10 p-3 sm:flex-row sm:items-center sm:justify-between"
+          role="alert"
+        >
+          <p className="type-caption leading-relaxed text-danger">
+            {sendError}
+          </p>
+
           <Button
             type="button"
             variant="outline"
             size="sm"
+            className="shrink-0"
             onClick={() => void handleSubmit()}
           >
             {messagingCopy.retryLabel}
           </Button>
         </div>
       ) : null}
-      <Button
-        type="submit"
-        loading={mutation.isPending}
-        disabled={mutation.isPending}
-      >
-        {messagingCopy.sendLabel}
-      </Button>
     </form>
   );
 }

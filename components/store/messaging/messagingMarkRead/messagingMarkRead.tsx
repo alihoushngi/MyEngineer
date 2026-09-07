@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+
 import { markConversationRead } from "@/services/messaging-service/messaging-service";
 
 type MessagingMarkReadProps = {
