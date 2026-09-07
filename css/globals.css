@@ -1099,3 +1099,55 @@ button:not(:disabled),
     transition-delay: 0ms !important;
   }
 }
+
+/* =========================================================
+   HOME TESTIMONIALS SWIPER
+========================================================= */
+
+.home-testimonials-swiper {
+  padding-bottom: 0.25rem;
+}
+
+.home-testimonials-swiper .swiper-pagination {
+  position: static;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+
+  margin-top: 1.25rem;
+}
+
+.home-testimonials-swiper .swiper-pagination-bullet {
+  width: 0.5rem;
+  height: 0.5rem;
+  margin: 0 !important;
+
+  border-radius: var(--radius-full);
+
+  background: var(--foreground-subtle);
+
+  opacity: 0.35;
+
+  transition: all 200ms ease-in-out;
+}
+
+.home-testimonials-swiper .swiper-pagination-bullet:hover {
+  background: var(--primary);
+  opacity: 0.65;
+}
+
+.home-testimonials-swiper .swiper-pagination-bullet-active {
+  width: 1.75rem;
+
+  background: var(--primary);
+
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-testimonials-swiper .swiper-pagination-bullet {
+    transition: none;
+  }
+}
