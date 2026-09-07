@@ -1,6 +1,11 @@
+import { PlusIcon } from "lucide-react";
+
 import { RequestCreateDialog } from "@/components/store/marketplace/requestCreateDialog/requestCreateDialog";
-import { toRequestExpertOptions } from "@/lib/marketplace/to-request-expert-option/to-request-expert-option";
+
 import { type ServiceSlug } from "@/config/services.config/services.config";
+
+import { toRequestExpertOptions } from "@/lib/marketplace/to-request-expert-option/to-request-expert-option";
+
 import { type ExpertCardData } from "@/types/store/expert.types";
 import { type City } from "@/types/store/registration.types";
 
@@ -29,6 +34,7 @@ export function ServiceRequestCta({
       nextPath={`/services/${slug}`}
       lockedServiceSlug={slug}
       triggerVariant="outline"
+      triggerIcon={<PlusIcon aria-hidden="true" />}
     />
   );
 }

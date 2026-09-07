@@ -3,10 +3,12 @@
 import { ResponsiveDialog } from "@/components/common/responsiveDialog/responsiveDialog";
 import { ServiceFilterFields } from "@/components/store/service/serviceFilterFields/serviceFilterFields";
 import { Button } from "@/components/ui/button/button";
+
 import {
   serviceFilterCopy,
   type ServiceFilterDefinition,
 } from "@/config/service-filters.config/service-filters.config";
+
 import { formatFaNumber } from "@/lib/format/format-fa-number/format-fa-number";
 import {
   type FilterKey,
@@ -43,15 +45,17 @@ export function ServiceFilterOverlay({
       title={serviceFilterCopy.overlayTitle}
       description={serviceFilterCopy.overlayDescription}
       desktopVariant="sheet"
+      contentClassName="sm:max-w-md"
       footer={
-        <>
+        <div className="grid w-full gap-2">
           <Button className="w-full" onClick={onApply}>
             {serviceFilterCopy.applyLabel} ({formatFaNumber(draftCount)})
           </Button>
+
           <Button variant="ghost" className="w-full" onClick={onReset}>
             {serviceFilterCopy.resetLabel}
           </Button>
-        </>
+        </div>
       }
     >
       <ServiceFilterFields

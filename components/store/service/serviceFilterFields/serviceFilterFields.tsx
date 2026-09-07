@@ -1,5 +1,11 @@
 "use client";
 
+import { Label } from "@/components/ui/label/label";
+import {
+  RadioGroup,
+  RadioGroupItem,
+} from "@/components/ui/radioGroup/radioGroup";
+
 import {
   degreeFilterOptions,
   disciplineFilterOptions,
@@ -7,11 +13,7 @@ import {
   serviceFilterCopy,
   type ServiceFilterDefinition,
 } from "@/config/service-filters.config/service-filters.config";
-import { Label } from "@/components/ui/label/label";
-import {
-  RadioGroup,
-  RadioGroupItem,
-} from "@/components/ui/radioGroup/radioGroup";
+
 import {
   ALL_FILTER,
   type FilterKey,
@@ -27,7 +29,10 @@ type ServiceFilterFieldsProps = {
 };
 
 function allOption(): FilterOption {
-  return { id: ALL_FILTER, label: serviceFilterCopy.allOptionLabel };
+  return {
+    id: ALL_FILTER,
+    label: serviceFilterCopy.allOptionLabel,
+  };
 }
 
 function optionsForKey(
@@ -82,15 +87,16 @@ export function ServiceFilterFields({
 
         return (
           <fieldset key={key} className="min-w-0">
-            <legend className="mb-3 type-label text-foreground">
+            <legend className="mb-3 type-label font-semibold text-foreground">
               {labelForKey(key)}
             </legend>
+
             <RadioGroup
               value={values[key]}
               onValueChange={(value) => {
                 onChange(key, value);
               }}
-              className="gap-0"
+              className="grid gap-2"
             >
               {options.map((option) => {
                 const optionId = `service-filter-${key}-${option.id}`;
@@ -98,12 +104,13 @@ export function ServiceFilterFields({
                 return (
                   <div
                     key={option.id}
-                    className="flex min-h-11 items-center gap-3 border-b border-border py-1 last:border-b-0"
+                    className="flex min-h-12 items-center gap-3 rounded-xl border border-border-subtle bg-surface px-3.5 transition-all duration-200 ease-in-out hover:border-primary/20 hover:bg-surface-muted has-data-[state=checked]:border-primary/25 has-data-[state=checked]:bg-primary-subtle/60"
                   >
                     <RadioGroupItem value={option.id} id={optionId} />
+
                     <Label
                       htmlFor={optionId}
-                      className="min-w-0 flex-1 cursor-pointer type-body font-normal"
+                      className="min-w-0 flex-1 cursor-pointer type-body-sm font-medium text-foreground"
                     >
                       {option.label}
                     </Label>

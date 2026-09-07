@@ -7,6 +7,7 @@ import {
   ScrollTextIcon,
   type LucideIcon,
 } from "lucide-react";
+
 import { type ServiceSlug } from "@/config/services.config/services.config";
 
 const serviceIcons: Record<ServiceSlug, LucideIcon> = {
