@@ -10,7 +10,6 @@ import {
   RadioGroup,
   RadioGroupItem,
 } from "@/components/ui/radioGroup/radioGroup";
-import { RegistrationProgress } from "@/components/store/registration/registrationProgress/registrationProgress";
 import { RegistrationStepNav } from "@/components/store/registration/registrationStepNav/registrationStepNav";
 import { OrganizationLicenseFields } from "@/components/store/registration/organizationStep/organizationLicenseFields/organizationLicenseFields";
 import {
@@ -89,20 +88,19 @@ export function OrganizationStep() {
   }
 
   return (
-    <div className="space-y-8">
-      <RegistrationProgress currentStep={7} />
+    <div className="space-y-6">
       <div className="space-y-2">
         <h2 className="type-h2 text-foreground">
           {registrationCopy.step7Title}
         </h2>
-        <p className="type-body text-muted-foreground">
+        <p className="type-body text-foreground-muted">
           {registrationCopy.step7Description}
         </p>
       </div>
       <form
         onSubmit={handleSubmit(onSubmit)}
         noValidate
-        className="space-y-7"
+        className="space-y-5"
         aria-label={registrationCopy.step7Title}
       >
         <YesNoField
@@ -208,7 +206,7 @@ function YesNoField({ id, label, value, disabled, onChange }: YesNoFieldProps) {
           onChange(next === "no" ? "no" : "yes");
         }}
         aria-labelledby={`${id}-label`}
-        className="flex flex-col gap-3 sm:flex-row"
+        className="grid gap-3 sm:grid-cols-2"
       >
         <div className="flex min-h-12 items-center gap-3 rounded-md border border-border px-4 py-2 has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary-subtle">
           <RadioGroupItem id={`${id}-yes`} value="yes" />

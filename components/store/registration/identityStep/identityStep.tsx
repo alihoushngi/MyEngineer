@@ -14,7 +14,6 @@ import {
 } from "@/components/ui/field/field";
 import { Input } from "@/components/ui/input/input";
 import { RegistrationError } from "@/components/store/registration/registrationError/registrationError";
-import { RegistrationProgress } from "@/components/store/registration/registrationProgress/registrationProgress";
 import { RegistrationStepNav } from "@/components/store/registration/registrationStepNav/registrationStepNav";
 import {
   identityStepSchema,
@@ -71,13 +70,12 @@ export function IdentityStep() {
   }
 
   return (
-    <div className="space-y-8">
-      <RegistrationProgress currentStep={1} />
+    <div className="space-y-6">
       <div className="space-y-2">
         <h2 className="type-h2 text-foreground">
           {registrationCopy.step1Title}
         </h2>
-        <p className="type-body text-muted-foreground">
+        <p className="type-body text-foreground-muted">
           {registrationCopy.step1Description}
         </p>
         <RegistrationLoginCrossLink />
@@ -85,53 +83,57 @@ export function IdentityStep() {
       <form
         onSubmit={handleSubmit(onSubmit)}
         noValidate
-        className="space-y-7"
+        className="space-y-5"
         aria-label={registrationCopy.step1Title}
       >
-        <Field invalid={Boolean(errors.phone)}>
-          <FieldLabel htmlFor="reg-phone" required>
-            {registrationCopy.mobileLabel}
-          </FieldLabel>
-          <Input
-            id="reg-phone"
-            type="tel"
-            autoComplete="tel-national"
-            inputMode="tel"
-            placeholder={registrationCopy.mobilePlaceholder}
-            aria-invalid={Boolean(errors.phone)}
-            aria-describedby={
-              errors.phone ? "reg-phone-error" : "reg-phone-help"
-            }
-            {...register("phone")}
-          />
-          <FieldDescription id="reg-phone-help">
-            {registrationCopy.mobileHelp}
-          </FieldDescription>
-          <FieldError id="reg-phone-error">{errors.phone?.message}</FieldError>
-        </Field>
+        <div className="grid gap-5 sm:grid-cols-2">
+          <Field invalid={Boolean(errors.phone)}>
+            <FieldLabel htmlFor="reg-phone" required>
+              {registrationCopy.mobileLabel}
+            </FieldLabel>
+            <Input
+              id="reg-phone"
+              type="tel"
+              autoComplete="tel-national"
+              inputMode="tel"
+              placeholder={registrationCopy.mobilePlaceholder}
+              aria-invalid={Boolean(errors.phone)}
+              aria-describedby={
+                errors.phone ? "reg-phone-error" : "reg-phone-help"
+              }
+              {...register("phone")}
+            />
+            <FieldDescription id="reg-phone-help">
+              {registrationCopy.mobileHelp}
+            </FieldDescription>
+            <FieldError id="reg-phone-error">
+              {errors.phone?.message}
+            </FieldError>
+          </Field>
 
-        <Field invalid={Boolean(errors.nationalId)}>
-          <FieldLabel htmlFor="reg-national-id" required>
-            {registrationCopy.nationalIdLabel}
-          </FieldLabel>
-          <Input
-            id="reg-national-id"
-            dir="ltr"
-            type="text"
-            inputMode="numeric"
-            autoComplete="off"
-            maxLength={10}
-            placeholder={registrationCopy.nationalIdPlaceholder}
-            aria-invalid={Boolean(errors.nationalId)}
-            aria-describedby={
-              errors.nationalId ? "reg-national-id-error" : undefined
-            }
-            {...register("nationalId")}
-          />
-          <FieldError id="reg-national-id-error">
-            {errors.nationalId?.message}
-          </FieldError>
-        </Field>
+          <Field invalid={Boolean(errors.nationalId)}>
+            <FieldLabel htmlFor="reg-national-id" required>
+              {registrationCopy.nationalIdLabel}
+            </FieldLabel>
+            <Input
+              id="reg-national-id"
+              dir="ltr"
+              type="text"
+              inputMode="numeric"
+              autoComplete="off"
+              maxLength={10}
+              placeholder={registrationCopy.nationalIdPlaceholder}
+              aria-invalid={Boolean(errors.nationalId)}
+              aria-describedby={
+                errors.nationalId ? "reg-national-id-error" : undefined
+              }
+              {...register("nationalId")}
+            />
+            <FieldError id="reg-national-id-error">
+              {errors.nationalId?.message}
+            </FieldError>
+          </Field>
+        </div>
 
         <Field invalid={Boolean(errors.termsAccepted)}>
           <div className="flex items-start gap-3">

@@ -32,7 +32,7 @@ export function PortfolioImageList({
         <h3 className="type-h4 text-foreground">
           {registrationCopy.portfolioImagesLabel}
         </h3>
-        <p className="type-body-sm text-muted-foreground">
+        <p className="type-body-sm text-foreground-muted">
           {registrationCopy.portfolioImagesHelp}
         </p>
       </div>
@@ -54,7 +54,7 @@ export function PortfolioImageList({
         </p>
       ) : null}
       {items.length > 0 ? (
-        <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {items.map((item) => {
             const preview = previews.get(item.id);
 
@@ -72,7 +72,7 @@ export function PortfolioImageList({
                     className="aspect-square w-full object-cover"
                   />
                 ) : (
-                  <p className="type-caption p-3 text-muted-foreground">
+                  <p className="type-caption p-3 text-foreground-muted">
                     {item.file.name}
                   </p>
                 )}

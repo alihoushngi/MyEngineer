@@ -34,7 +34,7 @@ export function RegistrationCompleteView({
   }, [redirectToPanel, router]);
 
   return (
-    <div className="space-y-8 border-t border-border pt-8">
+    <div className="mx-auto flex min-h-full max-w-2xl items-center justify-center py-4">
       <Empty
         icon={<CheckCircleIcon aria-hidden="true" className="text-success" />}
         title={registrationCopy.completeTitle}

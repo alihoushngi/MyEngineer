@@ -59,7 +59,7 @@ export function OrganizationLicenseFields({
       : [];
 
   return (
-    <div className="space-y-7">
+    <div className="grid gap-5 sm:grid-cols-2">
       <Field invalid={Boolean(errors.licenseNumber)}>
         <FieldLabel htmlFor="reg-license-number" required>
           {registrationCopy.licenseNumberLabel}
@@ -151,7 +151,7 @@ export function OrganizationLicenseFields({
       </Field>
 
       {discipline !== "" && qualificationOptions.length === 0 ? (
-        <Alert variant="info">
+        <Alert variant="info" className="sm:col-span-2">
           <CircleAlertIcon />
           <AlertDescription>
             {registrationCopy.qualificationsUnavailable}
@@ -160,7 +160,10 @@ export function OrganizationLicenseFields({
       ) : null}
 
       {qualificationOptions.length > 0 ? (
-        <Field invalid={Boolean(errors.qualifications)}>
+        <Field
+          invalid={Boolean(errors.qualifications)}
+          className="sm:col-span-2"
+        >
           <FieldLabel id="reg-qualifications-label" required>
             {registrationCopy.qualificationsLabel}
           </FieldLabel>
@@ -170,7 +173,7 @@ export function OrganizationLicenseFields({
             aria-describedby={
               errors.qualifications ? "reg-qualifications-error" : undefined
             }
-            className="flex flex-col gap-3"
+            className="grid gap-2 sm:grid-cols-2"
           >
             {ENGINEERING_QUALIFICATIONS.filter((item) =>
               qualificationOptions.includes(item.id),

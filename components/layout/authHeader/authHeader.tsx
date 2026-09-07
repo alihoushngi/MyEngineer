@@ -5,7 +5,7 @@ import { siteConfig } from "@/config/site.config/site.config";
 
 export function AuthHeader() {
   return (
-    <header className="border-b border-primary-deep-foreground/10 bg-primary-deep/95 pt-[env(safe-area-inset-top)] text-primary-deep-foreground shadow-sm backdrop-blur-xl">
+    <header className="shrink-0 border-b border-primary-deep-foreground/10 bg-primary-deep/95 pt-[env(safe-area-inset-top)] text-primary-deep-foreground shadow-sm backdrop-blur-xl">
       <div className="container-app flex items-center justify-between gap-3 py-2.5 sm:gap-4">
         <BrandLogo className="min-w-0 shrink text-primary-deep-foreground focus-visible:ring-offset-primary-deep" />
 

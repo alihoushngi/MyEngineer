@@ -4,7 +4,7 @@ import { registrationCopy } from "@/config/registration.config/registration.conf
 
 export function RegistrationLoginCrossLink() {
   return (
-    <p className="type-body-sm text-muted-foreground">
+    <p className="type-body-sm text-foreground-muted">
       {registrationCopy.loginCrossLinkPrefix}{" "}
       <Link
         href={storePaths.engineerLogin}

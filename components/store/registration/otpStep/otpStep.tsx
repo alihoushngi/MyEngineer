@@ -9,7 +9,6 @@ import { toUserErrorMessage } from "@/lib/errors/to-user-error-message/to-user-e
 import { Button } from "@/components/ui/button/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field/field";
 import { OtpInput } from "@/components/ui/otpInput/otpInput";
-import { RegistrationProgress } from "@/components/store/registration/registrationProgress/registrationProgress";
 import { RegistrationStepNav } from "@/components/store/registration/registrationStepNav/registrationStepNav";
 import {
   otpStepSchema,
@@ -92,13 +91,12 @@ export function OtpStep() {
     isSubmitting || verifyMutation.isPending || resendMutation.isPending;
 
   return (
-    <div className="space-y-8">
-      <RegistrationProgress currentStep={2} />
+    <div className="mx-auto max-w-2xl space-y-6">
       <div className="space-y-2">
         <h2 className="type-h2 text-foreground">
           {registrationCopy.step2Title}
         </h2>
-        <p className="type-body text-muted-foreground">
+        <p className="type-body text-foreground-muted">
           {phone
             ? registrationCopy.step2Description(phone)
             : registrationCopy.step2Description("—")}
@@ -107,7 +105,7 @@ export function OtpStep() {
       <form
         onSubmit={handleSubmit(onSubmit)}
         noValidate
-        className="space-y-7"
+        className="space-y-5"
         aria-label={registrationCopy.step2Title}
       >
         <Field invalid={Boolean(errors.code) || Boolean(verifyError)}>

@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/field/field";
 import { Input } from "@/components/ui/input/input";
 import { Textarea } from "@/components/ui/textarea/textarea";
-import { RegistrationProgress } from "@/components/store/registration/registrationProgress/registrationProgress";
 import { RegistrationStepNav } from "@/components/store/registration/registrationStepNav/registrationStepNav";
 import {
   resumeStepSchema,
@@ -67,23 +66,22 @@ export function ProfessionalResumeStep() {
   }
 
   return (
-    <div className="space-y-8">
-      <RegistrationProgress currentStep={8} />
+    <div className="space-y-6">
       <div className="space-y-2">
         <h2 className="type-h2 text-foreground">
           {registrationCopy.step8Title}
         </h2>
-        <p className="type-body text-muted-foreground">
+        <p className="type-body text-foreground-muted">
           {registrationCopy.step8Description}
         </p>
       </div>
       <form
         onSubmit={handleSubmit(onSubmit)}
         noValidate
-        className="space-y-7"
+        className="space-y-5"
         aria-label={registrationCopy.step8Title}
       >
-        <Field invalid={Boolean(errors.experienceYears)}>
+        <Field invalid={Boolean(errors.experienceYears)} className="max-w-xs">
           <FieldLabel htmlFor="reg-experience-years" required>
             {registrationCopy.experienceYearsLabel}
           </FieldLabel>
@@ -113,7 +111,7 @@ export function ProfessionalResumeStep() {
           </FieldLabel>
           <Textarea
             id="reg-resume-text"
-            rows={8}
+            rows={6}
             placeholder={registrationCopy.resumeTextPlaceholder}
             aria-invalid={Boolean(errors.resumeText)}
             aria-describedby={

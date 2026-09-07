@@ -6,7 +6,6 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { ExpertiseCatalogPicker } from "@/components/store/registration/expertiseCatalogPicker/expertiseCatalogPicker";
 import { RegistrationError } from "@/components/store/registration/registrationError/registrationError";
-import { RegistrationProgress } from "@/components/store/registration/registrationProgress/registrationProgress";
 import { RegistrationStepNav } from "@/components/store/registration/registrationStepNav/registrationStepNav";
 import {
   expertiseStepSchema,
@@ -68,13 +67,12 @@ export function ExpertiseStep() {
   }
 
   return (
-    <div className="space-y-8">
-      <RegistrationProgress currentStep={4} />
+    <div className="space-y-6">
       <div className="space-y-2">
         <h2 className="type-h2 text-foreground">
           {registrationCopy.step4Title}
         </h2>
-        <p className="type-body text-muted-foreground">
+        <p className="type-body text-foreground-muted">
           {registrationCopy.step4Description}
         </p>
       </div>

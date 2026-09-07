@@ -1,7 +1,9 @@
 "use client";
 
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button/button";
+import { useRegistrationFooterSlot } from "@/components/store/registration/registrationShell/registrationShellContext";
 import { registrationCopy } from "@/config/registration.config/registration.config";
 
 type RegistrationStepNavProps = {
@@ -23,34 +25,39 @@ export function RegistrationStepNav({
   isPending = false,
   isContinueDisabled = false,
 }: RegistrationStepNavProps) {
-  return (
-    <div className="sticky bottom-0 z-10 mt-8 border-t border-border bg-surface py-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:static sm:pt-6">
-      <div className="flex flex-row-reverse gap-3">
+  const footerSlot = useRegistrationFooterSlot();
+  const navigation = (
+    <div className="flex w-full flex-row-reverse gap-3">
+      <Button
+        type="button"
+        onClick={onContinue}
+        loading={isPending}
+        disabled={isContinueDisabled || isPending}
+        className="min-w-0 flex-1 sm:max-w-64"
+      >
+        {continueLabel}
+        <ChevronLeftIcon aria-hidden="true" className="ltr:hidden" />
+        <ChevronRightIcon aria-hidden="true" className="rtl:hidden" />
+      </Button>
+      {onBack ? (
         <Button
           type="button"
-          onClick={onContinue}
-          loading={isPending}
-          disabled={isContinueDisabled || isPending}
-          className="min-w-0 flex-1 sm:max-w-64"
+          variant="outline"
+          onClick={onBack}
+          disabled={isBackDisabled || isPending}
+          className="min-w-28 shrink-0"
         >
-          {continueLabel}
-          <ChevronLeftIcon aria-hidden="true" className="ltr:hidden" />
-          <ChevronRightIcon aria-hidden="true" className="rtl:hidden" />
+          <ChevronRightIcon aria-hidden="true" className="ltr:hidden" />
+          <ChevronLeftIcon aria-hidden="true" className="rtl:hidden" />
+          {backLabel}
         </Button>
-        {onBack ? (
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={onBack}
-            disabled={isBackDisabled || isPending}
-            className="shrink-0"
-          >
-            <ChevronRightIcon aria-hidden="true" className="ltr:hidden" />
-            <ChevronLeftIcon aria-hidden="true" className="rtl:hidden" />
-            {backLabel}
-          </Button>
-        ) : null}
-      </div>
+      ) : null}
     </div>
   );
+
+  if (footerSlot === undefined) {
+    return navigation;
+  }
+
+  return footerSlot ? createPortal(navigation, footerSlot) : null;
 }

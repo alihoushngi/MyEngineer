@@ -17,7 +17,6 @@ import {
   SelectValue,
 } from "@/components/ui/select/select";
 import { RegistrationError } from "@/components/store/registration/registrationError/registrationError";
-import { RegistrationProgress } from "@/components/store/registration/registrationProgress/registrationProgress";
 import { RegistrationStepNav } from "@/components/store/registration/registrationStepNav/registrationStepNav";
 import {
   serviceAreaStepSchema,
@@ -95,157 +94,160 @@ export function ServiceAreaStep() {
   }
 
   return (
-    <div className="space-y-8">
-      <RegistrationProgress currentStep={3} />
+    <div className="space-y-6">
       <div className="space-y-2">
         <h2 className="type-h2 text-foreground">
           {registrationCopy.step3Title}
         </h2>
-        <p className="type-body text-muted-foreground">
+        <p className="type-body text-foreground-muted">
           {registrationCopy.step3Description}
         </p>
       </div>
       <form
         onSubmit={handleSubmit(onSubmit)}
         noValidate
-        className="space-y-7"
+        className="space-y-5"
         aria-label={registrationCopy.step3Title}
       >
-        {/* Province selector */}
-        <Field invalid={Boolean(errors.provinceId)}>
-          <FieldLabel htmlFor="reg-province" required>
-            {registrationCopy.provinceLabel}
-          </FieldLabel>
-          {provinceError ? (
-            <div className="flex min-h-12 items-center gap-3 rounded-md border border-border px-4 py-2 has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary-subtle">
-              <p className="type-body-sm text-danger">
-                {registrationCopy.provinceErrorMessage}
-              </p>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={retryProvinces}
-                aria-label="تلاش مجدد برای بارگذاری استان‌ها"
-              >
-                <RefreshCcwIcon className="size-4" />
-                {registrationCopy.retryLabel}
-              </Button>
-            </div>
-          ) : (
-            <Controller
-              control={control}
-              name="provinceId"
-              render={({ field }) => (
-                <Select
-                  value={field.value}
-                  onValueChange={(value) => {
-                    field.onChange(value);
-                    setSelectedProvince(value);
-                    // Clear city when province changes
-                    setValue("cityId", "");
-                  }}
-                  disabled={isLoadingProvinces || isSubmitting}
+        <div className="grid gap-5 sm:grid-cols-2">
+          {/* Province selector */}
+          <Field invalid={Boolean(errors.provinceId)}>
+            <FieldLabel htmlFor="reg-province" required>
+              {registrationCopy.provinceLabel}
+            </FieldLabel>
+            {provinceError ? (
+              <div className="flex min-h-12 items-center gap-3 rounded-md border border-border px-4 py-2 has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary-subtle">
+                <p className="type-body-sm text-danger">
+                  {registrationCopy.provinceErrorMessage}
+                </p>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={retryProvinces}
+                  aria-label="تلاش مجدد برای بارگذاری استان‌ها"
                 >
-                  <SelectTrigger
-                    id="reg-province"
-                    aria-invalid={Boolean(errors.provinceId)}
-                    aria-describedby={
-                      errors.provinceId ? "reg-province-error" : undefined
-                    }
+                  <RefreshCcwIcon className="size-4" />
+                  {registrationCopy.retryLabel}
+                </Button>
+              </div>
+            ) : (
+              <Controller
+                control={control}
+                name="provinceId"
+                render={({ field }) => (
+                  <Select
+                    value={field.value}
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                      setSelectedProvince(value);
+                      // Clear city when province changes
+                      setValue("cityId", "");
+                    }}
+                    disabled={isLoadingProvinces || isSubmitting}
                   >
-                    <SelectValue
-                      placeholder={
-                        isLoadingProvinces
-                          ? registrationCopy.provinceLoadingMessage
-                          : registrationCopy.provincePlaceholder
+                    <SelectTrigger
+                      id="reg-province"
+                      aria-invalid={Boolean(errors.provinceId)}
+                      aria-describedby={
+                        errors.provinceId ? "reg-province-error" : undefined
                       }
-                    />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {provinces.map((province) => (
-                      <SelectItem key={province.id} value={province.id}>
-                        {province.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          )}
-          <FieldError id="reg-province-error">
-            {errors.provinceId?.message}
-          </FieldError>
-        </Field>
+                    >
+                      <SelectValue
+                        placeholder={
+                          isLoadingProvinces
+                            ? registrationCopy.provinceLoadingMessage
+                            : registrationCopy.provincePlaceholder
+                        }
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {provinces.map((province) => (
+                        <SelectItem key={province.id} value={province.id}>
+                          {province.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+            )}
+            <FieldError id="reg-province-error">
+              {errors.provinceId?.message}
+            </FieldError>
+          </Field>
 
-        {/* City selector */}
-        <Field invalid={Boolean(errors.cityId)}>
-          <FieldLabel htmlFor="reg-city" required>
-            {registrationCopy.cityLabel}
-          </FieldLabel>
-          {cityError ? (
-            <div className="flex min-h-12 items-center gap-3 rounded-md border border-border px-4 py-2 has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary-subtle">
-              <p className="type-body-sm text-danger">
-                {registrationCopy.cityErrorMessage}
-              </p>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={retryCities}
-                aria-label="تلاش مجدد برای بارگذاری شهرها"
-              >
-                <RefreshCcwIcon className="size-4" />
-                {registrationCopy.retryLabel}
-              </Button>
-            </div>
-          ) : (
-            <Controller
-              control={control}
-              name="cityId"
-              render={({ field }) => (
-                <Select
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  disabled={
-                    !selectedProvinceId ||
-                    isLoadingCities ||
-                    cities.length === 0 ||
-                    isSubmitting
-                  }
+          {/* City selector */}
+          <Field invalid={Boolean(errors.cityId)}>
+            <FieldLabel htmlFor="reg-city" required>
+              {registrationCopy.cityLabel}
+            </FieldLabel>
+            {cityError ? (
+              <div className="flex min-h-12 items-center gap-3 rounded-md border border-border px-4 py-2 has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary-subtle">
+                <p className="type-body-sm text-danger">
+                  {registrationCopy.cityErrorMessage}
+                </p>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={retryCities}
+                  aria-label="تلاش مجدد برای بارگذاری شهرها"
                 >
-                  <SelectTrigger
-                    id="reg-city"
-                    aria-invalid={Boolean(errors.cityId)}
-                    aria-describedby={
-                      errors.cityId ? "reg-city-error" : undefined
+                  <RefreshCcwIcon className="size-4" />
+                  {registrationCopy.retryLabel}
+                </Button>
+              </div>
+            ) : (
+              <Controller
+                control={control}
+                name="cityId"
+                render={({ field }) => (
+                  <Select
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    disabled={
+                      !selectedProvinceId ||
+                      isLoadingCities ||
+                      cities.length === 0 ||
+                      isSubmitting
                     }
                   >
-                    <SelectValue
-                      placeholder={
-                        !selectedProvinceId
-                          ? registrationCopy.cityPlaceholder
-                          : isLoadingCities
-                            ? registrationCopy.cityLoadingMessage
-                            : cities.length === 0
-                              ? registrationCopy.cityEmptyMessage
-                              : registrationCopy.cityPlaceholder
+                    <SelectTrigger
+                      id="reg-city"
+                      aria-invalid={Boolean(errors.cityId)}
+                      aria-describedby={
+                        errors.cityId ? "reg-city-error" : undefined
                       }
-                    />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {cities.map((city) => (
-                      <SelectItem key={city.id} value={city.id}>
-                        {city.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          )}
-          <FieldError id="reg-city-error">{errors.cityId?.message}</FieldError>
-        </Field>
+                    >
+                      <SelectValue
+                        placeholder={
+                          !selectedProvinceId
+                            ? registrationCopy.cityPlaceholder
+                            : isLoadingCities
+                              ? registrationCopy.cityLoadingMessage
+                              : cities.length === 0
+                                ? registrationCopy.cityEmptyMessage
+                                : registrationCopy.cityPlaceholder
+                        }
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {cities.map((city) => (
+                        <SelectItem key={city.id} value={city.id}>
+                          {city.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+            )}
+            <FieldError id="reg-city-error">
+              {errors.cityId?.message}
+            </FieldError>
+          </Field>
+        </div>
 
         {selectedProvinceId &&
         !isLoadingCities &&

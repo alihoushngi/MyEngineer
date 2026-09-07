@@ -12,7 +12,6 @@ import {
   portfolioStepSchema,
   type PortfolioStepData,
 } from "@/components/store/registration/portfolioStep/type/portfolioStep.types";
-import { RegistrationProgress } from "@/components/store/registration/registrationProgress/registrationProgress";
 import { RegistrationStepNav } from "@/components/store/registration/registrationStepNav/registrationStepNav";
 import { registrationCopy } from "@/config/registration.config/registration.config";
 import { toUserErrorMessage } from "@/lib/errors/to-user-error-message/to-user-error-message";
@@ -152,20 +151,19 @@ export function PortfolioStep() {
   }
 
   return (
-    <div className="space-y-8">
-      <RegistrationProgress currentStep={9} />
+    <div className="space-y-6">
       <div className="space-y-2">
         <h2 className="type-h2 text-foreground">
           {registrationCopy.step9Title}
         </h2>
-        <p className="type-body text-muted-foreground">
+        <p className="type-body text-foreground-muted">
           {registrationCopy.step9Description}
         </p>
       </div>
       <form
         onSubmit={handleSubmit(onSubmit)}
         noValidate
-        className="space-y-8"
+        className="space-y-6"
         aria-label={registrationCopy.step9Title}
       >
         <PortfolioImageList

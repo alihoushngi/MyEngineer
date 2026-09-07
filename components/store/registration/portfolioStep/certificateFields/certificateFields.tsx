@@ -44,11 +44,11 @@ export function CertificateFields({
         </Button>
       </div>
       {items.length === 0 ? null : (
-        <ul className="space-y-4">
+        <ul className="grid gap-4 md:grid-cols-2">
           {items.map((item) => (
             <li
               key={item.id}
-              className="space-y-5 border-s-2 border-border ps-4 py-4"
+              className="space-y-4 rounded-xl border border-border-subtle bg-surface-subtle p-4"
             >
               <Field>
                 <FieldLabel htmlFor={`reg-cert-title-${item.id}`}>

@@ -15,7 +15,6 @@ import { Button } from "@/components/ui/button/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field/field";
 import { Input } from "@/components/ui/input/input";
 import { RegistrationError } from "@/components/store/registration/registrationError/registrationError";
-import { RegistrationProgress } from "@/components/store/registration/registrationProgress/registrationProgress";
 import { RegistrationStepNav } from "@/components/store/registration/registrationStepNav/registrationStepNav";
 import {
   personalInfoStepSchema,
@@ -123,23 +122,22 @@ export function PersonalInfoStep() {
   const hasExpertise = expertiseIds.length > 0 || softwareIds.length > 0;
 
   return (
-    <div className="space-y-8">
-      <RegistrationProgress currentStep={5} />
+    <div className="space-y-6">
       <div className="space-y-2">
         <h2 className="type-h2 text-foreground">
           {registrationCopy.step5Title}
         </h2>
-        <p className="type-body text-muted-foreground">
+        <p className="type-body text-foreground-muted">
           {registrationCopy.step5Description}
         </p>
       </div>
 
       {/* Expertise summary */}
       <section
-        className="space-y-3 border-s-2 border-primary bg-surface-subtle px-4 py-3"
+        className="space-y-3 rounded-xl border border-border-subtle bg-surface-subtle p-4"
         aria-label={registrationCopy.expertiseSummaryLabel}
       >
-        <div className="flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <p className="type-body-sm font-medium text-foreground">
             {registrationCopy.expertiseSummaryLabel}
           </p>
@@ -166,7 +164,7 @@ export function PersonalInfoStep() {
             ))}
           </div>
         ) : (
-          <p className="type-body-sm text-muted-foreground">
+          <p className="type-body-sm text-foreground-muted">
             {registrationCopy.expertiseSummaryEmpty}
           </p>
         )}
@@ -175,135 +173,137 @@ export function PersonalInfoStep() {
       <form
         onSubmit={handleSubmit(onSubmit)}
         noValidate
-        className="space-y-7"
+        className="space-y-5"
         aria-label={registrationCopy.step5Title}
       >
-        {/* Avatar */}
-        <Field>
-          <FieldLabel>{registrationCopy.avatarLabel}</FieldLabel>
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
-            <div className="relative shrink-0">
-              <Avatar size="lg" className="size-20">
-                {avatarPreviewUrl ? (
-                  <AvatarImage
-                    src={avatarPreviewUrl}
-                    alt="پیش‌نمایش تصویر پروفایل"
-                  />
+        <div className="grid gap-5 md:grid-cols-[10rem_minmax(0,1fr)]">
+          {/* Avatar */}
+          <Field className="rounded-xl border border-border-subtle bg-surface-subtle p-4">
+            <FieldLabel>{registrationCopy.avatarLabel}</FieldLabel>
+            <div className="flex items-start gap-3 md:flex-col">
+              <div className="relative shrink-0">
+                <Avatar size="lg" className="size-20">
+                  {avatarPreviewUrl ? (
+                    <AvatarImage
+                      src={avatarPreviewUrl}
+                      alt="پیش‌نمایش تصویر پروفایل"
+                    />
+                  ) : null}
+                  <AvatarFallback>
+                    <UserIcon
+                      className="size-8 text-foreground-muted"
+                      aria-hidden="true"
+                    />
+                  </AvatarFallback>
+                </Avatar>
+                {avatarFile ? (
+                  <button
+                    type="button"
+                    onClick={handleRemoveAvatar}
+                    aria-label={registrationCopy.fileRemoveLabel}
+                    className="absolute -end-1 -top-1 inline-flex size-9 items-center justify-center rounded-full bg-danger text-danger-foreground outline-none transition-all duration-200 ease-in-out focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    <XIcon className="size-3.5" aria-hidden="true" />
+                  </button>
                 ) : null}
-                <AvatarFallback>
-                  <UserIcon
-                    className="size-8 text-muted-foreground"
-                    aria-hidden="true"
-                  />
-                </AvatarFallback>
-              </Avatar>
-              {avatarFile ? (
-                <button
+              </div>
+              <div className="min-w-0 space-y-2">
+                <Button
                   type="button"
-                  onClick={handleRemoveAvatar}
-                  aria-label={registrationCopy.fileRemoveLabel}
-                  className="absolute -end-1 -top-1 inline-flex size-11 items-center justify-center rounded-full bg-danger text-danger-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-full"
                 >
-                  <XIcon className="size-3.5" aria-hidden="true" />
-                </button>
-              ) : null}
+                  {avatarFile
+                    ? registrationCopy.fileChangeLabel
+                    : "انتخاب تصویر"}
+                </Button>
+                {avatarFile ? (
+                  <p className="type-caption text-foreground-muted">
+                    {registrationCopy.fileSelected(avatarFile.name)}
+                  </p>
+                ) : null}
+                {!avatarFile ? (
+                  <p className="type-caption text-foreground-muted">
+                    {registrationCopy.avatarHelp}
+                  </p>
+                ) : null}
+              </div>
             </div>
-            <div className="flex flex-col gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                {avatarFile ? registrationCopy.fileChangeLabel : "انتخاب تصویر"}
-              </Button>
-              {avatarFile ? (
-                <p className="type-caption text-muted-foreground">
-                  {registrationCopy.fileSelected(avatarFile.name)}
-                </p>
-              ) : null}
-              <p className="type-caption text-muted-foreground">
-                {registrationCopy.avatarHelp}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/jpg,image/png"
+              aria-label={registrationCopy.avatarLabel}
+              className="sr-only"
+              onChange={handleAvatarChange}
+            />
+            {avatarFormatError ? (
+              <p className="type-body-sm text-danger" role="alert">
+                {avatarFormatError}
               </p>
-              {/*
-               * API CONTRACT REQUIRED — avatar upload endpoint does not exist.
-               * File is stored in-memory for now.
-               */}
-              <p className="type-caption text-muted-foreground">
-                {registrationCopy.avatarUploadApiNote}
-              </p>
-            </div>
+            ) : null}
+          </Field>
+
+          <div className="grid content-start gap-4 sm:grid-cols-2">
+            <Field invalid={Boolean(errors.firstName)}>
+              <FieldLabel htmlFor="reg-first-name" required>
+                {registrationCopy.firstNameLabel}
+              </FieldLabel>
+              <Input
+                id="reg-first-name"
+                type="text"
+                autoComplete="given-name"
+                placeholder={registrationCopy.firstNamePlaceholder}
+                aria-invalid={Boolean(errors.firstName)}
+                aria-describedby={
+                  errors.firstName ? "reg-first-name-error" : undefined
+                }
+                {...register("firstName")}
+              />
+              <FieldError id="reg-first-name-error">
+                {errors.firstName?.message}
+              </FieldError>
+            </Field>
+
+            <Field invalid={Boolean(errors.lastName)}>
+              <FieldLabel htmlFor="reg-last-name" required>
+                {registrationCopy.lastNameLabel}
+              </FieldLabel>
+              <Input
+                id="reg-last-name"
+                type="text"
+                autoComplete="family-name"
+                placeholder={registrationCopy.lastNamePlaceholder}
+                aria-invalid={Boolean(errors.lastName)}
+                aria-describedby={
+                  errors.lastName ? "reg-last-name-error" : undefined
+                }
+                {...register("lastName")}
+              />
+              <FieldError id="reg-last-name-error">
+                {errors.lastName?.message}
+              </FieldError>
+            </Field>
+
+            {/* National ID display — read-only from step 1 */}
+            <Field className="sm:col-span-2">
+              <FieldLabel htmlFor="reg-national-id-display">
+                {registrationCopy.nationalIdDisplayLabel}
+              </FieldLabel>
+              <Input
+                type="text"
+                id="reg-national-id-display"
+                dir="ltr"
+                readOnly
+                value={data.identity?.nationalId ?? ""}
+                aria-readonly="true"
+                className="bg-surface-muted text-foreground-muted"
+              />
+            </Field>
           </div>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/jpeg,image/jpg,image/png"
-            aria-label={registrationCopy.avatarLabel}
-            className="sr-only"
-            onChange={handleAvatarChange}
-          />
-          {avatarFormatError ? (
-            <p className="type-body-sm text-danger" role="alert">
-              {avatarFormatError}
-            </p>
-          ) : null}
-        </Field>
-
-        <Field invalid={Boolean(errors.firstName)}>
-          <FieldLabel htmlFor="reg-first-name" required>
-            {registrationCopy.firstNameLabel}
-          </FieldLabel>
-          <Input
-            id="reg-first-name"
-            type="text"
-            autoComplete="given-name"
-            placeholder={registrationCopy.firstNamePlaceholder}
-            aria-invalid={Boolean(errors.firstName)}
-            aria-describedby={
-              errors.firstName ? "reg-first-name-error" : undefined
-            }
-            {...register("firstName")}
-          />
-          <FieldError id="reg-first-name-error">
-            {errors.firstName?.message}
-          </FieldError>
-        </Field>
-
-        <Field invalid={Boolean(errors.lastName)}>
-          <FieldLabel htmlFor="reg-last-name" required>
-            {registrationCopy.lastNameLabel}
-          </FieldLabel>
-          <Input
-            id="reg-last-name"
-            type="text"
-            autoComplete="family-name"
-            placeholder={registrationCopy.lastNamePlaceholder}
-            aria-invalid={Boolean(errors.lastName)}
-            aria-describedby={
-              errors.lastName ? "reg-last-name-error" : undefined
-            }
-            {...register("lastName")}
-          />
-          <FieldError id="reg-last-name-error">
-            {errors.lastName?.message}
-          </FieldError>
-        </Field>
-
-        {/* National ID display — read-only from step 1 */}
-        <Field>
-          <FieldLabel htmlFor="reg-national-id-display">
-            {registrationCopy.nationalIdDisplayLabel}
-          </FieldLabel>
-          <Input
-            type="text"
-            id="reg-national-id-display"
-            dir="ltr"
-            readOnly
-            value={data.identity?.nationalId ?? ""}
-            aria-readonly="true"
-            className="bg-surface-muted text-muted-foreground"
-          />
-        </Field>
+        </div>
 
         {/*
          * Location fields (province/city) omitted per BUSINESS DECISION REQUIRED (P0).

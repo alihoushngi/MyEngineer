@@ -14,7 +14,6 @@ import {
   RadioGroup,
   RadioGroupItem,
 } from "@/components/ui/radioGroup/radioGroup";
-import { RegistrationProgress } from "@/components/store/registration/registrationProgress/registrationProgress";
 import { RegistrationStepNav } from "@/components/store/registration/registrationStepNav/registrationStepNav";
 import {
   ABOVE_DIPLOMA_DEGREES,
@@ -102,13 +101,12 @@ export function EducationStep() {
       ?.message;
 
   return (
-    <div className="space-y-8">
-      <RegistrationProgress currentStep={6} />
+    <div className="space-y-6">
       <div className="space-y-2">
         <h2 className="type-h2 text-foreground">
           {registrationCopy.step6Title}
         </h2>
-        <p className="type-body text-muted-foreground">
+        <p className="type-body text-foreground-muted">
           {registrationCopy.step6Description}
         </p>
       </div>
@@ -116,7 +114,7 @@ export function EducationStep() {
       <form
         onSubmit={handleSubmit(onSubmit)}
         noValidate
-        className="space-y-7"
+        className="space-y-5"
         aria-label={registrationCopy.step6Title}
       >
         {/* Education level branch */}
@@ -132,7 +130,7 @@ export function EducationStep() {
                 value={field.value}
                 onValueChange={field.onChange}
                 aria-labelledby="reg-edu-level-label"
-                className="flex flex-col gap-3 sm:flex-row"
+                className="grid gap-3 sm:grid-cols-2"
               >
                 <div className="flex min-h-12 items-center gap-3 rounded-md border border-border px-4 py-2 has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary-subtle">
                   <RadioGroupItem id="reg-edu-above" value="aboveDiploma" />
@@ -163,7 +161,7 @@ export function EducationStep() {
             <FieldLabel id="reg-edu-degrees-label">
               {registrationCopy.degreeSelectionLabel}
             </FieldLabel>
-            <p className="type-body-sm text-muted-foreground">
+            <p className="type-body-sm text-foreground-muted">
               {registrationCopy.degreeSelectionHelp}
             </p>
             <Controller
@@ -173,7 +171,7 @@ export function EducationStep() {
                 <div
                   role="group"
                   aria-labelledby="reg-edu-degrees-label"
-                  className="flex flex-col gap-3"
+                  className="grid gap-2 sm:grid-cols-2"
                   aria-describedby={
                     degreesError ? "reg-edu-degrees-error" : undefined
                   }
@@ -212,12 +210,12 @@ export function EducationStep() {
 
         {/* Per-degree file upload cards */}
         {level === "aboveDiploma" && selectedDegrees.length > 0 ? (
-          <div className="space-y-4">
+          <div className="grid gap-4 sm:grid-cols-2">
             {/*
              * API CONTRACT REQUIRED — file upload endpoint does not exist.
              * Files are selected locally and stored in wizard memory only.
              */}
-            <Alert variant="info">
+            <Alert variant="info" className="sm:col-span-2">
               <CircleAlertIcon />
               <AlertDescription>
                 {registrationCopy.uploadApiNote}
@@ -318,7 +316,7 @@ function DegreeFileCard({
   }
 
   return (
-    <div className="rounded-lg border border-border bg-surface p-4 space-y-3">
+    <div className="space-y-3 rounded-lg border border-border bg-surface p-4">
       <p className="type-body-sm font-medium text-foreground">
         {registrationCopy.uploadDegreeLabel(label)}
       </p>
@@ -326,7 +324,7 @@ function DegreeFileCard({
         <div className="flex items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-2">
             <FileIcon
-              className="size-4 shrink-0 text-muted-foreground"
+              className="size-4 shrink-0 text-foreground-muted"
               aria-hidden="true"
             />
             <span className="type-body-sm truncate text-foreground">
