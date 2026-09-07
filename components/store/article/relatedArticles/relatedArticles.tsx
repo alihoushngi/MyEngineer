@@ -1,5 +1,8 @@
+import { SectionHeader } from "@/components/common/sectionHeader/sectionHeader";
 import { ArticleCard } from "@/components/store/article/articleCard/articleCard";
+
 import { articlesCopy } from "@/config/articles.config/articles.config";
+
 import { type ArticleCardData } from "@/types/store/article.types";
 
 type RelatedArticlesProps = {
@@ -20,18 +23,20 @@ export function RelatedArticles({
   }
 
   return (
-    <section className="space-y-4" aria-labelledby={headingId}>
-      <div className="space-y-2">
-        <h2 id={headingId} className="type-h3 text-foreground">
-          {heading}
-        </h2>
-        {description ? (
-          <p className="type-body-sm text-muted-foreground">{description}</p>
-        ) : null}
-      </div>
-      <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <section
+      className="border-t border-border-subtle pt-10"
+      aria-labelledby={headingId}
+    >
+      <SectionHeader
+        eyebrow="مطالب پیشنهادی"
+        titleId={headingId}
+        title={heading}
+        description={description}
+      />
+
+      <ul className="mt-7 grid items-stretch gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((article) => (
-          <li key={article.id}>
+          <li key={article.id} className="h-full">
             <ArticleCard article={article} />
           </li>
         ))}

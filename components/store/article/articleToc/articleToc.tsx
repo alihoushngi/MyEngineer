@@ -1,6 +1,8 @@
 import { articlesCopy } from "@/config/articles.config/articles.config";
-import { type ArticleTocItem } from "@/types/store/article.types";
+
 import { cn } from "@/lib/utils/cn/cn";
+
+import { type ArticleTocItem } from "@/types/store/article.types";
 
 type ArticleTocProps = {
   items: readonly ArticleTocItem[];
@@ -24,18 +26,22 @@ export function ArticleToc({ items, headingHidden = false }: ArticleTocProps) {
       {headingHidden ? (
         <h2 className="sr-only">{articlesCopy.tocHeading}</h2>
       ) : (
-        <h2 id="article-toc-heading" className="mb-4 type-h4 text-foreground">
+        <h2
+          id="article-toc-heading"
+          className="mb-3 px-1 type-h4 text-foreground"
+        >
           {articlesCopy.tocHeading}
         </h2>
       )}
-      <ol className="space-y-1">
+
+      <ol className="space-y-0.5">
         {items.map((item) => (
           <li key={item.id} className={LEVEL_PADDING[item.level]}>
             <a
               href={`#${item.id}`}
               className={cn(
-                "inline-flex min-h-11 items-center type-body-sm text-muted-foreground outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring",
-                item.level === 2 && "font-medium text-foreground",
+                "flex min-h-10 items-center rounded-lg px-2 type-body-sm text-foreground-muted outline-none transition-all duration-200 ease-in-out hover:bg-primary-subtle hover:text-primary focus-visible:ring-2 focus-visible:ring-ring",
+                item.level === 2 && "font-semibold text-foreground",
               )}
             >
               {item.label}

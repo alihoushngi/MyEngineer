@@ -1,3 +1,5 @@
+import { MessageSquareIcon } from "lucide-react";
+
 import { type ArticleComment } from "@/types/store/article.types";
 
 type ArticleCommentListProps = {
@@ -6,21 +8,31 @@ type ArticleCommentListProps = {
 
 export function ArticleCommentList({ comments }: ArticleCommentListProps) {
   return (
-    <ul className="divide-y divide-border">
+    <ul className="grid gap-3">
       {comments.map((comment) => (
-        <li key={comment.id} className="py-5 first:pt-0">
-          <article className="space-y-2">
-            <header className="flex flex-wrap items-baseline justify-between gap-2">
-              <h3 className="type-body font-medium text-foreground">
-                {comment.authorName}
-              </h3>
-              <p className="type-caption text-muted-foreground">
-                {comment.createdAtLabel}
-              </p>
+        <li key={comment.id}>
+          <article className="rounded-2xl border border-border-subtle bg-surface p-5 shadow-xs">
+            <header className="flex items-start gap-3">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary-subtle text-primary">
+                <MessageSquareIcon aria-hidden="true" className="size-4" />
+              </span>
+
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-baseline justify-between gap-2">
+                  <h3 className="type-body font-semibold text-foreground">
+                    {comment.authorName}
+                  </h3>
+
+                  <p className="type-caption text-foreground-subtle">
+                    {comment.createdAtLabel}
+                  </p>
+                </div>
+
+                <p className="mt-3 type-body leading-loose text-foreground-muted">
+                  {comment.body}
+                </p>
+              </div>
             </header>
-            <p className="type-body leading-loose text-foreground">
-              {comment.body}
-            </p>
           </article>
         </li>
       ))}

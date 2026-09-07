@@ -1,11 +1,14 @@
 import Link from "next/link";
+
 import { articlesCopy } from "@/config/articles.config/articles.config";
 import { storePaths } from "@/config/navigation.config/navigation.config";
+
 import {
   ALL_ARTICLE_CATEGORY,
   buildArticleHubHref,
 } from "@/lib/articles/article-query/article-query";
 import { cn } from "@/lib/utils/cn/cn";
+
 import { type ArticleCategory } from "@/types/store/article.types";
 
 type ArticleCategoryFilterProps = {
@@ -48,10 +51,10 @@ export function ArticleCategoryFilter({
                 scroll={false}
                 aria-current={selected ? "page" : undefined}
                 className={cn(
-                  "inline-flex min-h-11 items-center rounded-full px-4 type-button outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring",
+                  "inline-flex min-h-11 items-center rounded-full border px-4 type-button outline-none transition-all duration-200 ease-in-out focus-visible:ring-2 focus-visible:ring-ring",
                   selected
-                    ? "bg-primary text-primary-foreground"
-                    : "border border-border-strong bg-surface text-foreground hover:border-primary hover:text-primary",
+                    ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                    : "border-border-subtle bg-surface text-foreground hover:border-primary/25 hover:bg-primary-subtle hover:text-primary",
                 )}
               >
                 {option.label}

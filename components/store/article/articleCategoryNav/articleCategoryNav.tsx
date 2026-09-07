@@ -1,6 +1,9 @@
 import Link from "next/link";
+
 import { articlesCopy } from "@/config/articles.config/articles.config";
+
 import { cn } from "@/lib/utils/cn/cn";
+
 import { type ArticleCategory } from "@/types/store/article.types";
 
 type ArticleCategoryNavProps = {
@@ -20,10 +23,11 @@ export function ArticleCategoryNav({
     <nav aria-labelledby="article-categories-heading">
       <h2
         id="article-categories-heading"
-        className="mb-4 type-h4 text-foreground"
+        className="mb-3 px-2 type-h4 text-foreground"
       >
         {articlesCopy.categoriesHeading}
       </h2>
+
       <ul className="space-y-1">
         {categories.map((category) => {
           const current = category.slug === currentSlug;
@@ -32,14 +36,20 @@ export function ArticleCategoryNav({
             <li key={category.slug}>
               <Link
                 href={category.href}
-                aria-current={current ? "true" : undefined}
+                aria-current={current ? "page" : undefined}
                 className={cn(
-                  "inline-flex min-h-11 items-center type-body-sm outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                  "relative flex min-h-11 items-center rounded-xl px-3 type-body-sm outline-none transition-all duration-200 ease-in-out hover:bg-surface-muted focus-visible:ring-2 focus-visible:ring-ring",
                   current
-                    ? "font-medium text-primary"
-                    : "text-muted-foreground hover:text-foreground",
+                    ? "bg-primary-subtle font-semibold text-primary"
+                    : "text-foreground-muted hover:text-foreground",
                 )}
               >
+                {current ? (
+                  <span
+                    aria-hidden="true"
+                    className="absolute inset-y-3 inset-s-0 w-0.5 rounded-full bg-primary"
+                  />
+                ) : null}
                 {category.title}
               </Link>
             </li>

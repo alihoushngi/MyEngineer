@@ -1,11 +1,15 @@
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
 import { ArrowLeftIcon, NewspaperIcon } from "lucide-react";
+
 import { Badge } from "@/components/ui/badge/badge";
-import { Card, CardFooter, CardHeader } from "@/components/ui/card/card";
+import { Card } from "@/components/ui/card/card";
+
 import { articlesCopy } from "@/config/articles.config/articles.config";
-import { type ArticleCardData } from "@/types/store/article.types";
+
 import { cn } from "@/lib/utils/cn/cn";
+
+import { type ArticleCardData } from "@/types/store/article.types";
 
 type ArticleCardProps = {
   article: ArticleCardData;
@@ -21,50 +25,62 @@ export function ArticleCard({ article, className }: ArticleCardProps) {
     <article className={cn("h-full", className)}>
       <Link
         href={article.href}
-        className="group flex h-full outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        className="group block h-full rounded-3xl outline-none transition-all duration-200 ease-in-out focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       >
-        <Card className="h-full w-full overflow-hidden p-0">
-          {article.coverSrc ? (
-            <Image
-              src={article.coverSrc}
-              alt={`تصویر مقاله ${article.title}`}
-              width={720}
-              height={450}
-              className="aspect-[16/10] w-full object-cover"
-            />
-          ) : (
+        <Card className="relative flex h-full w-full flex-col overflow-hidden rounded-3xl border border-border-subtle bg-surface p-0 shadow-xs transition-all duration-200 ease-in-out group-hover:-translate-y-1 group-hover:border-primary/20 group-hover:shadow-md motion-reduce:transform-none">
+          <div className="relative aspect-16/10 overflow-hidden bg-secondary-subtle">
+            {article.coverSrc ? (
+              <Image
+                src={article.coverSrc}
+                alt={`تصویر مقاله ${article.title}`}
+                fill
+                sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                className="object-cover transition-all duration-200 ease-in-out group-hover:scale-[1.03] motion-reduce:transform-none"
+              />
+            ) : (
+              <div
+                aria-hidden="true"
+                className="flex size-full items-center justify-center bg-secondary-subtle text-secondary"
+              >
+                <NewspaperIcon className="size-9" />
+              </div>
+            )}
+
             <div
               aria-hidden="true"
-              className="flex aspect-[16/10] items-center justify-center bg-secondary text-secondary-foreground"
-            >
-              <NewspaperIcon className="size-8" />
-            </div>
-          )}
-          <CardHeader className="gap-3 px-(--space-card) pt-4">
+              className="absolute inset-0 bg-linear-to-t from-primary-deep/25 via-transparent to-transparent opacity-0 transition-all duration-200 ease-in-out group-hover:opacity-100"
+            />
+          </div>
+
+          <div className="flex flex-1 flex-col p-5 sm:p-6">
             {article.categoryLabel ? (
-              <Badge variant="secondary">{article.categoryLabel}</Badge>
+              <Badge variant="secondary" className="w-fit">
+                {article.categoryLabel}
+              </Badge>
             ) : null}
-            <h2 className="break-words type-h3 text-foreground group-hover:text-primary">
+
+            <h2 className="mt-4 wrap-break-word type-h3 text-foreground transition-all duration-200 ease-in-out group-hover:text-primary">
               {article.title}
             </h2>
+
             {article.excerpt ? (
-              <p className="type-body-sm text-muted-foreground">
+              <p className="mt-3 type-body-sm leading-relaxed text-foreground-muted">
                 {article.excerpt}
               </p>
             ) : null}
+
             {meta ? (
-              <p className="type-caption text-muted-foreground">{meta}</p>
+              <p className="mt-4 type-caption text-foreground-subtle">{meta}</p>
             ) : null}
-          </CardHeader>
-          <CardFooter className="mt-auto px-(--space-card) pt-2 pb-(--space-card)">
-            <span className="inline-flex min-h-11 items-center gap-2 type-button text-primary">
+
+            <span className="mt-auto inline-flex min-h-11 items-center gap-2 pt-5 type-button text-primary">
               {articlesCopy.readMoreCta}
               <ArrowLeftIcon
                 aria-hidden="true"
-                className="size-4 transition-transform group-hover:-translate-x-1 motion-reduce:transform-none"
+                className="size-4 transition-all duration-200 ease-in-out group-hover:-translate-x-1 motion-reduce:transform-none"
               />
             </span>
-          </CardFooter>
+          </div>
         </Card>
       </Link>
     </article>
