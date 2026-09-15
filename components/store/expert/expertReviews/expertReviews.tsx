@@ -8,6 +8,7 @@ import { ExpertRating } from "@/components/store/expert/expertRating/expertRatin
 import { ExpertReviewCard } from "@/components/store/expert/expertReviewCard/expertReviewCard";
 import { ExpertStarRating } from "@/components/store/expert/expertStarRating/expertStarRating";
 import { ReviewSubmitDialog } from "@/components/store/reviews/reviewSubmitDialog/reviewSubmitDialog";
+import { ProfessionalCommentForm } from "@/components/store/expert/professionalCommentForm/professionalCommentForm";
 import { Empty } from "@/components/ui/empty/empty";
 import { expertProfileCopy } from "@/config/experts.config/experts.config";
 import { formatFaNumber } from "@/lib/format/format-fa-number/format-fa-number";
@@ -15,19 +16,23 @@ import { paginateItems } from "@/lib/pagination/paginate-items/paginate-items";
 import { type ExpertReview } from "@/types/store/review.types";
 
 type ExpertReviewsProps = {
+  expertId: string;
   expertName: string;
   reviews?: readonly ExpertReview[];
   rating?: number;
   reviewCount?: number;
   eligibleRequestId?: string;
+  isUserAuthenticated?: boolean;
 };
 
 export function ExpertReviews({
+  expertId,
   expertName,
   reviews,
   rating,
   reviewCount,
   eligibleRequestId,
+  isUserAuthenticated = false,
 }: ExpertReviewsProps) {
   const [page, setPage] = useState(1);
   const items = reviews ?? [];
@@ -83,6 +88,11 @@ export function ExpertReviews({
           <p className="mt-4 type-body-sm leading-loose text-foreground-muted">
             {expertProfileCopy.reviewsIntro}
           </p>
+
+          <ProfessionalCommentForm
+            professionalId={expertId}
+            isAuthenticated={isUserAuthenticated}
+          />
         </div>
 
         {items.length === 0 ? (

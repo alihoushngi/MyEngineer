@@ -23,18 +23,20 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet/sheet";
 import {
+  buildServicesNavigation,
   engineerLoginNavigation,
   engineerPanelNavigation,
   isActivePath,
   isServicesPath,
   mobileUtilityNavigation,
   primaryNavigation,
-  servicesNavigation,
 } from "@/config/navigation.config/navigation.config";
 import {
   userAuthCopy,
   userAuthPaths,
 } from "@/config/user-auth.config/user-auth.config";
+import { listServiceCategories } from "@/services/lookup-service/lookup-service";
+import { useQuery } from "@tanstack/react-query";
 
 export function MobileNavigation({
   open,
@@ -44,6 +46,13 @@ export function MobileNavigation({
   const pathname = usePathname();
   const homeLink = primaryNavigation[0];
   const restLinks = primaryNavigation.slice(1);
+  const categoriesQuery = useQuery({
+    queryKey: ["lookup", "service-categories"],
+    queryFn: listServiceCategories,
+  });
+  const servicesNavigation = buildServicesNavigation(
+    categoriesQuery.data ?? [],
+  );
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>

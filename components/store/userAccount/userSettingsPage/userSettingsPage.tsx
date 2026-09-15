@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 
 import { AccountPageHeader } from "@/components/store/userAccount/accountPageHeader/accountPageHeader";
+import { ChangePasswordForm } from "@/components/store/userAccount/changePasswordForm/changePasswordForm";
 import { UserLogoutButton } from "@/components/store/userAccount/userLogoutButton/userLogoutButton";
 import {
   Alert,
@@ -70,6 +71,8 @@ export function UserSettingsPage({ account }: UserSettingsPageProps) {
           ) : null}
         </dl>
       </section>
+
+      <ChangePasswordForm />
 
       <Alert variant="info" className="rounded-2xl">
         <BellIcon aria-hidden="true" />

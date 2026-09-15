@@ -1,14 +1,17 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { homeHeroSlides } from "./hero-slides.ts";
 
-test("home hero has multiple local slides with copy and CTA", () => {
-  assert.equal(homeHeroSlides.length > 1, true);
-  for (const slide of homeHeroSlides) {
-    assert.match(slide.imageSrc, /^\/images\//);
-    assert.equal(slide.headline.trim().length > 0, true);
-    assert.equal(slide.description.trim().length > 0, true);
-    assert.equal(slide.ctaLabel.trim().length > 0, true);
-    assert.equal(slide.ctaHref.trim().length > 0, true);
-  }
+import {
+  getHomeHeroBackgroundSliderBehavior,
+  shouldEnableHeroAutoplay,
+} from "../hero-autoplay/hero-autoplay.ts";
+
+test("hero autoplay stays off for a single slide", () => {
+  assert.equal(shouldEnableHeroAutoplay(false, 1), false);
+});
+
+test("hero autoplay enables for multiple slides when motion is allowed", () => {
+  assert.equal(shouldEnableHeroAutoplay(false, 3), true);
+  const behavior = getHomeHeroBackgroundSliderBehavior(false, 3);
+  assert.equal(behavior.effect, "fade");
 });

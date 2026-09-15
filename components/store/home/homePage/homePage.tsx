@@ -11,24 +11,28 @@ import { JoinCtaSection } from "@/components/store/home/joinCtaSection/joinCtaSe
 import { PopularServices } from "@/components/store/home/popularServices/popularServices";
 import { ServiceCategories } from "@/components/store/home/serviceCategories/serviceCategories";
 import { WhyMohandesMan } from "@/components/store/home/whyMohandesMan/whyMohandesMan";
-import { type HomeCatalogData } from "@/types/store/home.types";
+import { type ExtendedHomeCatalogData } from "@/services/catalog-service/catalog-service";
 
-type HomePageProps = { catalog: HomeCatalogData };
+type HomePageProps = { catalog: ExtendedHomeCatalogData };
 
 export function HomePage({ catalog }: HomePageProps) {
   return (
     <>
-      <HomeHero />
-      <ServiceCategories />
+      <HomeHero slides={catalog.heroSlides} />
+      <ServiceCategories categories={catalog.serviceCategories} />
       <Suspense>
-        <HomeMarketplace experts={catalog.experts} cities={catalog.cities} />
+        <HomeMarketplace
+          experts={catalog.experts}
+          cities={catalog.cities}
+          serviceCategories={catalog.serviceCategories}
+        />
       </Suspense>
       <HomeNarrative />
       <PopularServices items={catalog.popularServices} />
       <DrawingConsultation items={catalog.drawingServices} />
       <WhyMohandesMan />
       <JoinCtaSection />
-      <HomeTestimonials />
+      <HomeTestimonials items={catalog.testimonials} />
       <HomeKnowledgeTips tips={catalog.knowledgeTips} />
       <ContentHighlights />
       <HomeFaqEntry categories={catalog.faqCategories} />

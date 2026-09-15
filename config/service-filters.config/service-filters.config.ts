@@ -85,9 +85,8 @@ export type ServiceFilterDefinition = {
   tabs: readonly ServiceTabOption[];
 };
 
-export const serviceFilterDefinitions: Record<
-  ServiceSlug,
-  ServiceFilterDefinition
+export const serviceFilterDefinitions: Partial<
+  Record<ServiceSlug, ServiceFilterDefinition>
 > = {
   "land-surveying": {
     keys: allFilterKeys,
@@ -273,8 +272,15 @@ export const serviceFilterDefinitions: Record<
   },
 };
 
+export const defaultServiceFilterDefinition: ServiceFilterDefinition = {
+  keys: ["city", "experience"],
+  skills: [],
+  experienceBands: threeBandExperience,
+  tabs: [],
+};
+
 export function getServiceFilterDefinition(
   slug: ServiceSlug,
 ): ServiceFilterDefinition {
-  return serviceFilterDefinitions[slug];
+  return serviceFilterDefinitions[slug] ?? defaultServiceFilterDefinition;
 }

@@ -121,17 +121,15 @@ export function ExpertProfilePage({
           {hasItems(expert.portfolio) ? (
             <ExpertPortfolio items={expert.portfolio} />
           ) : null}
-          {hasItems(expert.reviews) ||
-          typeof expert.rating === "number" ||
-          typeof expert.reviewCount === "number" ? (
-            <ExpertReviews
-              expertName={expert.name}
-              reviews={expert.reviews}
-              rating={expert.rating}
-              reviewCount={expert.reviewCount}
-              eligibleRequestId={eligibleReviewRequestId}
-            />
-          ) : null}
+          <ExpertReviews
+            expertId={expert.id}
+            expertName={expert.name}
+            reviews={expert.reviews}
+            rating={expert.rating}
+            reviewCount={expert.reviewCount}
+            eligibleRequestId={eligibleReviewRequestId}
+            isUserAuthenticated={isUserAuthenticated}
+          />
         </div>
 
         <aside className="min-w-0 rounded-3xl border border-border-subtle bg-surface p-5 shadow-sm lg:sticky lg:top-24 lg:p-6">

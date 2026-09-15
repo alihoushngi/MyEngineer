@@ -7,8 +7,13 @@ import { Button } from "@/components/ui/button/button";
 
 import { homeServicesCopy } from "@/config/home.config/home.config";
 import { storePaths } from "@/config/navigation.config/navigation.config";
+import { type ServiceCategory } from "@/config/services.config/services.config";
 
-export function ServiceCategories() {
+type ServiceCategoriesProps = {
+  categories: readonly ServiceCategory[];
+};
+
+export function ServiceCategories({ categories }: ServiceCategoriesProps) {
   return (
     <section
       id="service-categories"
@@ -143,21 +148,10 @@ export function ServiceCategories() {
           <div
             className="
               relative
-
               rounded-4xl
-
-              before:pointer-events-none
-              before:absolute
-              before:inset-x-10
-              before:-top-px
-              before:h-px
-              before:bg-linear-to-r
-              before:from-transparent
-              before:via-primary/20
-              before:to-transparent
             "
           >
-            <ServiceCategoryGrid />
+            <ServiceCategoryGrid categories={categories} />
           </div>
         </div>
       </div>

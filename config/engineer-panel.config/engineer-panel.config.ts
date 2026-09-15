@@ -52,7 +52,7 @@ export const engineerPrimaryNav: readonly EngineerNavItem[] = [
   {
     id: "messages",
     href: engineerPanelPaths.messages,
-    label: "پیام‌ها",
+    label: "پشتیبانی",
     icon: "messageSquare",
   },
   {
@@ -142,7 +142,7 @@ export const engineerSidebarNav: readonly EngineerNavItem[] = [
   {
     id: "messages",
     href: engineerPanelPaths.messages,
-    label: "پیام‌ها",
+    label: "پشتیبانی",
     icon: "messageSquare",
   },
   {
@@ -293,8 +293,8 @@ export const engineerPageTitles = {
   serviceAreas: "محدوده فعالیت",
   requests: "درخواست‌ها",
   requestDetail: "جزئیات درخواست",
-  messages: "پیام‌ها",
-  conversation: "گفت‌وگو",
+  messages: "پشتیبانی",
+  conversation: "تیکت",
   portfolio: "نمونه‌کارها",
   credentials: "مدارک و صلاحیت‌ها",
   reviews: "نظرات",

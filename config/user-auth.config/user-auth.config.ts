@@ -1,6 +1,7 @@
 export const userAuthPaths = {
   login: "/login",
   register: "/register",
+  forgotPassword: "/forgot-password",
   account: "/account",
 } as const;
 
@@ -78,6 +79,8 @@ export function isAccountPath(pathname: string): boolean {
 
 export function isUserAuthEntryPath(pathname: string): boolean {
   return (
-    pathname === userAuthPaths.login || pathname === userAuthPaths.register
+    pathname === userAuthPaths.login ||
+    pathname === userAuthPaths.register ||
+    pathname === userAuthPaths.forgotPassword
   );
 }

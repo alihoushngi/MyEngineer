@@ -42,3 +42,7 @@ export function mutationFailed(message: string): ServiceMutationFailure {
     message,
   };
 }
+
+export function mutationOk(): { ok: true } {
+  return { ok: true };
+}

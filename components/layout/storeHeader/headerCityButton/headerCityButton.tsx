@@ -1,16 +1,31 @@
 "use client";
 
 import { ChevronDownIcon, MapPinIcon } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+
+import { CitySelectorDialog } from "@/components/common/citySelectorDialog/citySelectorDialog";
 import { Button } from "@/components/ui/button/button";
-import { CityUnavailableDialog } from "@/components/common/cityUnavailableDialog/cityUnavailableDialog";
 import { type HeaderCityButtonProps } from "@/components/layout/storeHeader/headerCityButton/type/headerCityButton.types";
+import {
+  type PreferredCity,
+  readPreferredCityFromDocumentCookie,
+} from "@/lib/city/preferred-city/preferred-city";
+import { buildSearchHref } from "@/lib/search/search-params/search-params";
 
 const defaultCityLabel = "انتخاب شهر";
 
 export function HeaderCityButton({ selectedCityLabel }: HeaderCityButtonProps) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
-  const label = selectedCityLabel ?? defaultCityLabel;
+  const [selected, setSelected] = useState<PreferredCity | null>(null);
+
+  useEffect(() => {
+    setSelected(readPreferredCityFromDocumentCookie());
+  }, []);
+
+  const label =
+    selected?.name ?? selectedCityLabel ?? defaultCityLabel;
 
   return (
     <>
@@ -45,12 +60,17 @@ export function HeaderCityButton({ selectedCityLabel }: HeaderCityButtonProps) {
         <MapPinIcon aria-hidden="true" className="size-5" />
       </Button>
 
-      <CityUnavailableDialog
+      <CitySelectorDialog
         id="city-selector-surface"
         open={open}
         onOpenChange={setOpen}
         title={defaultCityLabel}
-        description="انتخاب شهر برای مشاهده متخصصان به‌زودی فعال می‌شود."
+        description="استان و شهر خود را برای فیلتر متخصصان انتخاب کنید."
+        onSelected={(city) => {
+          setSelected(city);
+          router.push(buildSearchHref({ cities: [city.name] }));
+          router.refresh();
+        }}
       />
     </>
   );

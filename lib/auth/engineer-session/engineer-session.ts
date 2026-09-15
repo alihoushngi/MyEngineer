@@ -1,4 +1,11 @@
 import { cookies } from "next/headers";
+import { env } from "@/lib/env/env";
+import {
+  isEngineerPanelRole,
+  readAccessToken,
+  readAuthDisplayName,
+  readAuthRole,
+} from "@/lib/auth/access-token-cookie/access-token-cookie";
 import {
   isMockAuthEnabled,
   isMockLoginEnabled,
@@ -17,6 +24,30 @@ import { parseMockEngineerProfileCookie } from "@/lib/auth/mock-engineer-profile
 import { type EngineerSession } from "@/types/store/engineer-auth.types";
 
 export async function getEngineerSession(): Promise<EngineerSession | null> {
+  if (env.apiBaseUrl) {
+    const token = await readAccessToken();
+    const role = await readAuthRole();
+    if (!token || !isEngineerPanelRole(role)) {
+      return null;
+    }
+
+    const displayName = await readAuthDisplayName();
+    const [firstName, ...rest] = (displayName ?? "").split(" ");
+
+    return {
+      isAuthenticated: true,
+      role: "engineer",
+      isMock: false,
+      source: "login",
+      profile: displayName
+        ? {
+            firstName: firstName || displayName,
+            lastName: rest.join(" ") || undefined,
+          }
+        : undefined,
+    };
+  }
+
   if (!isMockAuthEnabled()) {
     return null;
   }

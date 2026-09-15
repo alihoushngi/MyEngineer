@@ -1,38 +1,28 @@
 import { type Metadata } from "next";
 import { redirect } from "next/navigation";
-import { UserRegisterForm } from "@/components/store/userRegister/userRegisterForm/userRegisterForm";
-import { isMockUserRegisterEnabled } from "@/config/mock-auth.config/mock-auth.config";
-import { userAuthCopy } from "@/config/user-auth.config/user-auth.config";
+import { UnifiedRegisterForm } from "@/components/store/auth/unifiedRegisterForm/unifiedRegisterForm";
 import { getUserSession } from "@/lib/auth/user-session/user-session";
-import { getSafeUserNext } from "@/lib/auth/safe-user-next/safe-user-next";
+import { getEngineerSession } from "@/lib/auth/engineer-session/engineer-session";
+import { userAuthPaths } from "@/config/user-auth.config/user-auth.config";
+import { engineerPanelPaths } from "@/config/engineer-panel.config/engineer-panel.config";
 
 export const metadata: Metadata = {
-  title: userAuthCopy.registerTitle,
-  robots: {
-    index: false,
-    follow: false,
-  },
+  title: "ثبت‌نام کاربر",
+  robots: { index: false, follow: false },
 };
 
-type UserRegisterPageProps = {
-  searchParams: Promise<{ next?: string }>;
-};
+export default async function UserRegisterPage() {
+  const [userSession, engineerSession] = await Promise.all([
+    getUserSession(),
+    getEngineerSession(),
+  ]);
 
-export default async function UserRegisterPage({
-  searchParams,
-}: UserRegisterPageProps) {
-  const session = await getUserSession();
-  const params = await searchParams;
-  const nextPath = getSafeUserNext(params.next);
-
-  if (session) {
-    redirect(nextPath);
+  if (userSession) {
+    redirect(userAuthPaths.account);
+  }
+  if (engineerSession) {
+    redirect(engineerPanelPaths.dashboard);
   }
 
-  return (
-    <UserRegisterForm
-      nextPath={nextPath}
-      isMockMode={isMockUserRegisterEnabled()}
-    />
-  );
+  return <UnifiedRegisterForm />;
 }

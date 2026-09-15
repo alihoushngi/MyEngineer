@@ -13,10 +13,25 @@ import { homeTestimonialCopy } from "@/config/home.config/home.config";
 
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion/use-prefers-reduced-motion";
 
-export function HomeTestimonials() {
+type HomeTestimonialItem = {
+  id: string;
+  quote: string;
+  author: string;
+  role?: string;
+};
+
+type HomeTestimonialsProps = {
+  items?: readonly HomeTestimonialItem[];
+};
+
+export function HomeTestimonials({ items = [] }: HomeTestimonialsProps) {
   const prefersReducedMotion = usePrefersReducedMotion();
 
-  const testimonials = homeTestimonialCopy.items;
+  const testimonials = items;
+
+  if (testimonials.length === 0) {
+    return null;
+  }
 
   return (
     <section

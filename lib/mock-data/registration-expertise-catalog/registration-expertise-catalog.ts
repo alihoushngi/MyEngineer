@@ -1,26 +1,51 @@
-import { mockExpertCards, mockSoftware } from "@/lib/mock-data/mock-data";
+import { listBackendServices } from "@/services/lookup-service/lookup-service";
+import { listBackendSoftwares } from "@/services/lookup-service/lookup-service";
 
-export type MockExpertiseCatalogItem = {
+export type ExpertiseCatalogItem = {
   id: string;
   label: string;
 };
 
-export type MockExpertiseCatalog = {
-  expertise: readonly MockExpertiseCatalogItem[];
-  software: readonly MockExpertiseCatalogItem[];
+export type ExpertiseCatalog = {
+  expertise: readonly ExpertiseCatalogItem[];
+  software: readonly ExpertiseCatalogItem[];
 };
 
-export function getMockExpertiseCatalog(): MockExpertiseCatalog {
-  const labels = new Set<string>();
+/** @deprecated Prefer ExpertiseCatalog */
+export type MockExpertiseCatalog = ExpertiseCatalog;
+/** @deprecated Prefer ExpertiseCatalogItem */
+export type MockExpertiseCatalogItem = ExpertiseCatalogItem;
 
-  for (const card of mockExpertCards) {
-    for (const specialty of card.specialties ?? []) {
-      labels.add(specialty);
+export async function getExpertiseCatalog(): Promise<ExpertiseCatalog> {
+  const [services, software] = await Promise.all([
+    listBackendServices(),
+    listBackendSoftwares(),
+  ]);
+
+  const expertise = services.flatMap((service) => {
+    const children = service.children ?? [];
+    if (children.length === 0) {
+      return [
+        {
+          id: String(service.id),
+          label: service.short_title || service.title,
+        },
+      ];
     }
-  }
+
+    return children.map((child) => ({
+      id: String(child.id),
+      label: child.short_title || child.title,
+    }));
+  });
 
   return {
-    expertise: [...labels].map((label) => ({ id: label, label })),
-    software: mockSoftware.map((label) => ({ id: label, label })),
+    expertise,
+    software,
   };
+}
+
+/** @deprecated Use getExpertiseCatalog */
+export async function getMockExpertiseCatalog(): Promise<ExpertiseCatalog> {
+  return getExpertiseCatalog();
 }

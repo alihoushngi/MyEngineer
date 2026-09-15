@@ -1,33 +1,51 @@
-/**
- * City service — province/city catalog.
- *
- * API CONTRACT REQUIRED — no endpoint exists for the province/city tree.
- * Do not invent URLs or sample Iran datasets as production data.
- */
-
+import {
+  type ApiEnvelope,
+  unwrapApiData,
+} from "@/lib/api/api-envelope/api-envelope";
+import { httpGet } from "@/lib/api/http-client/http-client";
+import { mapCity, mapProvince } from "@/lib/api/map-backend/map-backend";
+import { env } from "@/lib/env/env";
+import { type BackendCity, type BackendProvince } from "@/types/api/backend.types";
 import { type City, type Province } from "@/types/store/registration.types";
 import { throwApiUnavailable } from "@/lib/api/throw-api-unavailable/throw-api-unavailable";
-import { env } from "@/lib/env/env";
-import { canUseMocks } from "@/lib/auth/can-use-mocks/can-use-mocks";
-import { mockCities, mockProvinces } from "@/lib/mock-data/mock-data";
 
 const API_NOT_AVAILABLE_MESSAGE =
   "فهرست استان‌ها و شهرها پس از اتصال سرویس در دسترس خواهد بود.";
 
-function canUseMockCityCatalog(): boolean {
-  return env.useMockData || (canUseMocks() && env.publicMockRegisterEnabled);
+const PUBLIC_REVALIDATE_SECONDS = 600;
+
+async function getEnvelope<TData>(
+  path: string,
+  query?: Record<string, string | number | boolean | undefined>,
+): Promise<ApiEnvelope<TData>> {
+  return httpGet<ApiEnvelope<TData>>(path, {
+    query,
+    next: { revalidate: PUBLIC_REVALIDATE_SECONDS },
+  });
 }
 
 export async function getProvinces(): Promise<readonly Province[]> {
-  if (canUseMockCityCatalog()) return mockProvinces;
-  throwApiUnavailable(API_NOT_AVAILABLE_MESSAGE);
+  if (!env.apiBaseUrl) {
+    throwApiUnavailable(API_NOT_AVAILABLE_MESSAGE);
+  }
+
+  const envelope = await getEnvelope<BackendProvince[]>("/provinces");
+  return unwrapApiData(envelope).map(mapProvince);
 }
 
 export async function getCitiesByProvince(
-  _provinceId: string,
+  provinceId: string,
 ): Promise<readonly City[]> {
-  if (canUseMockCityCatalog()) {
-    return mockCities.filter((city) => city.provinceId === _provinceId);
+  if (!env.apiBaseUrl) {
+    throwApiUnavailable(API_NOT_AVAILABLE_MESSAGE);
   }
-  throwApiUnavailable(API_NOT_AVAILABLE_MESSAGE);
+
+  if (!provinceId) {
+    return [];
+  }
+
+  const envelope = await getEnvelope<BackendCity[]>(
+    `/provinces/${encodeURIComponent(provinceId)}/cities`,
+  );
+  return unwrapApiData(envelope).map(mapCity);
 }

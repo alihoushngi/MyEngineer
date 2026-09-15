@@ -76,6 +76,11 @@ export async function httpRequest<TResponse, TBody = unknown>(
     headers.set("Accept", "application/json");
   }
 
+  // Browser fetch forbids setting User-Agent; Node/server fetch needs one for some API edges.
+  if (typeof window === "undefined" && !headers.has("User-Agent")) {
+    headers.set("User-Agent", "MohandesManFrontend/1.0");
+  }
+
   const body = serializeBody(method, options.body, headers);
   const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   const timeoutSignal = AbortSignal.timeout(timeoutMs);
@@ -165,9 +170,15 @@ function serializeBody<TBody>(
   method: HttpMethod,
   body: TBody | undefined,
   headers: Headers,
-): string | undefined {
+): string | FormData | undefined {
   if (body === undefined || method === "GET" || method === "DELETE") {
     return undefined;
+  }
+
+  if (typeof FormData !== "undefined" && body instanceof FormData) {
+    // Boundary is set by the runtime; do not force application/json.
+    headers.delete("Content-Type");
+    return body;
   }
 
   if (!headers.has("Content-Type")) {

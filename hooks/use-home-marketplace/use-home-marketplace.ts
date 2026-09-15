@@ -3,23 +3,29 @@
 import { useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
-  serviceCategories,
+  type ServiceCategory,
   type ServiceSlug,
 } from "@/config/services.config/services.config";
 import { paginateItems } from "@/lib/pagination/paginate-items/paginate-items";
 import { parsePageParam } from "@/lib/pagination/page-param/page-param";
 import { type ExpertCardData } from "@/types/store/expert.types";
 
-const serviceSlugSet = new Set<string>(
-  serviceCategories.map((service) => service.slug),
-);
-
-export function useHomeMarketplace(experts: readonly ExpertCardData[]) {
+export function useHomeMarketplace(
+  experts: readonly ExpertCardData[],
+  serviceCategories: readonly ServiceCategory[] = [],
+) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const query = searchParams.toString();
-  const services = parseServiceSlugs(searchParams.get("services"));
+  const serviceSlugSet = useMemo(
+    () => new Set(serviceCategories.map((service) => service.slug)),
+    [serviceCategories],
+  );
+  const services = parseServiceSlugs(
+    searchParams.get("services"),
+    serviceSlugSet,
+  );
   const city = searchParams.get("cities") || "all";
   const expertise = searchParams.get("expertise") || "all";
   const page = parsePageParam(searchParams.get("page"));
@@ -34,6 +40,7 @@ export function useHomeMarketplace(experts: readonly ExpertCardData[]) {
       experts.filter((expert) => {
         const serviceMatch =
           services.length === 0 ||
+          !expert.serviceSlugs?.length ||
           services.some((slug) => expert.serviceSlugs?.includes(slug));
         const cityMatch = city === "all" || expert.city === city;
         const expertiseMatch =
@@ -113,7 +120,10 @@ export function useHomeMarketplace(experts: readonly ExpertCardData[]) {
   };
 }
 
-function parseServiceSlugs(value: string | null): ServiceSlug[] {
+function parseServiceSlugs(
+  value: string | null,
+  allowed: ReadonlySet<string>,
+): ServiceSlug[] {
   if (!value) {
     return [];
   }
@@ -121,5 +131,5 @@ function parseServiceSlugs(value: string | null): ServiceSlug[] {
   return value
     .split(",")
     .map((item) => item.trim())
-    .filter((item): item is ServiceSlug => serviceSlugSet.has(item));
+    .filter((item) => allowed.size === 0 || allowed.has(item));
 }

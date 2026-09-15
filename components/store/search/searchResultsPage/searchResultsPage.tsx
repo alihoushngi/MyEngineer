@@ -17,14 +17,21 @@ import {
   type SearchQueryState,
 } from "@/types/store/search.types";
 
+type SearchCityOption = {
+  id: string;
+  name: string;
+};
+
 type SearchResultsPageProps = {
   queryState: SearchQueryState;
   result: SearchCatalogResult;
+  cityOptions?: readonly SearchCityOption[];
 };
 
 export function SearchResultsPage({
   queryState,
   result,
+  cityOptions = [],
 }: SearchResultsPageProps) {
   const { q, cities, page } = queryState;
 
@@ -61,7 +68,11 @@ export function SearchResultsPage({
         ]}
       />
 
-      <SearchHeader initialQuery={q} cities={cities} />
+      <SearchHeader
+        initialQuery={q}
+        cities={cities}
+        cityOptions={cityOptions}
+      />
 
       <div className="space-y-3">
         <SearchSummary
@@ -92,7 +103,10 @@ export function SearchResultsPage({
           paginationQuery={paginationQuery.toString()}
         />
       ) : (
-        <SearchEmptyState variant={hasQuery ? "no-results" : "no-query"} />
+        <SearchEmptyState
+          variant={hasQuery ? "no-results" : "no-query"}
+          cityOptions={cityOptions}
+        />
       )}
     </div>
   );

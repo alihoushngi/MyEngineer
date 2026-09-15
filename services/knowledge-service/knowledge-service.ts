@@ -1,25 +1,66 @@
-/**
- * Knowledge catalog access.
- * API CONTRACT REQUIRED. Do not invent tips, taxonomies, or counts.
- */
+import {
+  type ApiEnvelope,
+  unwrapApiData,
+} from "@/lib/api/api-envelope/api-envelope";
+import { httpGet } from "@/lib/api/http-client/http-client";
+import { buildKnowledgeCategories } from "@/lib/api/map-backend/map-backend";
+import { env } from "@/lib/env/env";
+import {
+  type BackendKnowledge,
+  type BackendKnowledgeCategory,
+} from "@/types/api/backend.types";
 import {
   type KnowledgeCategory,
   type KnowledgeCategoryDetail,
 } from "@/types/store/knowledge.types";
-import { env } from "@/lib/env/env";
-import { mockKnowledgeCategories } from "@/lib/mock-data/mock-data";
+
+const PUBLIC_REVALIDATE_SECONDS = 300;
+
+async function getEnvelope<TData>(
+  path: string,
+  query?: Record<string, string | number | boolean | undefined>,
+): Promise<ApiEnvelope<TData>> {
+  return httpGet<ApiEnvelope<TData>>(path, {
+    query,
+    next: { revalidate: PUBLIC_REVALIDATE_SECONDS },
+  });
+}
 
 export async function listKnowledgeCategories(): Promise<
+  readonly KnowledgeCategoryDetail[]
+> {
+  if (!env.apiBaseUrl) {
+    return [];
+  }
+
+  const [categoriesEnvelope, itemsEnvelope] = await Promise.all([
+    getEnvelope<BackendKnowledgeCategory[]>("/knowledge-categories"),
+    getEnvelope<BackendKnowledge[]>("/knowledges", { per_page: 100 }),
+  ]);
+
+  return buildKnowledgeCategories(
+    unwrapApiData(categoriesEnvelope),
+    unwrapApiData(itemsEnvelope),
+  );
+}
+
+export async function listKnowledgeCategorySummaries(): Promise<
   readonly KnowledgeCategory[]
 > {
-  return env.useMockData ? mockKnowledgeCategories : [];
+  const details = await listKnowledgeCategories();
+  return details.map((category) => ({
+    slug: category.slug,
+    href: category.href,
+    title: category.title,
+    description: category.description,
+    relatedServiceHref: category.relatedServiceHref,
+    relatedServiceLabel: category.relatedServiceLabel,
+  }));
 }
 
 export async function getKnowledgeCategory(
-  _slug: string,
+  slug: string,
 ): Promise<KnowledgeCategoryDetail | null> {
-  if (!env.useMockData) return null;
-  return (
-    mockKnowledgeCategories.find((category) => category.slug === _slug) ?? null
-  );
+  const categories = await listKnowledgeCategories();
+  return categories.find((category) => category.slug === slug) ?? null;
 }

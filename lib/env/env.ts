@@ -14,8 +14,30 @@ function parseOptionalPublicBool(
   return undefined;
 }
 
+function resolveMediaBaseUrl(apiBaseUrl: string): string {
+  const configured = (process.env.NEXT_PUBLIC_MEDIA_BASE_URL ?? "").trim();
+
+  if (configured !== "") {
+    return configured.replace(/\/$/, "");
+  }
+
+  if (apiBaseUrl === "") {
+    return "";
+  }
+
+  try {
+    const origin = new URL(apiBaseUrl).origin;
+    return `${origin}/public`;
+  } catch {
+    return "";
+  }
+}
+
+const apiBaseUrl = (process.env.NEXT_PUBLIC_API_BASE_URL ?? "").trim();
+
 export const env = {
-  apiBaseUrl: (process.env.NEXT_PUBLIC_API_BASE_URL ?? "").trim(),
+  apiBaseUrl,
+  mediaBaseUrl: resolveMediaBaseUrl(apiBaseUrl),
   useMockData: process.env.NEXT_PUBLIC_USE_MOCK_DATA !== "false",
   mockRegisterOverride: parseOptionalPublicBool(
     process.env.NEXT_PUBLIC_ENABLE_MOCK_REGISTER,

@@ -1,38 +1,32 @@
-import { EngineerMessagesPage } from "@/components/store/engineer/engineerMessagesPage/engineerMessagesPage";
+import { TicketInboxPage } from "@/components/store/tickets/ticketInboxPage/ticketInboxPage";
 import {
   engineerPageTitles,
   engineerPanelPaths,
 } from "@/config/engineer-panel.config/engineer-panel.config";
-import { paginateItems } from "@/lib/pagination/paginate-items/paginate-items";
-import { parsePageParam } from "@/lib/pagination/page-param/page-param";
+import { isEngineerAccessGranted } from "@/lib/engineer/access/access";
 import { engineerPageMetadata } from "@/lib/engineer/private-panel-metadata/private-panel-metadata";
-import { getEngineerWorkspace } from "@/services/engineer-service/engineer-access-service";
+import { getEngineerAccess } from "@/services/engineer-service/engineer-access-service";
+import { listTicketRooms } from "@/services/ticket-service/ticket-service";
 
 export const metadata = engineerPageMetadata(engineerPageTitles.messages);
+export const dynamic = "force-dynamic";
 
-type EngineerMessagesRouteProps = {
-  searchParams: Promise<{ page?: string | string[] }>;
-};
-
-export default async function EngineerMessagesRoute({
-  searchParams,
-}: EngineerMessagesRouteProps) {
-  const workspace = await getEngineerWorkspace();
-
-  if (!workspace) {
+export default async function EngineerMessagesRoute() {
+  const access = await getEngineerAccess();
+  if (!isEngineerAccessGranted(access)) {
     return null;
   }
 
-  const pagination = paginateItems(
-    workspace.conversations,
-    parsePageParam((await searchParams).page),
+  const tickets = await listTicketRooms(engineerPanelPaths.messages).catch(
+    () => [],
   );
 
   return (
-    <EngineerMessagesPage
-      conversations={pagination.items}
-      pagination={pagination}
-      pathname={engineerPanelPaths.messages}
+    <TicketInboxPage
+      tickets={tickets}
+      createHref={`${engineerPanelPaths.messages}/new`}
+      title="پشتیبانی"
+      description="تیکت‌های پشتیبانی پنل متخصص."
     />
   );
 }

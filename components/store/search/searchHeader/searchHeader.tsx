@@ -5,12 +5,22 @@ import { SearchInput } from "@/components/store/search/searchInput/searchInput";
 
 import { searchCopy } from "@/config/search.config/search.config";
 
+type SearchCityOption = {
+  id: string;
+  name: string;
+};
+
 type SearchHeaderProps = {
   initialQuery: string;
   cities?: readonly string[];
+  cityOptions?: readonly SearchCityOption[];
 };
 
-export function SearchHeader({ initialQuery, cities }: SearchHeaderProps) {
+export function SearchHeader({
+  initialQuery,
+  cities,
+  cityOptions = [],
+}: SearchHeaderProps) {
   return (
     <header className="relative isolate overflow-hidden rounded-3xl border border-border-subtle bg-surface p-5 shadow-xs sm:p-6">
       <div
@@ -41,7 +51,7 @@ export function SearchHeader({ initialQuery, cities }: SearchHeaderProps) {
           />
         </div>
 
-        <SearchFilters cities={cities} />
+        <SearchFilters cities={cities} cityOptions={cityOptions} />
       </div>
     </header>
   );

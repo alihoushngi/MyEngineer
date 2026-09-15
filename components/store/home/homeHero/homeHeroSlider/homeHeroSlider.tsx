@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { homeHeroSlides } from "@/config/home.config/home.config";
+import { type HomeHeroSlide } from "@/types/store/home.types";
 
 const HomeHeroCarousel = dynamic(
   () =>
@@ -11,12 +11,16 @@ const HomeHeroCarousel = dynamic(
   { ssr: false },
 );
 
-export function HomeHeroSlider() {
-  const firstSlide = homeHeroSlides[0];
+type HomeHeroSliderProps = {
+  slides: readonly HomeHeroSlide[];
+};
+
+export function HomeHeroSlider({ slides }: HomeHeroSliderProps) {
+  const firstSlide = slides[0];
 
   if (!firstSlide) {
     return null;
   }
 
-  return <HomeHeroCarousel />;
+  return <HomeHeroCarousel slides={slides} />;
 }

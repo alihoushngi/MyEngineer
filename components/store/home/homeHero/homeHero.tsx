@@ -7,9 +7,10 @@ import { HomeCityTrigger } from "@/components/store/home/homeHero/homeCityTrigge
 import { HomeHeroCarousel } from "@/components/store/home/homeHero/homeHeroSlider/homeHeroCarousel/homeHeroCarousel";
 import { JoinLink } from "@/components/layout/joinLink/joinLink";
 
-import { homeHeroCopy, homeHeroSlides } from "@/config/home.config/home.config";
+import { homeHeroCopy } from "@/config/home.config/home.config";
 
 import { joinNavigation } from "@/config/navigation.config/navigation.config";
+import { type HomeHeroSlide } from "@/types/store/home.types";
 
 const heroBenefits = [
   "پروفایل حرفه‌ای",
@@ -17,8 +18,12 @@ const heroBenefits = [
   "ارتباط مستقیم",
 ] as const;
 
-export function HomeHero() {
-  const firstSlide = homeHeroSlides[0];
+type HomeHeroProps = {
+  slides?: readonly HomeHeroSlide[];
+};
+
+export function HomeHero({ slides = [] }: HomeHeroProps) {
+  const firstSlide = slides[0];
 
   return (
     <section
@@ -55,9 +60,14 @@ export function HomeHero() {
               object-center
             "
           />
-        ) : null}
+        ) : (
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 bg-linear-to-br from-neutral-900 via-neutral-950 to-primary/30"
+          />
+        )}
 
-        <HomeHeroCarousel />
+        <HomeHeroCarousel slides={slides} />
       </div>
 
       {/* Main dark overlay */}
@@ -253,7 +263,9 @@ export function HomeHero() {
                 className="
                   min-w-0
                   rounded-2xl
-                  bg-background/96
+                  flex
+                  justify-center
+                  items-center
                   text-foreground
                   shadow-sm
                 "

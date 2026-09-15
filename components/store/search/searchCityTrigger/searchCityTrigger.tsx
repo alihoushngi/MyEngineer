@@ -11,18 +11,24 @@ import {
   SelectValue,
 } from "@/components/ui/select/select";
 
-import { mockCities } from "@/lib/mock-data/mock-data";
 import { buildSearchHref } from "@/lib/search/search-params/search-params";
 import { cn } from "@/lib/utils/cn/cn";
+
+type SearchCityOption = {
+  id: string;
+  name: string;
+};
 
 type SearchCityTriggerProps = {
   className?: string;
   cities?: readonly string[];
+  options?: readonly SearchCityOption[];
 };
 
 export function SearchCityTrigger({
   className,
   cities = [],
+  options = [],
 }: SearchCityTriggerProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -59,7 +65,7 @@ export function SearchCityTrigger({
       <SelectContent>
         <SelectItem value="all">همه شهرها</SelectItem>
 
-        {mockCities.map((city) => (
+        {options.map((city) => (
           <SelectItem key={city.id} value={city.name}>
             {city.name}
           </SelectItem>

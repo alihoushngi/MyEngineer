@@ -4,6 +4,7 @@ import { EngineerPageHeader } from "@/components/store/engineer/engineerPageHead
 import { EngineerProfileBasicsForm } from "@/components/store/engineer/engineerProfileBasicsForm/engineerProfileBasicsForm";
 import { EngineerProfileSection } from "@/components/store/engineer/engineerProfileSection/engineerProfileSection";
 import { EngineerSpecialtiesForm } from "@/components/store/engineer/engineerSpecialtiesForm/engineerSpecialtiesForm";
+import { ProfileAvatarUpload } from "@/components/store/userAccount/profileAvatarUpload/profileAvatarUpload";
 import { Badge } from "@/components/ui/badge/badge";
 import { Button } from "@/components/ui/button/button";
 import {
@@ -42,6 +43,13 @@ export function EngineerProfileManagePage({
           ) : null
         }
       />
+
+      <EngineerProfileSection title="تصویر پروفایل">
+        <ProfileAvatarUpload
+          currentImageSrc={profile.avatarSrc}
+          displayName={`${profile.firstName} ${profile.lastName}`.trim()}
+        />
+      </EngineerProfileSection>
 
       <EngineerProfileSection
         title="نام و عنوان حرفه‌ای"

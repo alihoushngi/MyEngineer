@@ -1,43 +1,45 @@
 import { notFound } from "next/navigation";
-import { EngineerConversationPage } from "@/components/store/engineer/engineerConversationPage/engineerConversationPage";
-import { engineerPageTitles } from "@/config/engineer-panel.config/engineer-panel.config";
-import { engineerPageMetadata } from "@/lib/engineer/private-panel-metadata/private-panel-metadata";
+import { TicketDetailPage } from "@/components/store/tickets/ticketDetailPage/ticketDetailPage";
 import {
-  getEngineerConversation,
-  getEngineerMessages,
-  getEngineerWorkspace,
-} from "@/services/engineer-service/engineer-access-service";
+  engineerPageTitles,
+  engineerPanelPaths,
+} from "@/config/engineer-panel.config/engineer-panel.config";
+import { isEngineerAccessGranted } from "@/lib/engineer/access/access";
+import { engineerPageMetadata } from "@/lib/engineer/private-panel-metadata/private-panel-metadata";
+import { getEngineerAccess } from "@/services/engineer-service/engineer-access-service";
+import { getCurrentProfile } from "@/services/profile-service/profile-service";
+import { getTicketRoom } from "@/services/ticket-service/ticket-service";
 
-type EngineerConversationRouteProps = {
+type EngineerTicketRouteProps = {
   params: Promise<{ id: string }>;
 };
 
 export const metadata = engineerPageMetadata(engineerPageTitles.conversation);
 export const dynamic = "force-dynamic";
 
-export default async function EngineerConversationRoute({
+export default async function EngineerTicketRoute({
   params,
-}: EngineerConversationRouteProps) {
-  const workspace = await getEngineerWorkspace();
-
-  if (!workspace) {
+}: EngineerTicketRouteProps) {
+  const access = await getEngineerAccess();
+  if (!isEngineerAccessGranted(access)) {
     return null;
   }
 
   const { id } = await params;
-  const conversation = await getEngineerConversation(id);
+  const [room, profile] = await Promise.all([
+    getTicketRoom(id),
+    getCurrentProfile().catch(() => null),
+  ]);
 
-  if (!conversation) {
+  if (!room) {
     notFound();
   }
 
-  const messages = await getEngineerMessages(id);
-
   return (
-    <EngineerConversationPage
-      conversation={conversation}
-      messages={messages}
-      conversations={workspace.conversations}
+    <TicketDetailPage
+      room={room}
+      currentUserId={profile?.id}
+      backHref={engineerPanelPaths.messages}
     />
   );
 }

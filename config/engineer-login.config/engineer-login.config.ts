@@ -1,8 +1,9 @@
 export const engineerLoginCopy = {
   title: "ورود مهندس",
-  description: "برای ورود به پنل مهندس، شماره موبایل خود را وارد کنید.",
+  description:
+    "برای ورود به پنل مهندس، کد ملی و رمز عبور خود را وارد کنید. این مسیر از ورود کاربر عادی جدا است.",
   otpMethod: "ورود با کد یکبار مصرف",
-  passwordMethod: "ورود با رمز عبور",
+  passwordMethod: "ورود با کد ملی",
   phoneLabel: "شماره موبایل",
   phonePlaceholder: "09xxxxxxxxx",
   requestOtpLabel: "دریافت کد تأیید",
@@ -17,6 +18,6 @@ export const engineerLoginCopy = {
   resendLabel: "ارسال مجدد کد",
   editPhoneLabel: "ویرایش شماره موبایل",
   registerPrefix: "هنوز حساب مهندس ندارید؟",
-  registerAction: "ثبت‌نام کنید",
+  registerAction: "ثبت‌نام متخصص",
   mockModeHint: "حالت آزمایشی — پیامک واقعی ارسال نمی‌شود.",
 } as const;

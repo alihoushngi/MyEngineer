@@ -22,7 +22,7 @@ export function AuthLoginMethods({
   password,
 }: AuthLoginMethodsProps) {
   return (
-    <Tabs defaultValue="otp" className="gap-6">
+    <Tabs defaultValue="password" className="gap-6">
       <TabsList className="grid h-auto w-full grid-cols-2 rounded-2xl bg-surface-muted p-1">
         <TabsTrigger
           value="otp"

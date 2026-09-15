@@ -1,9 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
 import {
-  isMockAuthEnabled,
-  isMockUserAuthEnabled,
-} from "@/config/mock-auth.config/mock-auth.config";
-import {
   engineerPanelPaths,
   isEngineerPanelPath,
 } from "@/config/engineer-panel.config/engineer-panel.config";
@@ -12,6 +8,11 @@ import {
   isUserAuthEntryPath,
   userAuthPaths,
 } from "@/config/user-auth.config/user-auth.config";
+import {
+  ACCESS_TOKEN_COOKIE,
+  AUTH_ROLE_COOKIE,
+  isEngineerPanelRole,
+} from "@/lib/auth/access-token-cookie/access-token-cookie";
 import {
   MOCK_ENGINEER_SESSION_COOKIE,
   MOCK_ENGINEER_SESSION_VALUE,
@@ -24,58 +25,62 @@ import { registrationPaths } from "@/lib/registration/guard-path/guard-path";
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const hasEngineerSession =
+  const accessToken = request.cookies.get(ACCESS_TOKEN_COOKIE)?.value;
+  const authRole = request.cookies.get(AUTH_ROLE_COOKIE)?.value;
+  const hasLiveEngineerSession =
+    Boolean(accessToken) && isEngineerPanelRole(authRole);
+  const hasLiveUserSession =
+    Boolean(accessToken) && Boolean(authRole) && !isEngineerPanelRole(authRole);
+
+  const hasMockEngineerSession =
     request.cookies.get(MOCK_ENGINEER_SESSION_COOKIE)?.value ===
     MOCK_ENGINEER_SESSION_VALUE;
-  const hasUserSession =
+  const hasMockUserSession =
     request.cookies.get(MOCK_USER_SESSION_COOKIE)?.value ===
     MOCK_USER_SESSION_VALUE;
 
-  if (isMockAuthEnabled()) {
-    if (isEngineerPanelPath(pathname) && !hasEngineerSession) {
-      const url = request.nextUrl.clone();
-      url.pathname = engineerPanelPaths.login;
-      url.search = `?next=${encodeURIComponent(pathname)}`;
-      return NextResponse.redirect(url);
-    }
+  const hasEngineerSession = hasLiveEngineerSession || hasMockEngineerSession;
+  const hasUserSession = hasLiveUserSession || hasMockUserSession;
 
-    if (hasEngineerSession && pathname === engineerPanelPaths.login) {
-      const next = getSafeEngineerNext(
-        request.nextUrl.searchParams.get("next"),
-      );
-      const url = request.nextUrl.clone();
-      url.pathname = next;
-      url.search = "";
-      return NextResponse.redirect(url);
-    }
-
-    if (
-      hasEngineerSession &&
-      pathname.startsWith("/expert-registration") &&
-      pathname !== registrationPaths.complete
-    ) {
-      const url = request.nextUrl.clone();
-      url.pathname = engineerPanelPaths.dashboard;
-      url.search = "";
-      return NextResponse.redirect(url);
-    }
+  if (isEngineerPanelPath(pathname) && !hasEngineerSession) {
+    const url = request.nextUrl.clone();
+    url.pathname = engineerPanelPaths.login;
+    url.search = `?next=${encodeURIComponent(pathname)}`;
+    return NextResponse.redirect(url);
   }
 
-  if (isMockUserAuthEnabled()) {
-    if (isAccountPath(pathname) && !hasUserSession && !hasEngineerSession) {
-      const url = request.nextUrl.clone();
-      url.pathname = userAuthPaths.login;
-      url.search = `?next=${encodeURIComponent(pathname)}`;
-      return NextResponse.redirect(url);
-    }
+  if (hasEngineerSession && pathname === engineerPanelPaths.login) {
+    const next = getSafeEngineerNext(request.nextUrl.searchParams.get("next"));
+    const url = request.nextUrl.clone();
+    url.pathname = next;
+    url.search = "";
+    return NextResponse.redirect(url);
+  }
 
-    if (hasUserSession && isUserAuthEntryPath(pathname)) {
-      const next = getSafeUserNext(request.nextUrl.searchParams.get("next"));
-      const url = request.nextUrl.clone();
-      url.pathname = next;
-      url.search = "";
-      return NextResponse.redirect(url);
-    }
+  if (
+    hasEngineerSession &&
+    pathname.startsWith("/expert-registration") &&
+    pathname !== registrationPaths.complete
+  ) {
+    const url = request.nextUrl.clone();
+    url.pathname = engineerPanelPaths.dashboard;
+    url.search = "";
+    return NextResponse.redirect(url);
+  }
+
+  if (isAccountPath(pathname) && !hasUserSession && !hasEngineerSession) {
+    const url = request.nextUrl.clone();
+    url.pathname = userAuthPaths.login;
+    url.search = `?next=${encodeURIComponent(pathname)}`;
+    return NextResponse.redirect(url);
+  }
+
+  if (hasUserSession && isUserAuthEntryPath(pathname)) {
+    const next = getSafeUserNext(request.nextUrl.searchParams.get("next"));
+    const url = request.nextUrl.clone();
+    url.pathname = next;
+    url.search = "";
+    return NextResponse.redirect(url);
   }
 
   return NextResponse.next();
@@ -89,6 +94,7 @@ export const config = {
     "/expert-registration/:path*",
     "/login",
     "/register",
+    "/forgot-password",
     "/account",
     "/account/:path*",
   ],

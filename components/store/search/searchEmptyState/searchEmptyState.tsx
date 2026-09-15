@@ -10,11 +10,20 @@ import { Empty } from "@/components/ui/empty/empty";
 import { storePaths } from "@/config/navigation.config/navigation.config";
 import { searchCopy } from "@/config/search.config/search.config";
 
-type SearchEmptyStateProps = {
-  variant: SearchEmptyVariant;
+type SearchCityOption = {
+  id: string;
+  name: string;
 };
 
-export function SearchEmptyState({ variant }: SearchEmptyStateProps) {
+type SearchEmptyStateProps = {
+  variant: SearchEmptyVariant;
+  cityOptions?: readonly SearchCityOption[];
+};
+
+export function SearchEmptyState({
+  variant,
+  cityOptions = [],
+}: SearchEmptyStateProps) {
   const isNoQuery = variant === "no-query";
 
   return (
@@ -32,7 +41,10 @@ export function SearchEmptyState({ variant }: SearchEmptyStateProps) {
           }
           action={
             isNoQuery ? (
-              <SearchCityTrigger className="sm:w-48" />
+              <SearchCityTrigger
+                className="sm:w-48"
+                options={cityOptions}
+              />
             ) : (
               <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:justify-center">
                 <Button asChild variant="outline">
@@ -41,7 +53,10 @@ export function SearchEmptyState({ variant }: SearchEmptyStateProps) {
                   </Link>
                 </Button>
 
-                <SearchCityTrigger className="sm:w-48" />
+                <SearchCityTrigger
+                  className="sm:w-48"
+                  options={cityOptions}
+                />
               </div>
             )
           }

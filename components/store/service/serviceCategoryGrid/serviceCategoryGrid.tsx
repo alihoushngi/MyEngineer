@@ -1,57 +1,77 @@
+"use client";
+
 import { ArrowLeftIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
 
 import { GlassInfoCard } from "@/components/common/glassInfoCard/glassInfoCard";
 
-import {
-  serviceCategories,
-  type ServiceSlug,
-} from "@/config/services.config/services.config";
+import { type ServiceCategory } from "@/config/services.config/services.config";
 
 import { formatFaNumber } from "@/lib/format/format-fa-number/format-fa-number";
 import { cn } from "@/lib/utils/cn/cn";
+import { listServiceCategories } from "@/services/lookup-service/lookup-service";
 
 type ServiceCategoryGridProps = {
+  categories?: readonly ServiceCategory[];
   onServiceSelect?: () => void;
   hideDescription?: boolean;
 };
 
-const visualMap: Record<ServiceSlug, { image: string; accent: string }> = {
-  "land-surveying": {
-    image: "/images/services/surveying.png",
-    accent: "bg-category-teal",
-  },
-  "construction-workers": {
-    image: "/images/services/contractor.png",
-    accent: "bg-category-orange",
-  },
-  drawing: {
-    image: "/images/services/engineeringservice.png",
-    accent: "bg-category-blue",
-  },
-  "interior-design": {
-    image: "/images/services/designer.png",
-    accent: "bg-category-violet",
-  },
-  "building-permit": {
-    image: "/images/services/licence.png",
-    accent: "bg-category-green",
-  },
-  "administrative-services": {
-    image: "/images/services/adminastrative.png",
-    accent: "bg-category-rose",
-  },
-};
+const accentClasses = [
+  "bg-category-teal",
+  "bg-category-orange",
+  "bg-category-blue",
+  "bg-category-violet",
+  "bg-category-green",
+  "bg-category-rose",
+] as const;
+
+const fallbackImages = [
+  "/images/services/surveying.png",
+  "/images/services/contractor.png",
+  "/images/services/engineeringservice.png",
+  "/images/services/designer.png",
+  "/images/services/licence.png",
+  "/images/services/adminastrative.png",
+] as const;
 
 export function ServiceCategoryGrid({
+  categories: categoriesProp,
   onServiceSelect,
   hideDescription = false,
 }: ServiceCategoryGridProps) {
+  const categoriesQuery = useQuery({
+    queryKey: ["lookup", "service-categories"],
+    queryFn: listServiceCategories,
+    enabled: categoriesProp === undefined,
+  });
+
+  const categories = categoriesProp ?? categoriesQuery.data ?? [];
+
+  if (categoriesProp === undefined && categoriesQuery.isPending) {
+    return (
+      <p className="type-body text-foreground-muted">در حال بارگذاری خدمات…</p>
+    );
+  }
+
+  if (categories.length === 0) {
+    return (
+      <p className="type-body text-foreground-muted">
+        در حال حاضر گروهی از خدمات برای نمایش موجود نیست.
+      </p>
+    );
+  }
+
   return (
     <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
-      {serviceCategories.map((service, index) => {
-        const visual = visualMap[service.slug];
+      {categories.map((service, index) => {
+        const accent = accentClasses[index % accentClasses.length];
+        const image =
+          service.imageSrc ??
+          fallbackImages[index % fallbackImages.length] ??
+          "/images/services/surveying.png";
 
         return (
           <li key={service.slug} className="min-w-0">
@@ -63,7 +83,7 @@ export function ServiceCategoryGrid({
               <GlassInfoCard className="relative flex h-full min-h-44 flex-col overflow-hidden rounded-3xl border border-border-subtle bg-surface p-3 shadow-xs transition-all duration-200 ease-in-out group-hover:-translate-y-1 group-hover:border-primary/20 group-hover:shadow-md sm:min-h-60 sm:p-5 motion-reduce:transform-none">
                 <span
                   aria-hidden="true"
-                  className={cn("absolute inset-x-0 top-0 h-1", visual.accent)}
+                  className={cn("absolute inset-x-0 top-0 h-1", accent)}
                 />
 
                 <span
@@ -81,7 +101,7 @@ export function ServiceCategoryGrid({
 
                   <span className="relative size-[90%] transition-all duration-200 ease-in-out group-hover:-translate-y-1 group-hover:scale-105 motion-reduce:transform-none">
                     <Image
-                      src={visual.image}
+                      src={image}
                       alt=""
                       fill
                       sizes="112px"
@@ -97,7 +117,7 @@ export function ServiceCategoryGrid({
                     </span>
 
                     {!hideDescription ? (
-                      <span className="mt-1.5 hidden type-caption leading-relaxed text-foreground-muted sm:block">
+                      <span className="mt-1.5 hidden type-caption leading-relaxed text-foreground-muted sm:line-clamp-2 sm:block">
                         {service.description}
                       </span>
                     ) : null}

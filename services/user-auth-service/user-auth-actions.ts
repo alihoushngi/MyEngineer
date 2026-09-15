@@ -18,8 +18,6 @@ import {
   mockVerifyUserRegisterOtp,
 } from "@/lib/auth/mock-user-register-adapter/mock-user-register-adapter";
 import {
-  clearMockUserSession,
-  getUserSession,
   writeMockUserSession,
 } from "@/lib/auth/user-session/user-session";
 import { mutationUnavailable } from "@/lib/auth/service-mutation-result/service-mutation-result";
@@ -28,7 +26,6 @@ import { type ServiceMutationResult } from "@/types/store/engineer-auth.types";
 const AUTH_UNAVAILABLE = "ورود مشتری پس از اتصال سرویس احراز هویت فعال می‌شود.";
 const REGISTER_UNAVAILABLE =
   "ثبت‌نام مشتری پس از اتصال سرویس احراز هویت فعال می‌شود.";
-const LOGOUT_UNAVAILABLE = "خروج از حساب پس از اتصال سرویس نشست فعال می‌شود.";
 
 export async function requestUserLoginOtpAction(input: {
   phone: string;
@@ -136,12 +133,6 @@ export async function completeUserRegisterAction(input: {
 }
 
 export async function logoutUserAction(): Promise<ServiceMutationResult> {
-  const session = await getUserSession();
-
-  if (!session) {
-    return mutationUnavailable(LOGOUT_UNAVAILABLE);
-  }
-
-  await clearMockUserSession();
-  return { ok: true };
+  const { logoutAction } = await import("@/services/auth-service/auth-actions");
+  return logoutAction();
 }

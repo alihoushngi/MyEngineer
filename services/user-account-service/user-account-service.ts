@@ -3,10 +3,7 @@
  * Do not import this module from Client Components.
  */
 
-import {
-  getUserAccess,
-  isUserAuthenticated,
-} from "@/services/user-auth-service/user-access-service";
+import { env } from "@/lib/env/env";
 import { buildUserWorkspace } from "@/lib/user-account/build-user-workspace/build-user-workspace";
 import {
   readCreatedRequests,
@@ -17,6 +14,15 @@ import { readNotificationCatalog } from "@/lib/notifications/mock-notification-o
 import { readReviewCatalog } from "@/lib/reviews/mock-review-overlay/mock-review-overlay";
 import { findById } from "@/lib/user-account/workspace-selectors/workspace-selectors";
 import {
+  getCurrentProfile,
+  profileToUserAccount,
+} from "@/services/profile-service/profile-service";
+import {
+  getUserAccess,
+  isUserAuthenticated,
+} from "@/services/user-auth-service/user-access-service";
+import { type MessagingSnapshot } from "@/types/store/messaging.types";
+import {
   type UserConversation,
   type UserMessage,
   type UserRequest,
@@ -24,8 +30,17 @@ import {
   type UserWorkspace,
 } from "@/types/store/user-account.types";
 
+const emptyMessaging: MessagingSnapshot = {
+  conversations: [],
+  messages: [],
+};
+
 export async function getCurrentSavedExpertIds(): Promise<readonly string[]> {
   if (!(await isUserAuthenticated())) {
+    return [];
+  }
+
+  if (!env.useMockData) {
     return [];
   }
 
@@ -39,13 +54,25 @@ export async function getUserWorkspace(): Promise<UserWorkspace | null> {
     return null;
   }
 
-  return buildUserWorkspace(access.session, {
-    savedExpertIds: await readSavedExpertIds(),
-    extraRequests: await readCreatedRequests(),
-    messaging: await readMessagingSnapshot(),
-    reviews: await readReviewCatalog(),
-    notifications: await readNotificationCatalog(),
+  const profile = await getCurrentProfile().catch(() => null);
+  const workspace = buildUserWorkspace(access.session, {
+    savedExpertIds: env.useMockData ? await readSavedExpertIds() : [],
+    extraRequests: env.useMockData ? await readCreatedRequests() : [],
+    messaging: env.useMockData ? await readMessagingSnapshot() : emptyMessaging,
+    reviews: env.useMockData ? await readReviewCatalog() : [],
+    notifications: env.useMockData ? await readNotificationCatalog() : [],
   });
+
+  if (profile) {
+    return {
+      ...workspace,
+      account: profileToUserAccount(profile),
+      conversations: [],
+      messagesByConversationId: {},
+    };
+  }
+
+  return workspace;
 }
 
 export async function getUserRequest(id: string): Promise<UserRequest | null> {

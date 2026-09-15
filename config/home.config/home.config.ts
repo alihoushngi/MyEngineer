@@ -1,7 +1,5 @@
 import { storePaths } from "@/config/navigation.config/navigation.config";
 
-export { homeHeroSlides } from "@/lib/home/hero-slides/hero-slides";
-
 export const homeHeroCopy = {
   title: "پلتفرم جامع خدمات ساختمانی در سراسر کشور",
   description: "ارتباط رایگان با مهندسان، پیمانکاران و متخصصان ساخت‌وساز",
@@ -115,43 +113,6 @@ export const homeTestimonialCopy = {
   title: "نظر کاربران",
 
   submitNote: "ارسال نظر پس از اتصال سرویس نظرات و احراز هویت فعال می‌شود.",
-
-  items: [
-    {
-      id: "mahan-karamati",
-      quote:
-        "جامع‌ترین خدمات مهندسی و بهترین مهندسان ایران بدون شک در اینجا جمع هستند و من واقعاً با این سایت مشکلاتم حل شده.",
-      author: "آقای ماهان کرامتی",
-      role: "رییس هیئت مدیره شرکت برق آسا",
-    },
-
-    // Placeholder — replace with a real verified testimonial before production.
-    {
-      id: "sample-01",
-      quote:
-        "پیدا کردن متخصص مناسب برای پروژه قبلاً زمان زیادی از ما می‌گرفت. اینجا توانستیم خیلی سریع تخصص‌ها را مقایسه کنیم و با فرد مناسب ارتباط بگیریم.",
-      author: "کاربر نمونه",
-      role: "مدیر پروژه — متن نمونه",
-    },
-
-    // Placeholder — replace with a real verified testimonial before production.
-    {
-      id: "sample-02",
-      quote:
-        "چیزی که برای من ارزشمند بود، دسترسی مستقیم به اطلاعات تخصصی مهندسان و امکان انتخاب آگاهانه‌تر قبل از شروع همکاری بود.",
-      author: "کاربر نمونه",
-      role: "کارفرمای پروژه ساختمانی — متن نمونه",
-    },
-
-    // Placeholder — replace with a real verified testimonial before production.
-    {
-      id: "sample-03",
-      quote:
-        "برای مشاوره فنی پروژه به چند تخصص مختلف نیاز داشتیم. ساختار سایت باعث شد مسیر پیدا کردن متخصص و بررسی گزینه‌ها خیلی ساده‌تر شود.",
-      author: "کاربر نمونه",
-      role: "مدیر اجرایی — متن نمونه",
-    },
-  ],
 } as const;
 
 export const homePopularCopy = {

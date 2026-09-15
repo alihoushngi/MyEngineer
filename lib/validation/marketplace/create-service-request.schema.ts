@@ -1,8 +1,5 @@
 import * as yup from "yup";
-import {
-  serviceSlugs,
-  type ServiceSlug,
-} from "@/config/services.config/services.config";
+import { type ServiceSlug } from "@/config/services.config/services.config";
 
 export const createServiceRequestSchema = yup.object({
   expertId: yup.string().trim().required("متخصص را انتخاب کنید."),
@@ -20,5 +17,5 @@ export type CreateServiceRequestFormValues = yup.InferType<
 >;
 
 export function isCreateServiceSlug(value: string): value is ServiceSlug {
-  return serviceSlugs.some((slug) => slug === value);
+  return value.trim().length > 0;
 }

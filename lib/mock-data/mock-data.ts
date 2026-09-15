@@ -1343,7 +1343,7 @@ export const mockFaqCategories: readonly FaqCategoryDetail[] = [
     description: "شروع همکاری، محدوده کار و انتخاب مجری.",
     relatedServiceHref: "/services/construction-workers",
     relatedServiceLabel: "استادکار و پیمانکار",
-    items: serviceBase["construction-workers"].faqs,
+    items: serviceBase["construction-workers"]?.faqs ?? [],
   },
   {
     slug: "drawing",
@@ -1352,7 +1352,7 @@ export const mockFaqCategories: readonly FaqCategoryDetail[] = [
     description: "معماری، سازه، برق، مکانیک و هماهنگی نقشه‌ها.",
     relatedServiceHref: "/services/drawing",
     relatedServiceLabel: "ترسیم نقشه",
-    items: serviceBase.drawing.faqs,
+    items: serviceBase.drawing?.faqs ?? [],
   },
   {
     slug: "permit",
@@ -1361,7 +1361,7 @@ export const mockFaqCategories: readonly FaqCategoryDetail[] = [
     description: "مفاهیم اولیه و مسیر بررسی مدارک.",
     relatedServiceHref: "/services/building-permit",
     relatedServiceLabel: "پروانه ساخت",
-    items: serviceBase["building-permit"].faqs,
+    items: serviceBase["building-permit"]?.faqs ?? [],
   },
   {
     slug: "registration",

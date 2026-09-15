@@ -1,9 +1,9 @@
 import { type Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ServiceDiscoveryPage } from "@/components/store/service/serviceDiscoveryPage/serviceDiscoveryPage";
-import { getServiceCategory } from "@/config/services.config/services.config";
 import { notFoundMetadata } from "@/lib/seo/not-found-metadata/not-found-metadata";
 import {
+  getServiceCategoryBySlug,
   getServiceDetail,
   listCatalogCities,
 } from "@/services/catalog-service/catalog-service";
@@ -17,7 +17,7 @@ export async function generateMetadata({
   params,
 }: ServicePageProps): Promise<Metadata> {
   const { slug } = await params;
-  const service = getServiceCategory(slug);
+  const service = await getServiceCategoryBySlug(decodeURIComponent(slug));
 
   if (!service) {
     return notFoundMetadata;
@@ -33,8 +33,9 @@ export async function generateMetadata({
 }
 
 export default async function ServiceRoutePage({ params }: ServicePageProps) {
-  const { slug } = await params;
-  const service = getServiceCategory(slug);
+  const { slug: rawSlug } = await params;
+  const slug = decodeURIComponent(rawSlug);
+  const service = await getServiceCategoryBySlug(slug);
 
   if (!service) {
     notFound();

@@ -2,14 +2,30 @@ import Image from "next/image";
 import { CheckIcon, SparklesIcon } from "lucide-react";
 
 import { StoreBreadcrumb } from "@/components/common/storeBreadcrumb/storeBreadcrumb";
+import {
+  AboutBrandsSection,
+  AboutTeamSection,
+} from "@/components/store/about/aboutPartnersSections/aboutPartnersSections";
 import { AboutServicesSection } from "@/components/store/about/aboutServicesSection/aboutServicesSection";
 
 import { aboutCopy } from "@/config/about.config/about.config";
 import { siteConfig } from "@/config/site.config/site.config";
 
 import { formatFaNumber } from "@/lib/format/format-fa-number/format-fa-number";
+import {
+  type BrandCard,
+  type TeamMemberCard,
+} from "@/services/content-service/content-service";
 
-export function AboutPage() {
+type AboutPageProps = {
+  teamMembers?: readonly TeamMemberCard[];
+  brands?: readonly BrandCard[];
+};
+
+export function AboutPage({
+  teamMembers = [],
+  brands = [],
+}: AboutPageProps) {
   return (
     <div className="overflow-hidden pb-section">
       <div className="container-wide py-page">
@@ -204,6 +220,9 @@ export function AboutPage() {
           ))}
         </ul>
       </section>
+
+      <AboutTeamSection members={teamMembers} />
+      <AboutBrandsSection brands={brands} />
     </div>
   );
 }

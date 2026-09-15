@@ -23,16 +23,15 @@ import {
 } from "@/components/ui/select/select";
 
 import { marketplaceCopy } from "@/config/marketplace.config/marketplace.config";
-import {
-  serviceCategories,
-  type ServiceSlug,
-} from "@/config/services.config/services.config";
+import { type ServiceSlug } from "@/config/services.config/services.config";
 
 import { expertRequestDefaults } from "@/lib/marketplace/to-request-expert-option/to-request-expert-option";
 import { type CreateServiceRequestFormValues } from "@/lib/validation/marketplace/create-service-request.schema";
+import { listServiceCategories } from "@/services/lookup-service/lookup-service";
 
 import { type City } from "@/types/store/registration.types";
 import { type RequestExpertOption } from "@/types/store/service-request.types";
+import { useQuery } from "@tanstack/react-query";
 
 type RequestCreateFieldsProps = {
   control: Control<CreateServiceRequestFormValues>;
@@ -53,6 +52,12 @@ export function RequestCreateFields({
   lockedServiceSlug,
   setValue,
 }: RequestCreateFieldsProps) {
+  const categoriesQuery = useQuery({
+    queryKey: ["lookup", "service-categories"],
+    queryFn: listServiceCategories,
+  });
+  const serviceCategories = categoriesQuery.data ?? [];
+
   const lockedService = lockedServiceSlug
     ? serviceCategories.find((service) => service.slug === lockedServiceSlug)
     : undefined;

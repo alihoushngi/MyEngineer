@@ -13,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea/textarea";
 import { engineerPanelCopy } from "@/config/engineer-panel.config/engineer-panel.config";
 import { useApiMutation } from "@/hooks/use-api-mutation/use-api-mutation";
 import { toUserErrorMessage } from "@/lib/errors/to-user-error-message/to-user-error-message";
-import { updateEngineerProfile } from "@/services/engineer-service/engineer-service";
+import { updateEngineerProfile } from "@/services/engineer-service/engineer-actions";
 import { type EngineerProfile } from "@/types/store/engineer.types";
 
 const schema = z.object({
@@ -77,7 +77,7 @@ export function EngineerProfileBasicsForm({
         open={open}
         onOpenChange={setOpen}
         title="ویرایش اطلاعات پایه"
-        description="این اطلاعات روی پروفایل عمومی نمایش داده می‌شود. ذخیره تا اتصال API انجام نمی‌شود."
+        description="نام، نام‌خانوادگی و توضیح حرفه‌ای در پروفایل ذخیره می‌شود."
         pending={mutation.isPending}
         error={error}
         canSubmit={form.formState.isDirty && !mutation.isPending}

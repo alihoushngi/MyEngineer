@@ -1,13 +1,18 @@
 import Link from "next/link";
 import { ArrowUpLeftIcon } from "lucide-react";
 
+import { NewsletterSubscribeForm } from "@/components/common/newsletterSubscribeForm/newsletterSubscribeForm";
 import { BrandLogo } from "@/components/layout/brandLogo/brandLogo";
 import { JoinLink } from "@/components/layout/joinLink/joinLink";
 
-import { footerNavigation } from "@/config/navigation.config/navigation.config";
+import { buildFooterNavigation } from "@/config/navigation.config/navigation.config";
 import { siteConfig } from "@/config/site.config/site.config";
+import { listServiceCategories } from "@/services/lookup-service/lookup-service";
 
-export function StoreFooter() {
+export async function StoreFooter() {
+  const serviceCategories = await listServiceCategories().catch(() => []);
+  const footerNavigation = buildFooterNavigation(serviceCategories);
+
   return (
     <footer className="relative isolate mt-auto overflow-hidden border-t border-primary-deep-foreground/10 bg-primary-deep text-primary-deep-foreground">
       <div
@@ -38,6 +43,8 @@ export function StoreFooter() {
               variant="outline"
               className="mt-6 border-primary-deep-foreground/15 bg-primary-deep-foreground/5 text-primary-deep-foreground backdrop-blur-md transition-all duration-200 ease-in-out hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary hover:text-primary-foreground hover:shadow-md motion-reduce:transform-none"
             />
+
+            <NewsletterSubscribeForm />
           </div>
 
           <nav aria-label="پیوندهای پاورقی">
@@ -50,7 +57,7 @@ export function StoreFooter() {
 
                   <ul className="mt-3 space-y-1">
                     {group.items.map((item) => (
-                      <li key={item.href}>
+                      <li key={`${group.id}-${item.href}`}>
                         <Link
                           href={item.href}
                           className="group inline-flex min-h-10 items-center gap-1.5 wrap-break-word rounded-lg type-body-sm text-primary-deep-foreground/55 outline-none transition-all duration-200 ease-in-out hover:text-primary-deep-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-primary-deep"

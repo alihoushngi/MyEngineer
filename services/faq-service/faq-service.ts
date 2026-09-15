@@ -1,29 +1,62 @@
-/**
- * FAQ catalog access.
- * API CONTRACT REQUIRED. Employer surveying FAQ text is not in this repository.
- * Do not invent questions for missing categories.
- */
+import {
+  type ApiEnvelope,
+  unwrapApiData,
+} from "@/lib/api/api-envelope/api-envelope";
+import { httpGet } from "@/lib/api/http-client/http-client";
+import {
+  groupFaqsByService,
+  toFaqCategorySummary,
+} from "@/lib/api/map-backend/map-backend";
+import { env } from "@/lib/env/env";
+import { type BackendFaq } from "@/types/api/backend.types";
 import {
   type FaqCategory,
   type FaqCategoryDetail,
 } from "@/types/store/faq.types";
-import { env } from "@/lib/env/env";
-import { mockFaqCategories } from "@/lib/mock-data/mock-data";
+import { listBackendServices } from "@/services/lookup-service/lookup-service";
+
+const PUBLIC_REVALIDATE_SECONDS = 300;
+
+async function getEnvelope<TData>(
+  path: string,
+  query?: Record<string, string | number | boolean | undefined>,
+): Promise<ApiEnvelope<TData>> {
+  return httpGet<ApiEnvelope<TData>>(path, {
+    query,
+    next: { revalidate: PUBLIC_REVALIDATE_SECONDS },
+  });
+}
+
+export async function listFaqCategoryDetails(): Promise<
+  readonly FaqCategoryDetail[]
+> {
+  if (!env.apiBaseUrl) {
+    return [];
+  }
+
+  const [faqsEnvelope, services] = await Promise.all([
+    getEnvelope<BackendFaq[]>("/faqs"),
+    listBackendServices(),
+  ]);
+
+  const categories = groupFaqsByService(unwrapApiData(faqsEnvelope), services);
+
+  return categories.map((category, index, all) => ({
+    ...category,
+    relatedCategories: toFaqCategorySummary(
+      all.filter((item) => item.slug !== category.slug).slice(0, 3),
+    ),
+  }));
+}
 
 export async function listFaqCategories(): Promise<readonly FaqCategory[]> {
-  return env.useMockData ? mockFaqCategories : [];
+  const details = await listFaqCategoryDetails();
+  return toFaqCategorySummary(details);
 }
 
 export async function getFaqCategory(
-  _slug: string,
+  slug: string,
 ): Promise<FaqCategoryDetail | null> {
-  if (!env.useMockData) return null;
-  const category = mockFaqCategories.find((item) => item.slug === _slug);
-  if (!category) return null;
-  return {
-    ...category,
-    relatedCategories: mockFaqCategories
-      .filter((item) => item.slug !== _slug)
-      .slice(0, 3),
-  };
+  const details = await listFaqCategoryDetails();
+  return details.find((category) => category.slug === slug) ?? null;
 }

@@ -11,12 +11,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdownMenu/dropdownMenu";
 import {
+  buildServicesNavigation,
   isActivePath,
   isServicesPath,
   primaryNavigation,
-  servicesNavigation,
 } from "@/config/navigation.config/navigation.config";
 import { cn } from "@/lib/utils/cn/cn";
+import { listServiceCategories } from "@/services/lookup-service/lookup-service";
+import { useQuery } from "@tanstack/react-query";
 
 function navLinkClassName(isActive: boolean) {
   return cn(
@@ -31,6 +33,13 @@ export function HeaderNavigation() {
   const servicesActive = isServicesPath(pathname);
   const homeLink = primaryNavigation[0];
   const restLinks = primaryNavigation.slice(1);
+  const categoriesQuery = useQuery({
+    queryKey: ["lookup", "service-categories"],
+    queryFn: listServiceCategories,
+  });
+  const servicesNavigation = buildServicesNavigation(
+    categoriesQuery.data ?? [],
+  );
 
   return (
     <nav aria-label="ناوبری اصلی" className="hidden xl:block">

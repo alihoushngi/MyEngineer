@@ -1,35 +1,43 @@
+import { UnifiedLoginForm } from "@/components/store/auth/unifiedLoginForm/unifiedLoginForm";
 import { type Metadata } from "next";
 import { redirect } from "next/navigation";
-import { UserLoginForm } from "@/components/store/userLogin/userLoginForm/userLoginForm";
-import { isMockUserLoginEnabled } from "@/config/mock-auth.config/mock-auth.config";
-import { userAuthCopy } from "@/config/user-auth.config/user-auth.config";
 import { getUserSession } from "@/lib/auth/user-session/user-session";
+import { getEngineerSession } from "@/lib/auth/engineer-session/engineer-session";
 import { getSafeUserNext } from "@/lib/auth/safe-user-next/safe-user-next";
+import { engineerPanelPaths } from "@/config/engineer-panel.config/engineer-panel.config";
+import { userAuthCopy } from "@/config/user-auth.config/user-auth.config";
 
 export const metadata: Metadata = {
   title: userAuthCopy.loginTitle,
-  robots: {
-    index: false,
-    follow: false,
-  },
+  robots: { index: false, follow: false },
 };
 
-type UserLoginPageProps = {
+type LoginPageProps = {
   searchParams: Promise<{ next?: string }>;
 };
 
-export default async function UserLoginPage({
-  searchParams,
-}: UserLoginPageProps) {
-  const session = await getUserSession();
+export default async function UserLoginPage({ searchParams }: LoginPageProps) {
+  const [userSession, engineerSession] = await Promise.all([
+    getUserSession(),
+    getEngineerSession(),
+  ]);
   const params = await searchParams;
   const nextPath = getSafeUserNext(params.next);
 
-  if (session) {
+  if (userSession) {
     redirect(nextPath);
   }
 
+  if (engineerSession) {
+    redirect(engineerPanelPaths.dashboard);
+  }
+
   return (
-    <UserLoginForm nextPath={nextPath} isMockMode={isMockUserLoginEnabled()} />
+    <UnifiedLoginForm
+      audience="user"
+      nextPath={nextPath}
+      title="ورود کاربر"
+      description="برای حساب کاربری عادی با کد ملی و رمز عبور وارد شوید. ورود متخصص مسیر جداگانه‌ای دارد."
+    />
   );
 }

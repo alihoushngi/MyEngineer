@@ -21,7 +21,7 @@ import {
 import { engineerPanelCopy } from "@/config/engineer-panel.config/engineer-panel.config";
 import { useApiMutation } from "@/hooks/use-api-mutation/use-api-mutation";
 import { toUserErrorMessage } from "@/lib/errors/to-user-error-message/to-user-error-message";
-import { updateEngineerServiceArea } from "@/services/engineer-service/engineer-service";
+import { updateEngineerServiceArea } from "@/services/engineer-service/engineer-actions";
 import { type EngineerServiceArea } from "@/types/store/engineer.types";
 import { type City, type Province } from "@/types/store/registration.types";
 

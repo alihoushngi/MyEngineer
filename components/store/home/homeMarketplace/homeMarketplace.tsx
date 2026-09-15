@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/select/select";
 
 import { homeMarketplaceCopy } from "@/config/home.config/home.config";
-import { serviceCategories } from "@/config/services.config/services.config";
+import { type ServiceCategory } from "@/config/services.config/services.config";
 
 import { useHomeMarketplace } from "@/hooks/use-home-marketplace/use-home-marketplace";
 
@@ -29,10 +29,15 @@ import { type City } from "@/types/store/registration.types";
 type HomeMarketplaceProps = {
   experts: readonly ExpertCardData[];
   cities: readonly City[];
+  serviceCategories: readonly ServiceCategory[];
 };
 
-export function HomeMarketplace({ experts, cities }: HomeMarketplaceProps) {
-  const marketplace = useHomeMarketplace(experts);
+export function HomeMarketplace({
+  experts,
+  cities,
+  serviceCategories,
+}: HomeMarketplaceProps) {
+  const marketplace = useHomeMarketplace(experts, serviceCategories);
 
   return (
     <section

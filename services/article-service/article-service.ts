@@ -1,44 +1,91 @@
-/**
- * Article catalog access.
- * API CONTRACT REQUIRED — no documented article list/detail endpoint exists.
- * Empty results are honest empty states, not invented article bodies.
- */
+import {
+  type ApiEnvelope,
+  unwrapApiData,
+} from "@/lib/api/api-envelope/api-envelope";
+import { httpGet } from "@/lib/api/http-client/http-client";
+import {
+  mapBlogCard,
+  mapBlogCategory,
+  mapBlogDetail,
+} from "@/lib/api/map-backend/map-backend";
+import { env } from "@/lib/env/env";
+import {
+  type BackendBlog,
+  type BackendBlogCategory,
+} from "@/types/api/backend.types";
 import {
   type Article,
   type ArticleCardData,
   type ArticleCategory,
 } from "@/types/store/article.types";
-import { env } from "@/lib/env/env";
-import { mockArticleCategories, mockArticles } from "@/lib/mock-data/mock-data";
+
+const PUBLIC_REVALIDATE_SECONDS = 300;
+
+async function getEnvelope<TData>(
+  path: string,
+  query?: Record<string, string | number | boolean | undefined>,
+): Promise<ApiEnvelope<TData>> {
+  return httpGet<ApiEnvelope<TData>>(path, {
+    query,
+    next: { revalidate: PUBLIC_REVALIDATE_SECONDS },
+  });
+}
 
 export async function listArticles(): Promise<readonly ArticleCardData[]> {
-  return env.useMockData ? mockArticles : [];
+  if (!env.apiBaseUrl) {
+    return [];
+  }
+
+  const envelope = await getEnvelope<BackendBlog[]>("/blogs", {
+    per_page: 100,
+  });
+  return unwrapApiData(envelope).map(mapBlogCard);
 }
 
 export async function listArticleCategories(): Promise<
   readonly ArticleCategory[]
 > {
-  return env.useMockData ? mockArticleCategories : [];
+  if (!env.apiBaseUrl) {
+    return [];
+  }
+
+  const envelope = await getEnvelope<BackendBlogCategory[]>("/blog-categories");
+  return unwrapApiData(envelope).map(mapBlogCategory);
 }
 
 export async function getArticleCategory(
-  _slug: string,
+  slug: string,
 ): Promise<ArticleCategory | null> {
-  if (!env.useMockData) return null;
-  return (
-    mockArticleCategories.find((category) => category.slug === _slug) ?? null
-  );
+  const categories = await listArticleCategories();
+  return categories.find((category) => category.slug === slug) ?? null;
 }
 
 export async function listArticlesByCategory(
-  _slug: string,
+  slug: string,
 ): Promise<readonly ArticleCardData[]> {
-  return env.useMockData
-    ? mockArticles.filter((article) => article.categorySlug === _slug)
-    : [];
+  const [categories, articles] = await Promise.all([
+    listArticleCategories(),
+    listArticles(),
+  ]);
+  const category = categories.find((item) => item.slug === slug);
+  if (!category) {
+    return [];
+  }
+
+  return articles.filter((article) => article.categorySlug === slug);
 }
 
-export async function getArticleBySlug(_slug: string): Promise<Article | null> {
-  if (!env.useMockData) return null;
-  return mockArticles.find((article) => article.slug === _slug) ?? null;
+export async function getArticleBySlug(slug: string): Promise<Article | null> {
+  if (!env.apiBaseUrl) {
+    return null;
+  }
+
+  try {
+    const envelope = await getEnvelope<BackendBlog>(
+      `/blogs/${encodeURIComponent(slug)}`,
+    );
+    return mapBlogDetail(unwrapApiData(envelope));
+  } catch {
+    return null;
+  }
 }

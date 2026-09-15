@@ -2,8 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { isMockUserAuthEnabled } from "@/config/mock-auth.config/mock-auth.config";
-import { getServiceCategory } from "@/config/services.config/services.config";
-import { mockCities, mockExpertCards } from "@/lib/mock-data/mock-data";
+import { getServiceCategoryBySlug } from "@/services/catalog-service/catalog-service";
+import { listCatalogCities } from "@/services/catalog-service/catalog-service";
+import { getExpertCardData } from "@/services/expert-service/expert-service";
+import { mockExpertCards } from "@/lib/mock-data/mock-data";
 import {
   excerptRequestSummary,
   toggleSavedId,
@@ -77,14 +79,20 @@ export async function createServiceRequestAction(
     return mutationFailed(message);
   }
 
-  const expert = mockExpertCards.find((item) => item.id === input.expertId);
+  const expert =
+    (await getExpertCardData(input.expertId)) ??
+    mockExpertCards.find((item) => item.id === input.expertId) ??
+    null;
 
   if (!expert) {
     return mutationFailed("متخصص معتبر نیست.");
   }
 
-  const service = getServiceCategory(input.serviceSlug);
-  const city = mockCities.find((item) => item.id === input.cityId);
+  const [service, cities] = await Promise.all([
+    getServiceCategoryBySlug(input.serviceSlug),
+    listCatalogCities(),
+  ]);
+  const city = cities.find((item) => item.id === input.cityId);
 
   if (!service || !city) {
     return mutationFailed("خدمت یا شهر معتبر نیست.");

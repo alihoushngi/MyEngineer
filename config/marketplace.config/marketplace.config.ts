@@ -16,7 +16,7 @@ export const marketplaceCopy = {
   saveEngineerLabel: "ذخیره مهندس",
   savedEngineerLabel: "ذخیره‌شده",
   removeSavedLabel: "حذف از ذخیره‌ها",
-  messageEngineerLabel: "پیام به مهندس",
+  messageEngineerLabel: "ارتباط / پشتیبانی",
   mockNotProductionTitle: "ذخیره آزمایشی",
   mockNotProductionDescription:
     "این نوشته در کوکی نشست مرورگر می‌ماند و پایگاه‌دادهٔ محصول نیست. پس از اتصال سرویس، رفتار واقعی جایگزین می‌شود.",

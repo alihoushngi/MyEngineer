@@ -1,5 +1,4 @@
 import { registrationCopy } from "@/config/registration.config/registration.config";
-import { mockCities, mockProvinces } from "@/lib/mock-data/mock-data";
 import { type MockEngineerProfileSnapshot } from "@/types/store/engineer-auth.types";
 import {
   type DegreeKey,
@@ -17,11 +16,6 @@ const DEGREE_LABELS: Record<DegreeKey, string> = {
 export function toMockEngineerProfileSnapshot(
   data: RegistrationWizardData,
 ): MockEngineerProfileSnapshot {
-  const city = mockCities.find((item) => item.id === data.serviceArea?.cityId);
-  const province = mockProvinces.find(
-    (item) => item.id === data.serviceArea?.provinceId,
-  );
-
   const educationLabels =
     data.education?.level === "diplomaOrLower"
       ? ["دیپلم"]
@@ -31,9 +25,9 @@ export function toMockEngineerProfileSnapshot(
     firstName: data.personalInfo?.firstName,
     lastName: data.personalInfo?.lastName,
     cityId: data.serviceArea?.cityId,
-    cityName: city?.name,
+    cityName: undefined,
     provinceId: data.serviceArea?.provinceId,
-    provinceName: province?.name,
+    provinceName: undefined,
     specialties: data.expertise?.expertiseIds,
     software: data.expertise?.softwareIds,
     experienceYears: data.resume?.experienceYears,

@@ -4,6 +4,25 @@ const nextConfig: NextConfig = {
   output: "standalone",
   reactCompiler: true,
   agentRules: false,
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "test.kbdcland.ir",
+        pathname: "/public/**",
+      },
+      {
+        protocol: "https",
+        hostname: "test.kbdcland.ir",
+        pathname: "/front/**",
+      },
+      {
+        protocol: "https",
+        hostname: "test.kbdcland.ir",
+        pathname: "/web/**",
+      },
+    ],
+  },
   experimental: {
     optimizePackageImports: ["lucide-react", "radix-ui", "swiper"],
   },

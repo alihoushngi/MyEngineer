@@ -1,4 +1,11 @@
 import { cookies } from "next/headers";
+import { env } from "@/lib/env/env";
+import {
+  isEngineerPanelRole,
+  readAccessToken,
+  readAuthDisplayName,
+  readAuthRole,
+} from "@/lib/auth/access-token-cookie/access-token-cookie";
 import {
   isMockUserAuthEnabled,
   isMockUserLoginEnabled,
@@ -17,6 +24,25 @@ import { parseMockUserProfileCookie } from "@/lib/auth/mock-user-profile-cookie/
 import { type UserSession } from "@/types/store/user-auth.types";
 
 export async function getUserSession(): Promise<UserSession | null> {
+  if (env.apiBaseUrl) {
+    const token = await readAccessToken();
+    const role = await readAuthRole();
+    if (!token || isEngineerPanelRole(role)) {
+      return null;
+    }
+
+    const displayName = await readAuthDisplayName();
+    return {
+      isAuthenticated: true,
+      role: "user",
+      isMock: false,
+      source: "login",
+      profile: displayName
+        ? { displayName, source: "login" }
+        : { source: "login" },
+    };
+  }
+
   if (!isMockUserAuthEnabled()) {
     return null;
   }
@@ -92,6 +118,9 @@ export async function clearMockUserSession(): Promise<void> {
 }
 
 export async function readRawUserSessionCookie(): Promise<string | undefined> {
+  if (env.apiBaseUrl) {
+    return readAccessToken();
+  }
   const store = await cookies();
   return store.get(MOCK_USER_SESSION_COOKIE)?.value;
 }

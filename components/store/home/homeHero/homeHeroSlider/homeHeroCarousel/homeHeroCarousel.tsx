@@ -9,14 +9,13 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/effect-fade";
 
-import { homeHeroSlides } from "@/config/home.config/home.config";
-
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion/use-prefers-reduced-motion";
 
 import {
   getHomeHeroBackgroundSliderBehavior,
   shouldEnableHeroAutoplay,
 } from "@/lib/home/hero-autoplay/hero-autoplay";
+import { type HomeHeroSlide } from "@/types/store/home.types";
 
 function subscribeToNothing() {
   return () => {};
@@ -30,7 +29,11 @@ function getServerSnapshot() {
   return false;
 }
 
-export function HomeHeroCarousel() {
+type HomeHeroCarouselProps = {
+  slides: readonly HomeHeroSlide[];
+};
+
+export function HomeHeroCarousel({ slides }: HomeHeroCarouselProps) {
   const isClient = useSyncExternalStore(
     subscribeToNothing,
     getClientSnapshot,
@@ -41,16 +44,16 @@ export function HomeHeroCarousel() {
 
   const canAutoplay = shouldEnableHeroAutoplay(
     prefersReducedMotion,
-    homeHeroSlides.length,
+    slides.length,
   );
 
-  if (!isClient || !canAutoplay) {
+  if (!isClient || !canAutoplay || slides.length === 0) {
     return null;
   }
 
   const behavior = getHomeHeroBackgroundSliderBehavior(
     prefersReducedMotion,
-    homeHeroSlides.length,
+    slides.length,
   );
 
   return (
@@ -75,7 +78,7 @@ export function HomeHeroCarousel() {
         keyboard={{ enabled: false }}
         pagination={false}
       >
-        {homeHeroSlides.map((slide) => (
+        {slides.map((slide) => (
           <SwiperSlide
             key={slide.id}
             className="
@@ -89,11 +92,7 @@ export function HomeHeroCarousel() {
               alt=""
               fill
               sizes="100vw"
-              className="
-                scale-[1.02]
-                object-cover
-                object-center
-              "
+              className="object-cover object-center"
             />
           </SwiperSlide>
         ))}
