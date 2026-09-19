@@ -3,6 +3,7 @@ export const userAccountPaths = {
   profile: "/account/profile",
   requests: "/account/requests",
   messages: "/account/messages",
+  support: "/account/support",
   saved: "/account/saved",
   reviews: "/account/reviews",
   notifications: "/account/notifications",
@@ -45,7 +46,7 @@ export const userAccountPrimaryNav: readonly UserAccountNavItem[] = [
   {
     id: "messages",
     href: userAccountPaths.messages,
-    label: "پشتیبانی",
+    label: "پیام‌ها",
     icon: "messageSquare",
   },
   {
@@ -57,6 +58,12 @@ export const userAccountPrimaryNav: readonly UserAccountNavItem[] = [
 ] as const;
 
 export const userAccountSecondaryNav: readonly UserAccountNavItem[] = [
+  {
+    id: "support",
+    href: userAccountPaths.support,
+    label: "پشتیبانی",
+    icon: "inbox",
+  },
   {
     id: "reviews",
     href: userAccountPaths.reviews,
@@ -104,8 +111,8 @@ export const userAccountCopy = {
   requestsDescription: "درخواست‌هایی که برای متخصصان ثبت کرده‌اید.",
   requestDetailDescription: "جزئیات درخواست و وضعیت بررسی.",
   messagesDescription:
-    "تیکت‌های پشتیبانی شما. گفتگوی مستقیم با متخصصان در API فعلی موجود نیست.",
-  conversationDescription: "جزئیات تیکت و پاسخ‌های پشتیبانی.",
+    "گفتگو با متخصصان درباره درخواست‌ها و پیگیری کار.",
+  conversationDescription: "پیام‌های این گفتگو.",
   savedDescription: "متخصصانی که برای مراجعه بعدی ذخیره کرده‌اید.",
   reviewsDescription: "نظرهایی که برای متخصصان ثبت کرده‌اید.",
   notificationsDescription:
@@ -113,10 +120,10 @@ export const userAccountCopy = {
   settingsDescription: "خروج از حساب و اطلاعات نمایشی نشست.",
   welcomeGreeting: "خوش آمدید",
   findExpert: "پیدا کردن مهندس",
-  viewMessages: "مشاهده پشتیبانی",
+  viewMessages: "مشاهده پیام‌ها",
   viewSaved: "مشاهده مهندس‌های ذخیره‌شده",
   viewAll: "مشاهده همه",
-  openConversation: "مشاهده تیکت",
+  openConversation: "مشاهده گفتگو",
   unreadLabel: "خوانده‌نشده",
   displayNameLabel: "نام",
   mobileLabel: "موبایل",
@@ -124,18 +131,18 @@ export const userAccountCopy = {
   emptySavedHint:
     "از پروفایل متخصص می‌توانید او را برای مراجعه بعدی ذخیره کنید.",
   recentRequests: "درخواست‌های فعال",
-  recentMessages: "تیکت‌های اخیر",
+  recentMessages: "پیام‌های اخیر",
   savedExperts: "مهندس‌های ذخیره‌شده",
   notificationSummary: "اعلان‌ها",
   unreadNotifications: "اعلان خوانده‌نشده",
   emptyRequests: "هنوز درخواستی ثبت نکرده‌اید.",
   emptyRequestsHint: "از پروفایل یک متخصص می‌توانید درخواست خدمات بفرستید.",
-  emptyMessages: "هنوز تیکتی ندارید.",
+  emptyMessages: "هنوز گفتگویی ندارید.",
   emptySaved: "هنوز متخصصی ذخیره نکرده‌اید.",
   emptyReviews: "هنوز نظری ثبت نکرده‌اید.",
   emptyNotifications: "اعلانی برای نمایش وجود ندارد.",
   requestNotFoundTitle: "درخواست پیدا نشد",
-  conversationNotFoundTitle: "تیکت پیدا نشد",
+  conversationNotFoundTitle: "گفتگو پیدا نشد",
   reviewNotFoundTitle: "نظر پیدا نشد",
   filterAll: "همه",
   filterSent: "ارسال‌شده",
@@ -160,8 +167,9 @@ export const userAccountPageTitles = {
   profile: "اطلاعات حساب",
   requests: "درخواست‌های من",
   requestDetail: "جزئیات درخواست",
-  messages: "پشتیبانی",
-  conversation: "تیکت",
+  messages: "پیام‌ها",
+  conversation: "گفتگو",
+  support: "پشتیبانی",
   saved: "مهندس‌های ذخیره‌شده",
   reviews: "نظرات من",
   reviewDetail: "جزئیات نظر",

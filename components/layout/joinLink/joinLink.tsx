@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button/button";
+import { isPageEnabled } from "@/config/feature-flags.config/feature-flags.config";
 import { joinNavigation } from "@/config/navigation.config/navigation.config";
 import { cn } from "@/lib/utils/cn/cn";
 
@@ -14,6 +15,10 @@ export function JoinLink({
   variant = "primary",
   size = "md",
 }: JoinLinkProps) {
+  if (!isPageEnabled("expertRegistration")) {
+    return null;
+  }
+
   return (
     <Button
       asChild

@@ -31,6 +31,10 @@ import {
   engineerPanelCopy,
   engineerPanelPaths,
 } from "@/config/engineer-panel.config/engineer-panel.config";
+import {
+  isEngineerFeatureEnabled,
+  isPageEnabled,
+} from "@/config/feature-flags.config/feature-flags.config";
 
 import { getDisplayInitials } from "@/lib/auth/display-initials/display-initials";
 import { formatFaNumber } from "@/lib/format/format-fa-number/format-fa-number";
@@ -59,7 +63,7 @@ export function EngineerTopbar({ shell }: EngineerTopbarProps) {
         </div>
 
         <div className="ms-auto flex items-center gap-1 sm:gap-1.5">
-          {shell.publicProfileHref ? (
+          {shell.publicProfileHref && isPageEnabled("experts") ? (
             <Button
               asChild
               variant="ghost"
@@ -73,25 +77,30 @@ export function EngineerTopbar({ shell }: EngineerTopbarProps) {
             </Button>
           ) : null}
 
-          <Button
-            asChild
-            variant="ghost"
-            size="icon"
-            className="relative rounded-xl text-primary-deep-foreground/75 transition-all duration-200 ease-in-out hover:bg-primary-deep-foreground/8 hover:text-primary-deep-foreground focus-visible:ring-offset-primary-deep"
-          >
-            <Link href={engineerPanelPaths.notifications} aria-label="اعلان‌ها">
-              <BellIcon aria-hidden="true" className="size-5" />
+          {isEngineerFeatureEnabled("notifications") ? (
+            <Button
+              asChild
+              variant="ghost"
+              size="icon"
+              className="relative rounded-xl text-primary-deep-foreground/75 transition-all duration-200 ease-in-out hover:bg-primary-deep-foreground/8 hover:text-primary-deep-foreground focus-visible:ring-offset-primary-deep"
+            >
+              <Link
+                href={engineerPanelPaths.notifications}
+                aria-label="اعلان‌ها"
+              >
+                <BellIcon aria-hidden="true" className="size-5" />
 
-              {shell.unreadNotificationCount > 0 ? (
-                <span className="absolute inset-e-2 top-2 size-2 rounded-full bg-accent ring-2 ring-primary-deep">
-                  <span className="sr-only">
-                    {formatFaNumber(shell.unreadNotificationCount)} اعلان
-                    خوانده‌نشده
+                {shell.unreadNotificationCount > 0 ? (
+                  <span className="absolute inset-e-2 top-2 size-2 rounded-full bg-accent ring-2 ring-primary-deep">
+                    <span className="sr-only">
+                      {formatFaNumber(shell.unreadNotificationCount)} اعلان
+                      خوانده‌نشده
+                    </span>
                   </span>
-                </span>
-              ) : null}
-            </Link>
-          </Button>
+                ) : null}
+              </Link>
+            </Button>
+          ) : null}
 
           <DropdownMenu>
             <DropdownMenuTrigger
@@ -119,14 +128,16 @@ export function EngineerTopbar({ shell }: EngineerTopbarProps) {
             </DropdownMenuTrigger>
 
             <DropdownMenuContent align="end" className="min-w-56">
-              <DropdownMenuItem asChild>
-                <Link href={engineerPanelPaths.dashboard}>
-                  <LayoutDashboardIcon aria-hidden="true" />
-                  {engineerPanelCopy.dashboardLabel}
-                </Link>
-              </DropdownMenuItem>
+              {isEngineerFeatureEnabled("dashboard") ? (
+                <DropdownMenuItem asChild>
+                  <Link href={engineerPanelPaths.dashboard}>
+                    <LayoutDashboardIcon aria-hidden="true" />
+                    {engineerPanelCopy.dashboardLabel}
+                  </Link>
+                </DropdownMenuItem>
+              ) : null}
 
-              {shell.publicProfileHref ? (
+              {shell.publicProfileHref && isPageEnabled("experts") ? (
                 <DropdownMenuItem asChild>
                   <Link href={shell.publicProfileHref}>
                     <UserRoundIcon aria-hidden="true" />
@@ -135,12 +146,14 @@ export function EngineerTopbar({ shell }: EngineerTopbarProps) {
                 </DropdownMenuItem>
               ) : null}
 
-              <DropdownMenuItem asChild>
-                <Link href={engineerPanelPaths.settings}>
-                  <SettingsIcon aria-hidden="true" />
-                  {engineerPanelCopy.settingsLabel}
-                </Link>
-              </DropdownMenuItem>
+              {isEngineerFeatureEnabled("settings") ? (
+                <DropdownMenuItem asChild>
+                  <Link href={engineerPanelPaths.settings}>
+                    <SettingsIcon aria-hidden="true" />
+                    {engineerPanelCopy.settingsLabel}
+                  </Link>
+                </DropdownMenuItem>
+              ) : null}
 
               <DropdownMenuSeparator />
               <EngineerLogoutItem />

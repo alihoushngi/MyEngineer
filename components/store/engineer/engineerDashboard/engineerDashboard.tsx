@@ -7,6 +7,7 @@ import { EngineerRecentMessages } from "@/components/store/engineer/engineerRece
 import { EngineerRecentRequests } from "@/components/store/engineer/engineerRecentRequests/engineerRecentRequests";
 import { EngineerWelcome } from "@/components/store/engineer/engineerWelcome/engineerWelcome";
 import { engineerPageTitles } from "@/config/engineer-panel.config/engineer-panel.config";
+import { isEngineerFeatureEnabled } from "@/config/feature-flags.config/feature-flags.config";
 import { deriveProfileCompletion } from "@/lib/engineer/profile-completion/profile-completion";
 import { type EngineerWorkspace } from "@/types/store/engineer.types";
 
@@ -29,9 +30,15 @@ export function EngineerDashboard({ workspace }: EngineerDashboardProps) {
 
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1.35fr)_minmax(18rem,.85fr)]">
         <div className="flex min-w-0 flex-col gap-6">
-          <EngineerRecentRequests requests={workspace.requests} />
-          <EngineerRecentMessages conversations={workspace.conversations} />
-          <EngineerLatestReviews reviews={workspace.reviews} />
+          {isEngineerFeatureEnabled("requests") ? (
+            <EngineerRecentRequests requests={workspace.requests} />
+          ) : null}
+          {isEngineerFeatureEnabled("messages") ? (
+            <EngineerRecentMessages conversations={workspace.conversations} />
+          ) : null}
+          {isEngineerFeatureEnabled("reviews") ? (
+            <EngineerLatestReviews reviews={workspace.reviews} />
+          ) : null}
         </div>
 
         <div className="flex min-w-0 flex-col gap-6 lg:sticky lg:top-24">

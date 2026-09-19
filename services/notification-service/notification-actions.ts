@@ -1,16 +1,21 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { isMockAuthEnabled } from "@/config/mock-auth.config/mock-auth.config";
-import { isMockUserAuthEnabled } from "@/config/mock-auth.config/mock-auth.config";
+import {
+  isMockAuthEnabled,
+  isMockUserAuthEnabled,
+} from "@/config/mock-auth.config/mock-auth.config";
 import { engineerPanelPaths } from "@/config/engineer-panel.config/engineer-panel.config";
 import { userAccountPaths } from "@/config/user-account.config/user-account.config";
+import { isApiError } from "@/lib/api/api-error/api-error";
 import {
+  mutationFailed,
   mutationUnauthorized,
   mutationUnavailable,
 } from "@/lib/auth/service-mutation-result/service-mutation-result";
 import { getEngineerSession } from "@/lib/auth/engineer-session/engineer-session";
 import { getUserSession } from "@/lib/auth/user-session/user-session";
+import { env } from "@/lib/env/env";
 import { mockEngineerPublicExpertId } from "@/lib/mock-data/engineer-workspace-mock-data";
 import { mockCurrentUser } from "@/lib/mock-data/user-workspace-mock-data";
 import {
@@ -19,6 +24,7 @@ import {
   writeNotificationOverlay,
 } from "@/lib/notifications/mock-notification-overlay/mock-notification-overlay";
 import { applyMarkNotificationRead } from "@/lib/notifications/notification-store/notification-store";
+import { markNotificationRead as markNotificationReadApi } from "@/services/notification-service/notification-api";
 import { type NotificationRecipientRole } from "@/types/store/notification.types";
 import { type ServiceMutationResult } from "@/types/store/engineer-auth.types";
 
@@ -36,6 +42,29 @@ export async function markNotificationReadAction(input: {
 
   if (viewer.kind === "unauthorized") {
     return mutationUnauthorized(UNAUTHORIZED);
+  }
+
+  if (env.apiBaseUrl) {
+    try {
+      await markNotificationReadApi(input.notificationId);
+      revalidatePath(
+        viewer.role === "user"
+          ? userAccountPaths.notifications
+          : engineerPanelPaths.notifications,
+      );
+      revalidatePath(viewer.role === "user" ? "/account" : "/engineer");
+      return { ok: true };
+    } catch (error) {
+      if (isApiError(error)) {
+        if (error.status === 401) {
+          return mutationUnauthorized(UNAUTHORIZED);
+        }
+
+        return mutationFailed(error.message || UNAVAILABLE);
+      }
+
+      return mutationFailed(UNAVAILABLE);
+    }
   }
 
   const catalog = await readNotificationCatalog();
@@ -69,6 +98,14 @@ async function resolveNotificationViewer(): Promise<
   const userSession = await getUserSession();
 
   if (userSession) {
+    if (env.apiBaseUrl) {
+      return {
+        kind: "ok",
+        role: "user",
+        recipientId: "live",
+      };
+    }
+
     if (!isMockUserAuthEnabled()) {
       return { kind: "unavailable" };
     }
@@ -83,6 +120,14 @@ async function resolveNotificationViewer(): Promise<
   const engineerSession = await getEngineerSession();
 
   if (engineerSession) {
+    if (env.apiBaseUrl) {
+      return {
+        kind: "ok",
+        role: "engineer",
+        recipientId: "live",
+      };
+    }
+
     if (!isMockAuthEnabled()) {
       return { kind: "unavailable" };
     }

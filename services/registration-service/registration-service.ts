@@ -1,16 +1,21 @@
 /**
  * Registration service — API integration layer.
  *
- * Mock registration is explicit (mockRegister.enabled + non-production).
- * Real APIs remain unavailable when mock mode is off.
- * Do not fall back to mock success after a real API failure.
+ * Live mode: env.apiBaseUrl → /auth/engineer-registration/* and
+ * /profile/registration/*.
+ * Mock mode: explicit mockRegister flags only when API is unset.
  */
 
 import { ApiError } from "@/lib/api/api-error/api-error";
 import { throwIfMutationFailed } from "@/lib/auth/service-mutation-result/service-mutation-result";
 import {
   getExpertiseCatalogAction,
-  saveRegistrationStepAction,
+  saveEducationAction,
+  saveExpertiseAction,
+  saveOrganizationAction,
+  savePersonalInfoAction,
+  saveResumeAction,
+  saveServiceAreaAction,
   sendOtpAction,
   submitRegistrationAction,
   verifyOtpAction,
@@ -40,11 +45,8 @@ export type {
   VerifyOtpRequest,
 };
 
-export async function sendOtp(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _request: SendOtpRequest,
-): Promise<void> {
-  throwIfMutationFailed(await sendOtpAction());
+export async function sendOtp(request: SendOtpRequest): Promise<void> {
+  throwIfMutationFailed(await sendOtpAction(request));
 }
 
 export async function verifyOtp(request: VerifyOtpRequest): Promise<void> {
@@ -52,17 +54,15 @@ export async function verifyOtp(request: VerifyOtpRequest): Promise<void> {
 }
 
 export async function saveServiceArea(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _request: SaveServiceAreaRequest,
+  request: SaveServiceAreaRequest,
 ): Promise<void> {
-  throwIfMutationFailed(await saveRegistrationStepAction());
+  throwIfMutationFailed(await saveServiceAreaAction(request));
 }
 
 export async function saveExpertise(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _request: SaveExpertiseRequest,
+  request: SaveExpertiseRequest,
 ): Promise<void> {
-  throwIfMutationFailed(await saveRegistrationStepAction());
+  throwIfMutationFailed(await saveExpertiseAction(request));
 }
 
 export async function getExpertiseCatalog(): Promise<ExpertiseCatalogResult> {
@@ -80,31 +80,25 @@ export async function getExpertiseCatalog(): Promise<ExpertiseCatalogResult> {
 }
 
 export async function savePersonalInfo(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _request: SavePersonalInfoRequest,
+  request: SavePersonalInfoRequest,
 ): Promise<void> {
-  throwIfMutationFailed(await saveRegistrationStepAction());
+  throwIfMutationFailed(await savePersonalInfoAction(request));
 }
 
 export async function saveEducation(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _request: SaveEducationRequest,
+  request: SaveEducationRequest,
 ): Promise<void> {
-  throwIfMutationFailed(await saveRegistrationStepAction());
+  throwIfMutationFailed(await saveEducationAction(request));
 }
 
 export async function saveOrganization(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _request: SaveOrganizationRequest,
+  request: SaveOrganizationRequest,
 ): Promise<void> {
-  throwIfMutationFailed(await saveRegistrationStepAction());
+  throwIfMutationFailed(await saveOrganizationAction(request));
 }
 
-export async function saveResume(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _request: SaveResumeRequest,
-): Promise<void> {
-  throwIfMutationFailed(await saveRegistrationStepAction());
+export async function saveResume(request: SaveResumeRequest): Promise<void> {
+  throwIfMutationFailed(await saveResumeAction(request));
 }
 
 export async function submitRegistration(

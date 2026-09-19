@@ -1,4 +1,9 @@
 import { parsePublicBool } from "@/lib/auth/parse-public-bool/parse-public-bool";
+import {
+  applyApiTlsPolicy,
+  isApiTlsInsecure,
+  normalizeApiBaseUrl,
+} from "@/lib/env/api-env/api-env";
 
 function parseOptionalPublicBool(
   value: string | undefined,
@@ -33,12 +38,19 @@ function resolveMediaBaseUrl(apiBaseUrl: string): string {
   }
 }
 
-const apiBaseUrl = (process.env.NEXT_PUBLIC_API_BASE_URL ?? "").trim();
+const apiBaseUrl = normalizeApiBaseUrl(process.env.NEXT_PUBLIC_API_BASE_URL);
+const apiTlsInsecure = isApiTlsInsecure(process.env.API_TLS_INSECURE);
+const liveApi = apiBaseUrl !== "";
+
+applyApiTlsPolicy(apiTlsInsecure);
 
 export const env = {
   apiBaseUrl,
+  apiTlsInsecure,
   mediaBaseUrl: resolveMediaBaseUrl(apiBaseUrl),
-  useMockData: process.env.NEXT_PUBLIC_USE_MOCK_DATA !== "false",
+  useMockData: liveApi
+    ? false
+    : process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true",
   mockRegisterOverride: parseOptionalPublicBool(
     process.env.NEXT_PUBLIC_ENABLE_MOCK_REGISTER,
   ),
@@ -54,19 +66,19 @@ export const env = {
   /** Client-safe approximation for chrome; server still reads mock-auth.config. */
   publicMockRegisterEnabled: parsePublicBool(
     process.env.NEXT_PUBLIC_ENABLE_MOCK_REGISTER,
-    true,
+    false,
   ),
   publicMockLoginEnabled: parsePublicBool(
     process.env.NEXT_PUBLIC_ENABLE_MOCK_LOGIN,
-    true,
+    false,
   ),
   publicMockUserRegisterEnabled: parsePublicBool(
     process.env.NEXT_PUBLIC_ENABLE_MOCK_USER_REGISTER,
-    true,
+    false,
   ),
   publicMockUserLoginEnabled: parsePublicBool(
     process.env.NEXT_PUBLIC_ENABLE_MOCK_USER_LOGIN,
-    true,
+    false,
   ),
 } as const;
 

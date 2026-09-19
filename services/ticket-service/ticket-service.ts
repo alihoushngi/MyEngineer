@@ -9,7 +9,6 @@ import {
 } from "@/lib/api/http-client/http-client";
 import { readAccessToken } from "@/lib/auth/access-token-cookie/access-token-cookie";
 import { env } from "@/lib/env/env";
-import { userAccountPaths } from "@/config/user-account.config/user-account.config";
 
 export type TicketPriority = "low" | "mid" | "high";
 export type TicketStatus = "answered" | "seen" | "pending" | "closed";
@@ -84,7 +83,7 @@ function formatFaDate(value?: string | null): string {
 
 export function toTicketListItem(
   room: TicketRoom,
-  basePath: string = userAccountPaths.messages,
+  basePath: string = "/account/support",
 ): TicketListItem {
   return {
     id: String(room.id),
@@ -99,7 +98,7 @@ export function toTicketListItem(
 }
 
 export async function listTicketRooms(
-  basePath: string = userAccountPaths.messages,
+  basePath: string = "/account/support",
 ): Promise<readonly TicketListItem[]> {
   if (!env.apiBaseUrl) {
     return [];

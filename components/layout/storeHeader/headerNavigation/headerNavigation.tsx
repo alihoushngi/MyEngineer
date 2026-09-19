@@ -10,6 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdownMenu/dropdownMenu";
+import { isPageEnabled } from "@/config/feature-flags.config/feature-flags.config";
 import {
   buildServicesNavigation,
   isActivePath,
@@ -31,8 +32,9 @@ function navLinkClassName(isActive: boolean) {
 export function HeaderNavigation() {
   const pathname = usePathname();
   const servicesActive = isServicesPath(pathname);
-  const homeLink = primaryNavigation[0];
-  const restLinks = primaryNavigation.slice(1);
+  const showServicesMenu = isPageEnabled("services");
+  const homeLink = primaryNavigation.find((item) => item.href === "/");
+  const restLinks = primaryNavigation.filter((item) => item.href !== "/");
   const categoriesQuery = useQuery({
     queryKey: ["lookup", "service-categories"],
     queryFn: listServiceCategories,
@@ -60,50 +62,52 @@ export function HeaderNavigation() {
           </li>
         ) : null}
 
-        <li>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                type="button"
-                variant="ghost"
-                className={cn(
-                  "group min-h-10 rounded-xl px-3 type-body-sm font-medium text-primary-deep-foreground/65 transition-all duration-200 ease-in-out hover:bg-primary-deep-foreground/8 hover:text-primary-deep-foreground focus-visible:ring-offset-primary-deep",
-                  servicesActive &&
-                    "bg-primary-deep-foreground/8 font-semibold text-primary-deep-foreground",
-                )}
-                aria-current={servicesActive ? "true" : undefined}
-              >
-                {servicesNavigation.label}
-                <ChevronDownIcon
-                  aria-hidden="true"
-                  className="size-4 transition-all duration-200 ease-in-out group-data-[state=open]:rotate-180 motion-reduce:transform-none"
-                />
-              </Button>
-            </DropdownMenuTrigger>
+        {showServicesMenu ? (
+          <li>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className={cn(
+                    "group min-h-10 rounded-xl px-3 type-body-sm font-medium text-primary-deep-foreground/65 transition-all duration-200 ease-in-out hover:bg-primary-deep-foreground/8 hover:text-primary-deep-foreground focus-visible:ring-offset-primary-deep",
+                    servicesActive &&
+                      "bg-primary-deep-foreground/8 font-semibold text-primary-deep-foreground",
+                  )}
+                  aria-current={servicesActive ? "true" : undefined}
+                >
+                  {servicesNavigation.label}
+                  <ChevronDownIcon
+                    aria-hidden="true"
+                    className="size-4 transition-all duration-200 ease-in-out group-data-[state=open]:rotate-180 motion-reduce:transform-none"
+                  />
+                </Button>
+              </DropdownMenuTrigger>
 
-            <DropdownMenuContent align="start" className="min-w-56">
-              {servicesNavigation.items.map((item) => {
-                const isActive = isActivePath(pathname, item.href);
+              <DropdownMenuContent align="start" className="min-w-56">
+                {servicesNavigation.items.map((item) => {
+                  const isActive = isActivePath(pathname, item.href);
 
-                return (
-                  <DropdownMenuItem key={item.href} asChild>
-                    <Link
-                      href={item.href}
-                      aria-current={isActive ? "page" : undefined}
-                      className={cn(
-                        "transition-all duration-200 ease-in-out",
-                        isActive &&
-                          "bg-primary-subtle font-semibold text-primary",
-                      )}
-                    >
-                      {item.label}
-                    </Link>
-                  </DropdownMenuItem>
-                );
-              })}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </li>
+                  return (
+                    <DropdownMenuItem key={item.href} asChild>
+                      <Link
+                        href={item.href}
+                        aria-current={isActive ? "page" : undefined}
+                        className={cn(
+                          "transition-all duration-200 ease-in-out",
+                          isActive &&
+                            "bg-primary-subtle font-semibold text-primary",
+                        )}
+                      >
+                        {item.label}
+                      </Link>
+                    </DropdownMenuItem>
+                  );
+                })}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </li>
+        ) : null}
 
         {restLinks.map((item) => {
           const isActive = isActivePath(pathname, item.href);

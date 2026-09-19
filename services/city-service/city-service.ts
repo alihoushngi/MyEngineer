@@ -49,3 +49,24 @@ export async function getCitiesByProvince(
   );
   return unwrapApiData(envelope).map(mapCity);
 }
+
+export async function getNearbyCities(
+  cityId: string,
+  radiusKm?: number,
+): Promise<readonly City[]> {
+  if (!env.apiBaseUrl) {
+    throwApiUnavailable(API_NOT_AVAILABLE_MESSAGE);
+  }
+
+  if (!cityId) {
+    return [];
+  }
+
+  const envelope = await getEnvelope<BackendCity[]>(
+    `/cities/${encodeURIComponent(cityId)}/nearby`,
+    {
+      radius_km: radiusKm,
+    },
+  );
+  return unwrapApiData(envelope).map(mapCity);
+}

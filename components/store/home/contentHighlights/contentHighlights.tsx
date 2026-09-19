@@ -9,6 +9,7 @@ import {
 import { GlassInfoCard } from "@/components/common/glassInfoCard/glassInfoCard";
 
 import { homeContentCopy } from "@/config/home.config/home.config";
+import { isPathEnabled } from "@/config/feature-flags.config/feature-flags.config";
 
 import { cn } from "@/lib/utils/cn/cn";
 
@@ -30,6 +31,14 @@ const accents = [
 ] as const;
 
 export function ContentHighlights() {
+  const items = homeContentCopy.items.filter((item) =>
+    isPathEnabled(item.href),
+  );
+
+  if (items.length === 0) {
+    return null;
+  }
+
   return (
     <section
       aria-labelledby="content-highlights-heading"
@@ -155,7 +164,7 @@ export function ContentHighlights() {
             md:gap-4
           "
         >
-          {homeContentCopy.items.map((item, index) => {
+          {items.map((item, index) => {
             const Icon = icons[index] ?? NewspaperIcon;
 
             const accent = accents[index] ?? accents[2];

@@ -105,6 +105,18 @@ export async function getExpertProfile(
 export async function getExpertCardData(
   id: string,
 ): Promise<ExpertCardData | null> {
+  if (env.apiBaseUrl) {
+    try {
+      const envelope = await httpGet<ApiEnvelope<BackendProfessionalCard>>(
+        `/professionals/${encodeURIComponent(id)}/card`,
+        { next: { revalidate: PUBLIC_REVALIDATE_SECONDS } },
+      );
+      return mapProfessionalCard(unwrapApiData(envelope));
+    } catch {
+      // Fall through to detail-based card.
+    }
+  }
+
   const profile = await getExpertProfile(id);
   if (!profile) {
     return null;

@@ -28,6 +28,7 @@ import {
   userAccountPageTitles,
   userAccountPaths,
 } from "@/config/user-account.config/user-account.config";
+import { isAccountFeatureEnabled } from "@/config/feature-flags.config/feature-flags.config";
 import { siteConfig } from "@/config/site.config/site.config";
 import { getDisplayInitials } from "@/lib/auth/display-initials/display-initials";
 import { formatFaNumber } from "@/lib/format/format-fa-number/format-fa-number";
@@ -67,28 +68,30 @@ export function AccountTopbar({ shell }: AccountTopbarProps) {
             </Link>
           </Button>
 
-          <Button
-            asChild
-            variant="ghost"
-            size="icon"
-            className="relative rounded-xl text-primary-deep-foreground/75 transition-all duration-200 ease-in-out hover:bg-primary-deep-foreground/8 hover:text-primary-deep-foreground focus-visible:ring-offset-primary-deep"
-          >
-            <Link
-              href={userAccountPaths.notifications}
-              aria-label={userAccountPageTitles.notifications}
+          {isAccountFeatureEnabled("notifications") ? (
+            <Button
+              asChild
+              variant="ghost"
+              size="icon"
+              className="relative rounded-xl text-primary-deep-foreground/75 transition-all duration-200 ease-in-out hover:bg-primary-deep-foreground/8 hover:text-primary-deep-foreground focus-visible:ring-offset-primary-deep"
             >
-              <BellIcon aria-hidden="true" className="size-5" />
+              <Link
+                href={userAccountPaths.notifications}
+                aria-label={userAccountPageTitles.notifications}
+              >
+                <BellIcon aria-hidden="true" className="size-5" />
 
-              {shell.unreadNotificationCount > 0 ? (
-                <span className="absolute inset-e-2 top-2 size-2 rounded-full bg-accent ring-2 ring-primary-deep">
-                  <span className="sr-only">
-                    {formatFaNumber(shell.unreadNotificationCount)}{" "}
-                    {userAccountCopy.unreadNotifications}
+                {shell.unreadNotificationCount > 0 ? (
+                  <span className="absolute inset-e-2 top-2 size-2 rounded-full bg-accent ring-2 ring-primary-deep">
+                    <span className="sr-only">
+                      {formatFaNumber(shell.unreadNotificationCount)}{" "}
+                      {userAccountCopy.unreadNotifications}
+                    </span>
                   </span>
-                </span>
-              ) : null}
-            </Link>
-          </Button>
+                ) : null}
+              </Link>
+            </Button>
+          ) : null}
 
           <DropdownMenu>
             <DropdownMenuTrigger
@@ -116,26 +119,32 @@ export function AccountTopbar({ shell }: AccountTopbarProps) {
             </DropdownMenuTrigger>
 
             <DropdownMenuContent align="end" className="min-w-56">
-              <DropdownMenuItem asChild>
-                <Link href={userAccountPaths.dashboard}>
-                  <UserRoundIcon aria-hidden="true" />
-                  {userAccountCopy.dashboardLabel}
-                </Link>
-              </DropdownMenuItem>
+              {isAccountFeatureEnabled("dashboard") ? (
+                <DropdownMenuItem asChild>
+                  <Link href={userAccountPaths.dashboard}>
+                    <UserRoundIcon aria-hidden="true" />
+                    {userAccountCopy.dashboardLabel}
+                  </Link>
+                </DropdownMenuItem>
+              ) : null}
 
-              <DropdownMenuItem asChild>
-                <Link href={userAccountPaths.profile}>
-                  <UserRoundIcon aria-hidden="true" />
-                  {userAccountPageTitles.profile}
-                </Link>
-              </DropdownMenuItem>
+              {isAccountFeatureEnabled("profile") ? (
+                <DropdownMenuItem asChild>
+                  <Link href={userAccountPaths.profile}>
+                    <UserRoundIcon aria-hidden="true" />
+                    {userAccountPageTitles.profile}
+                  </Link>
+                </DropdownMenuItem>
+              ) : null}
 
-              <DropdownMenuItem asChild>
-                <Link href={userAccountPaths.settings}>
-                  <SettingsIcon aria-hidden="true" />
-                  {userAccountCopy.settingsLabel}
-                </Link>
-              </DropdownMenuItem>
+              {isAccountFeatureEnabled("settings") ? (
+                <DropdownMenuItem asChild>
+                  <Link href={userAccountPaths.settings}>
+                    <SettingsIcon aria-hidden="true" />
+                    {userAccountCopy.settingsLabel}
+                  </Link>
+                </DropdownMenuItem>
+              ) : null}
 
               <DropdownMenuSeparator />
 

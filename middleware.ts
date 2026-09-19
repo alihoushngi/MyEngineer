@@ -4,6 +4,10 @@ import {
   isEngineerPanelPath,
 } from "@/config/engineer-panel.config/engineer-panel.config";
 import {
+  FEATURE_UNAVAILABLE_PATH,
+  isPathEnabled,
+} from "@/config/feature-flags.config/feature-flags.config";
+import {
   isAccountPath,
   isUserAuthEntryPath,
   userAuthPaths,
@@ -25,6 +29,14 @@ import { registrationPaths } from "@/lib/registration/guard-path/guard-path";
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  if (pathname !== FEATURE_UNAVAILABLE_PATH && !isPathEnabled(pathname)) {
+    const url = request.nextUrl.clone();
+    url.pathname = FEATURE_UNAVAILABLE_PATH;
+    url.search = "";
+    return NextResponse.rewrite(url);
+  }
+
   const accessToken = request.cookies.get(ACCESS_TOKEN_COOKIE)?.value;
   const authRole = request.cookies.get(AUTH_ROLE_COOKIE)?.value;
   const hasLiveEngineerSession =
@@ -88,14 +100,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/engineer",
-    "/engineer/:path*",
-    "/expert-registration",
-    "/expert-registration/:path*",
-    "/login",
-    "/register",
-    "/forgot-password",
-    "/account",
-    "/account/:path*",
+    "/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest|sw.js|icons/|images/|fonts/).*)",
   ],
 };

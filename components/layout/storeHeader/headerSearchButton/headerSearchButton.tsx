@@ -4,9 +4,14 @@ import { SearchIcon } from "lucide-react";
 import { useState } from "react";
 import { SearchSurface } from "@/components/layout/searchSurface/searchSurface";
 import { Button } from "@/components/ui/button/button";
+import { isPageEnabled } from "@/config/feature-flags.config/feature-flags.config";
 
 export function HeaderSearchButton() {
   const [open, setOpen] = useState(false);
+
+  if (!isPageEnabled("search")) {
+    return null;
+  }
 
   return (
     <>

@@ -11,6 +11,8 @@ import { JoinCtaSection } from "@/components/store/home/joinCtaSection/joinCtaSe
 import { PopularServices } from "@/components/store/home/popularServices/popularServices";
 import { ServiceCategories } from "@/components/store/home/serviceCategories/serviceCategories";
 import { WhyMohandesMan } from "@/components/store/home/whyMohandesMan/whyMohandesMan";
+import { shouldRenderHomeSection } from "@/config/feature-flags.config/feature-flags.config";
+import { homeHeroSlides } from "@/lib/home/hero-slides/hero-slides";
 import { type ExtendedHomeCatalogData } from "@/services/catalog-service/catalog-service";
 
 type HomePageProps = { catalog: ExtendedHomeCatalogData };
@@ -18,24 +20,42 @@ type HomePageProps = { catalog: ExtendedHomeCatalogData };
 export function HomePage({ catalog }: HomePageProps) {
   return (
     <>
-      <HomeHero slides={catalog.heroSlides} />
-      <ServiceCategories categories={catalog.serviceCategories} />
-      <Suspense>
-        <HomeMarketplace
-          experts={catalog.experts}
-          cities={catalog.cities}
-          serviceCategories={catalog.serviceCategories}
-        />
-      </Suspense>
-      <HomeNarrative />
-      <PopularServices items={catalog.popularServices} />
-      <DrawingConsultation items={catalog.drawingServices} />
-      <WhyMohandesMan />
-      <JoinCtaSection />
-      <HomeTestimonials items={catalog.testimonials} />
-      <HomeKnowledgeTips tips={catalog.knowledgeTips} />
-      <ContentHighlights />
-      <HomeFaqEntry categories={catalog.faqCategories} />
+      {shouldRenderHomeSection("hero") ? (
+        <HomeHero slides={homeHeroSlides} />
+      ) : null}
+      {shouldRenderHomeSection("serviceCategories") ? (
+        <ServiceCategories categories={catalog.serviceCategories} />
+      ) : null}
+      {shouldRenderHomeSection("marketplace") ? (
+        <Suspense>
+          <HomeMarketplace
+            experts={catalog.experts}
+            cities={catalog.cities}
+            serviceCategories={catalog.serviceCategories}
+          />
+        </Suspense>
+      ) : null}
+      {shouldRenderHomeSection("narrative") ? <HomeNarrative /> : null}
+      {shouldRenderHomeSection("popularServices") ? (
+        <PopularServices items={catalog.popularServices} />
+      ) : null}
+      {shouldRenderHomeSection("drawingConsultation") ? (
+        <DrawingConsultation items={catalog.drawingServices} />
+      ) : null}
+      {shouldRenderHomeSection("whyMohandesMan") ? <WhyMohandesMan /> : null}
+      {shouldRenderHomeSection("joinCta") ? <JoinCtaSection /> : null}
+      {shouldRenderHomeSection("testimonials") ? (
+        <HomeTestimonials items={catalog.testimonials} />
+      ) : null}
+      {shouldRenderHomeSection("knowledgeTips") ? (
+        <HomeKnowledgeTips tips={catalog.knowledgeTips} />
+      ) : null}
+      {shouldRenderHomeSection("contentHighlights") ? (
+        <ContentHighlights />
+      ) : null}
+      {shouldRenderHomeSection("faqEntry") ? (
+        <HomeFaqEntry categories={catalog.faqCategories} />
+      ) : null}
     </>
   );
 }

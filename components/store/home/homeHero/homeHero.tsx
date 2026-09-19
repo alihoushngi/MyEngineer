@@ -8,8 +8,10 @@ import { HomeHeroCarousel } from "@/components/store/home/homeHero/homeHeroSlide
 import { JoinLink } from "@/components/layout/joinLink/joinLink";
 
 import { homeHeroCopy } from "@/config/home.config/home.config";
+import { isPageEnabled } from "@/config/feature-flags.config/feature-flags.config";
 
 import { joinNavigation } from "@/config/navigation.config/navigation.config";
+import { homeHeroSlides } from "@/lib/home/hero-slides/hero-slides";
 import { type HomeHeroSlide } from "@/types/store/home.types";
 
 const heroBenefits = [
@@ -22,7 +24,7 @@ type HomeHeroProps = {
   slides?: readonly HomeHeroSlide[];
 };
 
-export function HomeHero({ slides = [] }: HomeHeroProps) {
+export function HomeHero({ slides = homeHeroSlides }: HomeHeroProps) {
   const firstSlide = slides[0];
 
   return (
@@ -258,20 +260,21 @@ export function HomeHero({ slides = [] }: HomeHeroProps) {
                 sm:items-stretch
               "
             >
-              {/* Search */}
-              <div
-                className="
-                  min-w-0
-                  rounded-2xl
-                  flex
-                  justify-center
-                  items-center
-                  text-foreground
-                  shadow-sm
-                "
-              >
-                <SearchInput id="home-search" initialQuery="" labelHidden />
-              </div>
+              {isPageEnabled("search") ? (
+                <div
+                  className="
+                    min-w-0
+                    rounded-2xl
+                    flex
+                    justify-center
+                    items-center
+                    text-foreground
+                    shadow-sm
+                  "
+                >
+                  <SearchInput id="home-search" initialQuery="" labelHidden />
+                </div>
+              ) : null}
 
               {/* City */}
               <div
@@ -290,62 +293,63 @@ export function HomeHero({ slides = [] }: HomeHeroProps) {
             </div>
           </div>
 
-          {/* CTA */}
-          <div
-            className="
-              mt-5
-              flex w-full
-              max-w-xl
-              flex-col
-              items-center
-              justify-center
-              gap-3
-
-              sm:mt-6
-              sm:w-auto
-              sm:flex-row
-              sm:gap-4
-            "
-          >
-            <JoinLink
-              size="md"
+          {isPageEnabled("expertRegistration") ? (
+            <div
               className="
-                w-full
-                min-w-40
-                shadow-[0_12px_30px_rgba(0,0,0,0.16)]
-
-                sm:w-auto
-              "
-            />
-
-            <Link
-              href={joinNavigation.href}
-              className="
-                inline-flex
-                min-h-11
+                mt-5
+                flex w-full
+                max-w-xl
+                flex-col
                 items-center
                 justify-center
-                rounded-xl
-                px-4
+                gap-3
 
-                type-body-sm
-                text-primary-foreground/80
-
-                outline-none
-                transition-colors
-
-                hover:bg-white/6
-                hover:text-primary-foreground
-
-                focus-visible:ring-2
-                focus-visible:ring-primary-foreground/70
-                focus-visible:ring-offset-2
-                focus-visible:ring-offset-transparent
+                sm:mt-6
+                sm:w-auto
+                sm:flex-row
+                sm:gap-4
               "
             >
-              {homeHeroCopy.joinCta}
-            </Link>
-          </div>
+              <JoinLink
+                size="md"
+                className="
+                  w-full
+                  min-w-40
+                  shadow-[0_12px_30px_rgba(0,0,0,0.16)]
+
+                  sm:w-auto
+                "
+              />
+
+              <Link
+                href={joinNavigation.href}
+                className="
+                  inline-flex
+                  min-h-11
+                  items-center
+                  justify-center
+                  rounded-xl
+                  px-4
+
+                  type-body-sm
+                  text-primary-foreground/80
+
+                  outline-none
+                  transition-colors
+
+                  hover:bg-white/6
+                  hover:text-primary-foreground
+
+                  focus-visible:ring-2
+                  focus-visible:ring-primary-foreground/70
+                  focus-visible:ring-offset-2
+                  focus-visible:ring-offset-transparent
+                "
+              >
+                {homeHeroCopy.joinCta}
+              </Link>
+            </div>
+          ) : null}
 
           {/* Benefits */}
           <div

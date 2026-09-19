@@ -6,6 +6,7 @@ export const engineerPanelPaths = {
   serviceAreas: "/engineer/service-areas",
   requests: "/engineer/requests",
   messages: "/engineer/messages",
+  support: "/engineer/support",
   portfolio: "/engineer/portfolio",
   credentials: "/engineer/credentials",
   reviews: "/engineer/reviews",
@@ -52,7 +53,7 @@ export const engineerPrimaryNav: readonly EngineerNavItem[] = [
   {
     id: "messages",
     href: engineerPanelPaths.messages,
-    label: "پشتیبانی",
+    label: "پیام‌ها",
     icon: "messageSquare",
   },
   {
@@ -64,6 +65,12 @@ export const engineerPrimaryNav: readonly EngineerNavItem[] = [
 ] as const;
 
 export const engineerSecondaryNav: readonly EngineerNavItem[] = [
+  {
+    id: "support",
+    href: engineerPanelPaths.support,
+    label: "پشتیبانی",
+    icon: "inbox",
+  },
   {
     id: "services",
     href: engineerPanelPaths.services,
@@ -142,8 +149,14 @@ export const engineerSidebarNav: readonly EngineerNavItem[] = [
   {
     id: "messages",
     href: engineerPanelPaths.messages,
-    label: "پشتیبانی",
+    label: "پیام‌ها",
     icon: "messageSquare",
+  },
+  {
+    id: "support",
+    href: engineerPanelPaths.support,
+    label: "پشتیبانی",
+    icon: "inbox",
   },
   {
     id: "portfolio",
@@ -175,7 +188,7 @@ export const engineerSidebarNav: readonly EngineerNavItem[] = [
     label: "تنظیمات",
     icon: "settings",
   },
-];
+] as const;
 
 export const engineerPanelCopy = {
   workspaceName: "فضای کاری متخصص",
@@ -293,8 +306,9 @@ export const engineerPageTitles = {
   serviceAreas: "محدوده فعالیت",
   requests: "درخواست‌ها",
   requestDetail: "جزئیات درخواست",
-  messages: "پشتیبانی",
-  conversation: "تیکت",
+  messages: "پیام‌ها",
+  conversation: "گفتگو",
+  support: "پشتیبانی",
   portfolio: "نمونه‌کارها",
   credentials: "مدارک و صلاحیت‌ها",
   reviews: "نظرات",

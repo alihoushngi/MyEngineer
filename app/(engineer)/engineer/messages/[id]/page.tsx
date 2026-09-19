@@ -1,45 +1,43 @@
 import { notFound } from "next/navigation";
-import { TicketDetailPage } from "@/components/store/tickets/ticketDetailPage/ticketDetailPage";
-import {
-  engineerPageTitles,
-  engineerPanelPaths,
-} from "@/config/engineer-panel.config/engineer-panel.config";
-import { isEngineerAccessGranted } from "@/lib/engineer/access/access";
+import { EngineerConversationPage } from "@/components/store/engineer/engineerConversationPage/engineerConversationPage";
+import { engineerPageTitles } from "@/config/engineer-panel.config/engineer-panel.config";
 import { engineerPageMetadata } from "@/lib/engineer/private-panel-metadata/private-panel-metadata";
-import { getEngineerAccess } from "@/services/engineer-service/engineer-access-service";
-import { getCurrentProfile } from "@/services/profile-service/profile-service";
-import { getTicketRoom } from "@/services/ticket-service/ticket-service";
+import {
+  getEngineerConversation,
+  getEngineerMessages,
+  getEngineerWorkspace,
+} from "@/services/engineer-service/engineer-access-service";
 
-type EngineerTicketRouteProps = {
+type EngineerConversationRouteProps = {
   params: Promise<{ id: string }>;
 };
 
 export const metadata = engineerPageMetadata(engineerPageTitles.conversation);
 export const dynamic = "force-dynamic";
 
-export default async function EngineerTicketRoute({
+export default async function EngineerConversationRoute({
   params,
-}: EngineerTicketRouteProps) {
-  const access = await getEngineerAccess();
-  if (!isEngineerAccessGranted(access)) {
+}: EngineerConversationRouteProps) {
+  const workspace = await getEngineerWorkspace();
+
+  if (!workspace) {
     return null;
   }
 
   const { id } = await params;
-  const [room, profile] = await Promise.all([
-    getTicketRoom(id),
-    getCurrentProfile().catch(() => null),
-  ]);
+  const conversation = await getEngineerConversation(id);
 
-  if (!room) {
+  if (!conversation) {
     notFound();
   }
 
+  const messages = await getEngineerMessages(id);
+
   return (
-    <TicketDetailPage
-      room={room}
-      currentUserId={profile?.id}
-      backHref={engineerPanelPaths.messages}
+    <EngineerConversationPage
+      conversation={conversation}
+      messages={messages}
+      conversations={workspace.conversations}
     />
   );
 }

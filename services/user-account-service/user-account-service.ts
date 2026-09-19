@@ -10,6 +10,10 @@ import {
   readSavedExpertIds,
 } from "@/lib/marketplace/mock-marketplace-overlay/mock-marketplace-overlay";
 import { readMessagingSnapshot } from "@/lib/messaging/mock-messaging-overlay/mock-messaging-overlay";
+import {
+  toUserConversation,
+  toUserMessage,
+} from "@/lib/messaging/messaging-projections/messaging-projections";
 import { readNotificationCatalog } from "@/lib/notifications/mock-notification-overlay/mock-notification-overlay";
 import { readReviewCatalog } from "@/lib/reviews/mock-review-overlay/mock-review-overlay";
 import { findById } from "@/lib/user-account/workspace-selectors/workspace-selectors";
@@ -17,6 +21,11 @@ import {
   getCurrentProfile,
   profileToUserAccount,
 } from "@/services/profile-service/profile-service";
+import { getConversation } from "@/services/messaging-service/messaging-api";
+import {
+  fetchSavedExpertIds,
+  fetchUserWorkspace,
+} from "@/services/user-account-service/user-panel-api";
 import {
   getUserAccess,
   isUserAuthenticated,
@@ -35,12 +44,24 @@ const emptyMessaging: MessagingSnapshot = {
   messages: [],
 };
 
+function canUseMockOverlays(): boolean {
+  return !env.apiBaseUrl && env.useMockData;
+}
+
 export async function getCurrentSavedExpertIds(): Promise<readonly string[]> {
   if (!(await isUserAuthenticated())) {
     return [];
   }
 
-  if (!env.useMockData) {
+  if (env.apiBaseUrl) {
+    try {
+      return await fetchSavedExpertIds();
+    } catch {
+      return [];
+    }
+  }
+
+  if (!canUseMockOverlays()) {
     return [];
   }
 
@@ -54,23 +75,32 @@ export async function getUserWorkspace(): Promise<UserWorkspace | null> {
     return null;
   }
 
-  const profile = await getCurrentProfile().catch(() => null);
-  const workspace = buildUserWorkspace(access.session, {
-    savedExpertIds: env.useMockData ? await readSavedExpertIds() : [],
-    extraRequests: env.useMockData ? await readCreatedRequests() : [],
-    messaging: env.useMockData ? await readMessagingSnapshot() : emptyMessaging,
-    reviews: env.useMockData ? await readReviewCatalog() : [],
-    notifications: env.useMockData ? await readNotificationCatalog() : [],
-  });
+  if (env.apiBaseUrl) {
+    try {
+      const workspace = await fetchUserWorkspace();
+      const profile = await getCurrentProfile().catch(() => null);
 
-  if (profile) {
-    return {
-      ...workspace,
-      account: profileToUserAccount(profile),
-      conversations: [],
-      messagesByConversationId: {},
-    };
+      if (profile) {
+        return {
+          ...workspace,
+          account: profileToUserAccount(profile),
+        };
+      }
+
+      return workspace;
+    } catch {
+      return null;
+    }
   }
+
+  const useMocks = canUseMockOverlays();
+  const workspace = buildUserWorkspace(access.session, {
+    savedExpertIds: useMocks ? await readSavedExpertIds() : [],
+    extraRequests: useMocks ? await readCreatedRequests() : [],
+    messaging: useMocks ? await readMessagingSnapshot() : emptyMessaging,
+    reviews: useMocks ? await readReviewCatalog() : [],
+    notifications: useMocks ? await readNotificationCatalog() : [],
+  });
 
   return workspace;
 }
@@ -83,6 +113,15 @@ export async function getUserRequest(id: string): Promise<UserRequest | null> {
 export async function getUserConversation(
   id: string,
 ): Promise<UserConversation | null> {
+  if (env.apiBaseUrl) {
+    try {
+      const { conversation } = await getConversation(id);
+      return toUserConversation(conversation);
+    } catch {
+      return null;
+    }
+  }
+
   const workspace = await getUserWorkspace();
   return workspace ? findById(workspace.conversations, id) : null;
 }
@@ -90,6 +129,15 @@ export async function getUserConversation(
 export async function getUserMessages(
   conversationId: string,
 ): Promise<readonly UserMessage[]> {
+  if (env.apiBaseUrl) {
+    try {
+      const { messages } = await getConversation(conversationId);
+      return messages.map(toUserMessage);
+    } catch {
+      return [];
+    }
+  }
+
   const workspace = await getUserWorkspace();
   return workspace?.messagesByConversationId[conversationId] ?? [];
 }

@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field/field";
 import { Textarea } from "@/components/ui/textarea/textarea";
 
-import { userAccountPaths } from "@/config/user-account.config/user-account.config";
 import {
   closeTicketAction,
   replyTicketAction,
@@ -31,7 +30,7 @@ type TicketDetailPageProps = {
 export function TicketDetailPage({
   room,
   currentUserId,
-  backHref = userAccountPaths.messages,
+  backHref = "/account/support",
 }: TicketDetailPageProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();

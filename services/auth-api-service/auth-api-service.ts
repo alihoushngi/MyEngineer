@@ -2,6 +2,7 @@ import {
   type ApiEnvelope,
   unwrapApiData,
 } from "@/lib/api/api-envelope/api-envelope";
+import { authHeaders } from "@/lib/api/auth-headers/auth-headers";
 import { httpGet, httpPost, httpPut } from "@/lib/api/http-client/http-client";
 import { readAccessToken } from "@/lib/auth/access-token-cookie/access-token-cookie";
 
@@ -41,12 +42,16 @@ export type LoginRoleSelectionData = {
 
 export type LoginData = LoginSuccessData | LoginRoleSelectionData;
 
-function authHeaders(token?: string): HeadersInit | undefined {
-  if (!token) {
-    return undefined;
-  }
-  return { Authorization: `Bearer ${token}` };
-}
+export type UserAccessState =
+  | "authenticated"
+  | "engineer_session"
+  | "unauthenticated";
+
+export type EngineerAccessState =
+  | "active"
+  | "registration_in_progress"
+  | "forbidden"
+  | "unauthenticated";
 
 async function withSessionToken(): Promise<string | undefined> {
   return readAccessToken();
@@ -201,5 +206,170 @@ export async function apiSubscribeNewsletter(contact: string) {
   const envelope = await httpPost<ApiEnvelope<null>>("/newsletter", {
     body: { contact },
   });
+  return unwrapApiData(envelope);
+}
+
+export async function apiUserRegistrationOtp(input: { mobile: string }) {
+  const envelope = await httpPost<ApiEnvelope<{ resend_after: number }>>(
+    "/auth/user-registration/otp",
+    { body: input },
+  );
+  return unwrapApiData(envelope);
+}
+
+export async function apiUserRegistrationVerify(input: {
+  mobile: string;
+  code: string;
+}) {
+  const envelope = await httpPost<ApiEnvelope<null>>(
+    "/auth/user-registration/verify",
+    { body: input },
+  );
+  return unwrapApiData(envelope);
+}
+
+export async function apiUserRegistrationComplete(input: {
+  mobile: string;
+  code: string;
+  display_name: string;
+  password: string;
+  device_name?: string;
+}) {
+  const envelope = await httpPost<ApiEnvelope<LoginSuccessData>>(
+    "/auth/user-registration/complete",
+    { body: input },
+  );
+  return unwrapApiData(envelope);
+}
+
+export async function apiEngineerRegistrationOtp(input: {
+  mobile: string;
+  national_id: string;
+}) {
+  const envelope = await httpPost<ApiEnvelope<{ resend_after: number }>>(
+    "/auth/engineer-registration/otp",
+    { body: input },
+  );
+  return unwrapApiData(envelope);
+}
+
+export async function apiUserAccess(token?: string) {
+  const sessionToken = token ?? (await withSessionToken());
+  const envelope = await httpGet<
+    ApiEnvelope<{
+      state: UserAccessState;
+      user: BackendAuthUser | null;
+    }>
+  >("/auth/user-access", {
+    headers: authHeaders(sessionToken),
+    cache: "no-store",
+  });
+  return unwrapApiData(envelope);
+}
+
+export async function apiEngineerAccess(token?: string) {
+  const sessionToken = token ?? (await withSessionToken());
+  const envelope = await httpGet<
+    ApiEnvelope<{
+      state: EngineerAccessState;
+      user: BackendAuthUser | null;
+    }>
+  >("/auth/engineer-access", {
+    headers: authHeaders(sessionToken),
+    cache: "no-store",
+  });
+  return unwrapApiData(envelope);
+}
+
+export async function apiSaveRegistrationServiceArea(body: {
+  province_id: number;
+  city_id: number;
+  nearby_city_ids?: readonly number[];
+}) {
+  const token = await withSessionToken();
+  const envelope = await httpPut<ApiEnvelope<unknown>>(
+    "/profile/registration/service-area",
+    { body, headers: authHeaders(token) },
+  );
+  return unwrapApiData(envelope);
+}
+
+export async function apiSaveRegistrationExpertise(body: {
+  service_ids: readonly number[];
+  software_ids: readonly number[];
+}) {
+  const token = await withSessionToken();
+  const envelope = await httpPut<ApiEnvelope<unknown>>(
+    "/profile/registration/expertise",
+    { body, headers: authHeaders(token) },
+  );
+  return unwrapApiData(envelope);
+}
+
+export async function apiSaveRegistrationPersonalInfo(body: {
+  first_name: string;
+  last_name: string;
+  avatar_upload_id?: string | null;
+}) {
+  const token = await withSessionToken();
+  const envelope = await httpPut<ApiEnvelope<unknown>>(
+    "/profile/registration/personal-info",
+    { body, headers: authHeaders(token) },
+  );
+  return unwrapApiData(envelope);
+}
+
+export async function apiSaveRegistrationEducation(body: {
+  level: string;
+  degrees: readonly { field_id: number; university?: string | null }[];
+  degree_file_upload_ids?: readonly (string | null)[];
+}) {
+  const token = await withSessionToken();
+  const envelope = await httpPut<ApiEnvelope<unknown>>(
+    "/profile/registration/education",
+    { body, headers: authHeaders(token) },
+  );
+  return unwrapApiData(envelope);
+}
+
+export async function apiSaveRegistrationOrganization(body: {
+  is_member: boolean;
+  membership_number?: string;
+  has_license: boolean;
+  license_number?: string;
+  discipline_id?: number | null;
+  qualification_ids?: readonly number[];
+  license_upload_id?: string;
+}) {
+  const token = await withSessionToken();
+  const envelope = await httpPost<ApiEnvelope<unknown>>(
+    "/profile/registration/organization",
+    { body, headers: authHeaders(token) },
+  );
+  return unwrapApiData(envelope);
+}
+
+export async function apiSaveRegistrationResume(body: {
+  experience_years: number;
+  resume_text: string;
+}) {
+  const token = await withSessionToken();
+  const envelope = await httpPut<ApiEnvelope<unknown>>(
+    "/profile/registration/resume",
+    { body, headers: authHeaders(token) },
+  );
+  return unwrapApiData(envelope);
+}
+
+export async function apiSubmitRegistration(body: {
+  accept_rules: boolean;
+  image_count?: number;
+  certificate_count?: number;
+}) {
+  const token = await withSessionToken();
+  const envelope = await httpPost<ApiEnvelope<unknown>>(
+    "/profile/registration/submit",
+    { body, headers: authHeaders(token) },
+  );
   return unwrapApiData(envelope);
 }

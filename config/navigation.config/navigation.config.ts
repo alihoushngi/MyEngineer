@@ -1,3 +1,4 @@
+import { enabledLinks } from "@/config/feature-flags.config/feature-flags.config";
 import { siteConfig } from "@/config/site.config/site.config";
 import { type ServiceCategory } from "@/config/services.config/services.config";
 
@@ -34,7 +35,7 @@ export type NavigationGroup = {
   items: readonly NavigationLink[];
 };
 
-export const primaryNavigation: readonly NavigationLink[] = [
+const allPrimaryNavigation: readonly NavigationLink[] = [
   { href: storePaths.home, label: "خانه" },
   { href: storePaths.articles, label: "مقالات" },
   { href: storePaths.knowledge, label: "دانش" },
@@ -42,24 +43,36 @@ export const primaryNavigation: readonly NavigationLink[] = [
   { href: storePaths.about, label: "درباره ما" },
 ];
 
-export const legalNavigation: readonly NavigationLink[] = [
+const allLegalNavigation: readonly NavigationLink[] = [
   { href: storePaths.terms, label: "شرایط استفاده" },
   { href: storePaths.privacy, label: "حریم خصوصی" },
 ];
 
-export const contentNavigation: readonly NavigationLink[] = [
+const allContentNavigation: readonly NavigationLink[] = [
   { href: storePaths.articles, label: "مقالات" },
   { href: storePaths.knowledge, label: "دانش" },
   { href: storePaths.faq, label: "سوالات متداول" },
 ];
 
-export const companyNavigation: readonly NavigationLink[] = [
+const allCompanyNavigation: readonly NavigationLink[] = [
   { href: storePaths.about, label: "درباره ما" },
   { href: storePaths.contact, label: "تماس با ما" },
   { href: storePaths.careers, label: "فرصت‌های شغلی" },
   { href: storePaths.forms, label: "فرم‌های قابل‌دانلود" },
   { href: storePaths.iphoneInstall, label: "نصب روی آیفون" },
 ];
+
+export const primaryNavigation: readonly NavigationLink[] =
+  enabledLinks(allPrimaryNavigation);
+
+export const legalNavigation: readonly NavigationLink[] =
+  enabledLinks(allLegalNavigation);
+
+export const contentNavigation: readonly NavigationLink[] =
+  enabledLinks(allContentNavigation);
+
+export const companyNavigation: readonly NavigationLink[] =
+  enabledLinks(allCompanyNavigation);
 
 export function buildServicesNavigation(
   categories: readonly ServiceCategory[],
@@ -81,7 +94,7 @@ export function buildFooterNavigation(
     {
       id: "services",
       label: "خدمات",
-      items: buildServicesNavigation(categories).items,
+      items: enabledLinks(buildServicesNavigation(categories).items),
     },
     {
       id: "content",
@@ -98,7 +111,7 @@ export function buildFooterNavigation(
       label: "قوانین",
       items: legalNavigation,
     },
-  ];
+  ].filter((group) => group.items.length > 0);
 }
 
 export const mobileUtilityNavigation: readonly NavigationLink[] = [

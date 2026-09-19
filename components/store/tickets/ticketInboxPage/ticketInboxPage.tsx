@@ -5,7 +5,6 @@ import { AccountPageHeader } from "@/components/store/userAccount/accountPageHea
 import { Button } from "@/components/ui/button/button";
 import { Empty } from "@/components/ui/empty/empty";
 
-import { userAccountPaths } from "@/config/user-account.config/user-account.config";
 import { type TicketListItem } from "@/services/ticket-service/ticket-service";
 
 type TicketInboxPageProps = {
@@ -17,9 +16,9 @@ type TicketInboxPageProps = {
 
 export function TicketInboxPage({
   tickets,
-  createHref = `${userAccountPaths.messages}/new`,
+  createHref = "/account/support/new",
   title = "پشتیبانی",
-  description = "تیکت‌های شما با پشتیبانی. گفتگوی مستقیم با متخصصان هنوز در API فعال نیست.",
+  description = "تیکت‌های شما با پشتیبانی مهندس من.",
 }: TicketInboxPageProps) {
   return (
     <div className="flex flex-col gap-6">
@@ -42,7 +41,7 @@ export function TicketInboxPage({
           className="mt-0.5 size-4 shrink-0 text-info"
         />
         <p className="type-caption leading-relaxed text-foreground-muted">
-          به‌جای پیام خصوصی، درخواست‌ها از مسیر تیکت پشتیبانی پیگیری می‌شوند.
+          به‌جای ایمیل، درخواست‌های پشتیبانی را از همین‌جا پیگیری کنید.
         </p>
       </div>
 

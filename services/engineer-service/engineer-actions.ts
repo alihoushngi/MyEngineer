@@ -11,12 +11,15 @@ import {
 } from "@/lib/auth/service-mutation-result/service-mutation-result";
 import { engineerPanelPaths } from "@/config/engineer-panel.config/engineer-panel.config";
 import { env } from "@/lib/env/env";
-import { listBackendServices } from "@/services/lookup-service/lookup-service";
 import {
-  updateCurrentProfile,
-  updateProfileCities,
-  updateProfileServices,
-} from "@/services/profile-service/profile-service";
+  listBackendServices,
+  listBackendSoftwares,
+} from "@/services/lookup-service/lookup-service";
+import {
+  updateEngineerProfileApi,
+  updateEngineerServiceAreaApi,
+  updateEngineerSpecialtiesApi,
+} from "@/services/engineer-service/engineer-panel-api";
 import { type ServiceMutationResult } from "@/types/store/engineer-auth.types";
 
 export type UpdateEngineerProfileRequest = {
@@ -62,6 +65,43 @@ function revalidateEngineerProfile() {
   revalidatePath(engineerPanelPaths.dashboard);
 }
 
+function resolveLabeledIds(
+  labels: readonly string[],
+  catalog: readonly { id: number | string; label: string; slug?: string }[],
+): number[] {
+  const ids: number[] = [];
+
+  for (const label of labels) {
+    const normalized = label.trim().toLowerCase();
+    if (!normalized) {
+      continue;
+    }
+
+    const asNumber = Number(normalized);
+    if (Number.isFinite(asNumber) && asNumber > 0) {
+      if (!ids.includes(asNumber)) {
+        ids.push(asNumber);
+      }
+      continue;
+    }
+
+    const match = catalog.find((item) => {
+      const title = item.label.trim().toLowerCase();
+      const slug = item.slug?.trim().toLowerCase() ?? "";
+      return title === normalized || slug === normalized;
+    });
+
+    if (match) {
+      const id = Number(match.id);
+      if (Number.isFinite(id) && id > 0 && !ids.includes(id)) {
+        ids.push(id);
+      }
+    }
+  }
+
+  return ids;
+}
+
 export async function updateEngineerProfileAction(
   request: UpdateEngineerProfileRequest,
 ): Promise<ServiceMutationResult> {
@@ -69,15 +109,12 @@ export async function updateEngineerProfileAction(
     return mutationFailed("API پیکربندی نشده است.");
   }
 
-  const bio = [request.profession.trim(), request.about?.trim()]
-    .filter(Boolean)
-    .join("\n\n");
-
   try {
-    await updateCurrentProfile({
-      name: request.firstName.trim(),
-      family: request.lastName.trim(),
-      bio: bio || null,
+    await updateEngineerProfileApi({
+      firstName: request.firstName.trim(),
+      lastName: request.lastName.trim(),
+      profession: request.profession.trim(),
+      about: request.about?.trim() || null,
     });
     revalidateEngineerProfile();
     return mutationOk();
@@ -94,30 +131,22 @@ export async function updateEngineerSpecialtiesAction(
   }
 
   try {
-    const services = flattenServiceNodes(await listBackendServices());
-    const serviceIds: number[] = [];
+    const [services, software] = await Promise.all([
+      listBackendServices(),
+      listBackendSoftwares(),
+    ]);
+    const flatServices = flattenServiceNodes(services).map((service) => ({
+      id: service.id,
+      label: service.short_title?.trim() || service.title,
+      slug: service.slug,
+    }));
+    const softwareCatalog = software.map((item) => ({
+      id: item.id,
+      label: item.label,
+    }));
 
-    for (const label of request.specialties) {
-      const normalized = label.trim().toLowerCase();
-      if (!normalized) {
-        continue;
-      }
-
-      const match = services.find((service) => {
-        const title = service.title.trim().toLowerCase();
-        const shortTitle = service.short_title?.trim().toLowerCase() ?? "";
-        const slug = service.slug.trim().toLowerCase();
-        return (
-          title === normalized ||
-          shortTitle === normalized ||
-          slug === normalized
-        );
-      });
-
-      if (match && !serviceIds.includes(match.id)) {
-        serviceIds.push(match.id);
-      }
-    }
+    const serviceIds = resolveLabeledIds(request.specialties, flatServices);
+    const softwareIds = resolveLabeledIds(request.software, softwareCatalog);
 
     if (serviceIds.length === 0) {
       return mutationFailed(
@@ -125,7 +154,7 @@ export async function updateEngineerSpecialtiesAction(
       );
     }
 
-    await updateProfileServices(serviceIds);
+    await updateEngineerSpecialtiesApi({ serviceIds, softwareIds });
     revalidateEngineerProfile();
     return mutationOk();
   } catch (error) {
@@ -140,26 +169,26 @@ export async function updateEngineerServiceAreaAction(
     return mutationFailed("API پیکربندی نشده است.");
   }
 
-  const cityIds = [
-    Number(request.cityId),
-    ...request.nearbyCityIds.map((id) => Number(id)),
-  ].filter((id) => Number.isFinite(id) && id > 0);
+  const provinceId = Number(request.provinceId);
+  const cityId = Number(request.cityId);
+  const nearbyCityIds = request.nearbyCityIds
+    .map((id) => Number(id))
+    .filter((id) => Number.isFinite(id) && id > 0);
 
-  const uniqueCityIds = [...new Set(cityIds)];
-  if (uniqueCityIds.length === 0) {
-    return mutationFailed("حداقل یک شهر معتبر انتخاب کنید.");
+  if (!Number.isFinite(provinceId) || provinceId <= 0) {
+    return mutationFailed("استان معتبر انتخاب کنید.");
   }
 
-  const provinceId = Number(request.provinceId);
+  if (!Number.isFinite(cityId) || cityId <= 0) {
+    return mutationFailed("شهر معتبر انتخاب کنید.");
+  }
 
   try {
-    await Promise.all([
-      updateProfileCities(uniqueCityIds),
-      updateCurrentProfile({
-        province_id: Number.isFinite(provinceId) ? provinceId : undefined,
-        city_id: uniqueCityIds[0],
-      }),
-    ]);
+    await updateEngineerServiceAreaApi({
+      provinceId,
+      cityId,
+      nearbyCityIds,
+    });
     revalidateEngineerProfile();
     return mutationOk();
   } catch (error) {

@@ -1,3 +1,9 @@
+import {
+  type ApiEnvelope,
+  unwrapApiData,
+} from "@/lib/api/api-envelope/api-envelope";
+import { httpGet } from "@/lib/api/http-client/http-client";
+import { env } from "@/lib/env/env";
 import { listBackendServices } from "@/services/lookup-service/lookup-service";
 import { listBackendSoftwares } from "@/services/lookup-service/lookup-service";
 
@@ -17,6 +23,33 @@ export type MockExpertiseCatalog = ExpertiseCatalog;
 export type MockExpertiseCatalogItem = ExpertiseCatalogItem;
 
 export async function getExpertiseCatalog(): Promise<ExpertiseCatalog> {
+  if (env.apiBaseUrl) {
+    try {
+      const envelope = await httpGet<
+        ApiEnvelope<{
+          expertise?: readonly { id: number; label: string }[];
+          software?: readonly { id: number; label: string }[];
+        }>
+      >("/expertise-catalog", {
+        next: { revalidate: 300 },
+      });
+      const data = unwrapApiData(envelope);
+
+      return {
+        expertise: (data.expertise ?? []).map((item) => ({
+          id: String(item.id),
+          label: item.label,
+        })),
+        software: (data.software ?? []).map((item) => ({
+          id: String(item.id),
+          label: item.label,
+        })),
+      };
+    } catch {
+      // Fall through to services/softwares composition.
+    }
+  }
+
   const [services, software] = await Promise.all([
     listBackendServices(),
     listBackendSoftwares(),

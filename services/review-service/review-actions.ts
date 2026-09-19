@@ -5,12 +5,14 @@ import { isMockUserAuthEnabled } from "@/config/mock-auth.config/mock-auth.confi
 import { engineerPanelPaths } from "@/config/engineer-panel.config/engineer-panel.config";
 import { userAccountPaths } from "@/config/user-account.config/user-account.config";
 import { reviewsCopy } from "@/config/reviews.config/reviews.config";
+import { isApiError } from "@/lib/api/api-error/api-error";
 import {
   mutationFailed,
   mutationUnauthorized,
   mutationUnavailable,
 } from "@/lib/auth/service-mutation-result/service-mutation-result";
 import { getUserSession } from "@/lib/auth/user-session/user-session";
+import { env } from "@/lib/env/env";
 import { readCreatedRequests } from "@/lib/marketplace/mock-marketplace-overlay/mock-marketplace-overlay";
 import { mockServiceRequests } from "@/lib/mock-data/service-request-mock-data";
 import { mockCurrentUser } from "@/lib/mock-data/user-workspace-mock-data";
@@ -26,6 +28,10 @@ import {
   writeReviewOverlay,
 } from "@/lib/reviews/mock-review-overlay/mock-review-overlay";
 import { applyCreateReview } from "@/lib/reviews/review-store/review-store";
+import {
+  fetchReviewEligibility,
+  submitUserReview,
+} from "@/services/user-account-service/user-panel-api";
 import { type AppNotification } from "@/types/store/notification.types";
 import { type ServiceReview } from "@/types/store/review.types";
 import { type ServiceMutationResult } from "@/types/store/engineer-auth.types";
@@ -33,21 +39,23 @@ import { type ServiceMutationResult } from "@/types/store/engineer-auth.types";
 const MIN_COMMENT_LENGTH = 10;
 const MAX_COMMENT_LENGTH = 2000;
 
+function mutationFromApiError(error: unknown): ServiceMutationResult {
+  if (isApiError(error)) {
+    if (error.status === 401) {
+      return mutationUnauthorized(reviewsCopy.submitUnauthorized);
+    }
+
+    return mutationFailed(error.message || reviewsCopy.mutationErrorFallback);
+  }
+
+  return mutationFailed(reviewsCopy.mutationErrorFallback);
+}
+
 export async function submitReviewAction(input: {
   requestId: string;
   rating: number;
   body: string;
 }): Promise<ServiceMutationResult & { reviewId?: string }> {
-  if (!isMockUserAuthEnabled()) {
-    return mutationUnavailable(reviewsCopy.submitUnavailable);
-  }
-
-  const session = await getUserSession();
-
-  if (!session) {
-    return mutationUnauthorized(reviewsCopy.submitUnauthorized);
-  }
-
   const rating = input.rating;
 
   if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
@@ -62,6 +70,49 @@ export async function submitReviewAction(input: {
 
   if (text.length > MAX_COMMENT_LENGTH) {
     return mutationFailed(reviewsCopy.commentMaxError);
+  }
+
+  if (env.apiBaseUrl) {
+    const session = await getUserSession();
+
+    if (!session) {
+      return mutationUnauthorized(reviewsCopy.submitUnauthorized);
+    }
+
+    try {
+      const eligibility = await fetchReviewEligibility(input.requestId.trim());
+
+      if (!eligibility.eligible) {
+        return mutationFailed(reviewsCopy.submitIneligible);
+      }
+
+      const reviewId = await submitUserReview({
+        requestId: input.requestId.trim(),
+        rating,
+        body: text,
+      });
+
+      revalidatePath("/account");
+      revalidatePath(userAccountPaths.reviews);
+      revalidatePath(`${userAccountPaths.reviews}/${reviewId}`);
+      revalidatePath(userAccountPaths.notifications);
+      revalidatePath(`${userAccountPaths.requests}/${input.requestId}`);
+      revalidatePath("/engineer");
+      revalidatePath(engineerPanelPaths.reviews);
+      return { ok: true, reviewId };
+    } catch (error) {
+      return mutationFromApiError(error);
+    }
+  }
+
+  if (!isMockUserAuthEnabled()) {
+    return mutationUnavailable(reviewsCopy.submitUnavailable);
+  }
+
+  const session = await getUserSession();
+
+  if (!session) {
+    return mutationUnauthorized(reviewsCopy.submitUnauthorized);
   }
 
   const requests = [...(await readCreatedRequests()), ...mockServiceRequests];

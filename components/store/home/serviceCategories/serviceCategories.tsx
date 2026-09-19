@@ -6,6 +6,7 @@ import { ServiceCategoryGrid } from "@/components/store/service/serviceCategoryG
 import { Button } from "@/components/ui/button/button";
 
 import { homeServicesCopy } from "@/config/home.config/home.config";
+import { isPageEnabled } from "@/config/feature-flags.config/feature-flags.config";
 import { storePaths } from "@/config/navigation.config/navigation.config";
 import { type ServiceCategory } from "@/config/services.config/services.config";
 
@@ -100,48 +101,50 @@ export function ServiceCategories({ categories }: ServiceCategoriesProps) {
             title={homeServicesCopy.title}
             description={homeServicesCopy.description}
             action={
-              <Button
-                asChild
-                variant="outline"
-                size="sm"
-                className="
-                  group
-                  w-full
+              isPageEnabled("faq") ? (
+                <Button
+                  asChild
+                  variant="outline"
+                  size="sm"
+                  className="
+                    group
+                    w-full
 
-                  border-border-subtle
-                  bg-surface/80
+                    border-border-subtle
+                    bg-surface/80
 
-                  shadow-xs
-                  backdrop-blur-md
+                    shadow-xs
+                    backdrop-blur-md
 
-                  hover:border-primary/25
-                  hover:bg-primary-subtle
-                  hover:text-primary
+                    hover:border-primary/25
+                    hover:bg-primary-subtle
+                    hover:text-primary
 
-                  sm:w-auto
+                    sm:w-auto
 
-                  transition-all
-                  duration-200
-                  ease-in-out
-                "
-              >
-                <Link href={storePaths.faq}>
-                  {homeServicesCopy.faqLabel}
+                    transition-all
+                    duration-200
+                    ease-in-out
+                  "
+                >
+                  <Link href={storePaths.faq}>
+                    {homeServicesCopy.faqLabel}
 
-                  <ArrowLeftIcon
-                    aria-hidden="true"
-                    className="
-                      transition-transform
-                      duration-(--duration-normal)
-                      ease-(--ease-standard)
+                    <ArrowLeftIcon
+                      aria-hidden="true"
+                      className="
+                        transition-transform
+                        duration-(--duration-normal)
+                        ease-(--ease-standard)
 
-                      group-hover:-translate-x-0.5
+                        group-hover:-translate-x-0.5
 
-                      motion-reduce:transform-none
-                    "
-                  />
-                </Link>
-              </Button>
+                        motion-reduce:transform-none
+                      "
+                    />
+                  </Link>
+                </Button>
+              ) : undefined
             }
           />
 

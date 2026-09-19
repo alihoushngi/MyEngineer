@@ -1,4 +1,5 @@
 import { env } from "@/lib/env/env";
+import { joinApiUrl } from "@/lib/env/api-env/api-env";
 import {
   ApiError,
   apiErrorFromFetchFailure,
@@ -132,9 +133,7 @@ function composeAbortSignals(
 }
 
 function buildRequestUrl(path: string, query?: QueryParams): string {
-  const baseUrl = env.apiBaseUrl.replace(/\/$/, "");
-
-  if (baseUrl === "") {
+  if (env.apiBaseUrl === "") {
     throw new ApiError({
       status: 0,
       code: "unconfigured",
@@ -142,8 +141,7 @@ function buildRequestUrl(path: string, query?: QueryParams): string {
     });
   }
 
-  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
-  const url = new URL(`${baseUrl}${normalizedPath}`);
+  const url = new URL(joinApiUrl(env.apiBaseUrl, path));
 
   if (query) {
     appendQueryParams(url, query);

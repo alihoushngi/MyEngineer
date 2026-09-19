@@ -10,6 +10,7 @@ import {
   userAccountCopy,
   userAccountPageTitles,
 } from "@/config/user-account.config/user-account.config";
+import { isAccountFeatureEnabled } from "@/config/feature-flags.config/feature-flags.config";
 
 import { activeRequests } from "@/lib/user-account/workspace-selectors/workspace-selectors";
 
@@ -44,10 +45,18 @@ export function UserDashboard({
       />
 
       <div className="grid auto-rows-fr gap-5 lg:grid-cols-2">
-        <UserRecentRequests requests={activeRequests(workspace.requests)} />
-        <UserRecentMessages conversations={workspace.conversations} />
-        <UserSavedPreview experts={workspace.savedExperts} />
-        <UserNotificationSummary notifications={workspace.notifications} />
+        {isAccountFeatureEnabled("requests") ? (
+          <UserRecentRequests requests={activeRequests(workspace.requests)} />
+        ) : null}
+        {isAccountFeatureEnabled("messages") ? (
+          <UserRecentMessages conversations={workspace.conversations} />
+        ) : null}
+        {isAccountFeatureEnabled("saved") ? (
+          <UserSavedPreview experts={workspace.savedExperts} />
+        ) : null}
+        {isAccountFeatureEnabled("notifications") ? (
+          <UserNotificationSummary notifications={workspace.notifications} />
+        ) : null}
       </div>
     </div>
   );

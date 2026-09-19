@@ -22,6 +22,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet/sheet";
+import { isPageEnabled } from "@/config/feature-flags.config/feature-flags.config";
 import {
   buildServicesNavigation,
   engineerLoginNavigation,
@@ -44,8 +45,9 @@ export function MobileNavigation({
   authChrome,
 }: MobileNavigationProps) {
   const pathname = usePathname();
-  const homeLink = primaryNavigation[0];
-  const restLinks = primaryNavigation.slice(1);
+  const showServicesMenu = isPageEnabled("services");
+  const homeLink = primaryNavigation.find((item) => item.href === "/");
+  const restLinks = primaryNavigation.filter((item) => item.href !== "/");
   const categoriesQuery = useQuery({
     queryKey: ["lookup", "service-categories"],
     queryFn: listServiceCategories,
@@ -93,37 +95,41 @@ export function MobileNavigation({
               </li>
             ) : null}
 
-            <li>
-              <Accordion
-                key={pathname}
-                type="single"
-                collapsible
-                defaultValue={isServicesPath(pathname) ? "services" : undefined}
-              >
-                <AccordionItem
-                  value="services"
-                  className="overflow-hidden rounded-2xl border-0 bg-transparent shadow-none"
+            {showServicesMenu ? (
+              <li>
+                <Accordion
+                  key={pathname}
+                  type="single"
+                  collapsible
+                  defaultValue={
+                    isServicesPath(pathname) ? "services" : undefined
+                  }
                 >
-                  <AccordionTrigger className="min-h-12 rounded-2xl border-0 bg-transparent px-3 type-body text-foreground shadow-none transition-all duration-200 ease-in-out hover:bg-surface-muted data-[state=open]:bg-primary-subtle data-[state=open]:text-primary">
-                    {servicesNavigation.label}
-                  </AccordionTrigger>
+                  <AccordionItem
+                    value="services"
+                    className="overflow-hidden rounded-2xl border-0 bg-transparent shadow-none"
+                  >
+                    <AccordionTrigger className="min-h-12 rounded-2xl border-0 bg-transparent px-3 type-body text-foreground shadow-none transition-all duration-200 ease-in-out hover:bg-surface-muted data-[state=open]:bg-primary-subtle data-[state=open]:text-primary">
+                      {servicesNavigation.label}
+                    </AccordionTrigger>
 
-                  <AccordionContent className="border-0 pb-1 pt-1">
-                    <ul className="flex flex-col gap-1 ps-3">
-                      {servicesNavigation.items.map((item) => (
-                        <li key={item.href}>
-                          <MobileNavLink
-                            href={item.href}
-                            label={item.label}
-                            isActive={isActivePath(pathname, item.href)}
-                          />
-                        </li>
-                      ))}
-                    </ul>
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
-            </li>
+                    <AccordionContent className="border-0 pb-1 pt-1">
+                      <ul className="flex flex-col gap-1 ps-3">
+                        {servicesNavigation.items.map((item) => (
+                          <li key={item.href}>
+                            <MobileNavLink
+                              href={item.href}
+                              label={item.label}
+                              isActive={isActivePath(pathname, item.href)}
+                            />
+                          </li>
+                        ))}
+                      </ul>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              </li>
+            ) : null}
 
             {restLinks.map((item) => (
               <li key={item.href}>
@@ -136,23 +142,27 @@ export function MobileNavigation({
             ))}
           </ul>
 
-          <Separator className="my-4" />
+          {mobileUtilityNavigation.length > 0 ? (
+            <>
+              <Separator className="my-4" />
 
-          <p className="mb-2 px-3 type-caption font-semibold text-foreground-subtle">
-            دسترسی سریع
-          </p>
+              <p className="mb-2 px-3 type-caption font-semibold text-foreground-subtle">
+                دسترسی سریع
+              </p>
 
-          <ul className="flex flex-col gap-1">
-            {mobileUtilityNavigation.map((item) => (
-              <li key={item.href}>
-                <MobileNavLink
-                  href={item.href}
-                  label={item.label}
-                  isActive={isActivePath(pathname, item.href)}
-                />
-              </li>
-            ))}
-          </ul>
+              <ul className="flex flex-col gap-1">
+                {mobileUtilityNavigation.map((item) => (
+                  <li key={item.href}>
+                    <MobileNavLink
+                      href={item.href}
+                      label={item.label}
+                      isActive={isActivePath(pathname, item.href)}
+                    />
+                  </li>
+                ))}
+              </ul>
+            </>
+          ) : null}
         </nav>
 
         <div className="border-t border-border-subtle bg-surface-elevated/95 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur-xl">
@@ -169,6 +179,10 @@ function MobileAuthActions({
   chrome: MobileNavigationProps["authChrome"];
 }) {
   if (chrome.status === "user") {
+    if (!isPageEnabled("userAccount")) {
+      return null;
+    }
+
     return (
       <Button asChild className="w-full">
         <Link href={userAuthPaths.account} className="gap-2">
@@ -180,6 +194,10 @@ function MobileAuthActions({
   }
 
   if (chrome.status === "engineer") {
+    if (!isPageEnabled("engineerPanel")) {
+      return null;
+    }
+
     return (
       <Button asChild className="w-full">
         <Link href={engineerPanelNavigation.href}>
@@ -191,18 +209,22 @@ function MobileAuthActions({
 
   return (
     <div className="grid gap-2">
-      <Button asChild className="w-full">
-        <Link href={userAuthPaths.login} className="gap-2">
-          <LogInIcon aria-hidden="true" />
-          {userAuthCopy.loginCta}
-        </Link>
-      </Button>
+      {isPageEnabled("userLogin") ? (
+        <Button asChild className="w-full">
+          <Link href={userAuthPaths.login} className="gap-2">
+            <LogInIcon aria-hidden="true" />
+            {userAuthCopy.loginCta}
+          </Link>
+        </Button>
+      ) : null}
 
-      <Button asChild variant="ghost" className="w-full">
-        <Link href={engineerLoginNavigation.href}>
-          {engineerLoginNavigation.label}
-        </Link>
-      </Button>
+      {isPageEnabled("engineerLogin") ? (
+        <Button asChild variant="ghost" className="w-full">
+          <Link href={engineerLoginNavigation.href}>
+            {engineerLoginNavigation.label}
+          </Link>
+        </Button>
+      ) : null}
 
       <JoinLink variant="outline" className="w-full" />
     </div>

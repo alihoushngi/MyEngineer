@@ -26,9 +26,12 @@ import {
   type BackendKnowledge,
   type BackendKnowledgeCategory,
   type BackendProfessionalCard,
+  type BackendServiceNode,
   type BackendSlider,
   type BackendTestimonial,
 } from "@/types/api/backend.types";
+import { resolveMediaUrl } from "@/lib/api/resolve-media-url/resolve-media-url";
+import { stripHtml } from "@/lib/api/strip-html/strip-html";
 import {
   type HomeCatalogData,
   type HomeHeroSlide,
@@ -85,6 +88,102 @@ export async function getHomeCatalog(): Promise<ExtendedHomeCatalogData> {
   }
 
   try {
+    const homeEnvelope = await getEnvelope<{
+      experts?: BackendProfessionalCard[];
+      cities?: (BackendCity & { experts_count?: number })[];
+      popular_services?: BackendServiceNode[];
+      drawing_services?: BackendServiceNode[];
+      faq_categories?: {
+        slug: string;
+        title: string;
+        description?: string | null;
+        service_id?: number | null;
+      }[];
+      knowledge_tips?: BackendKnowledge[];
+    }>("/home").catch(() => null);
+
+    if (homeEnvelope) {
+      const home = unwrapApiData(homeEnvelope);
+      const services = await listBackendServices().catch(() => []);
+      const flat = flattenServiceNodes(services);
+
+      const [slidersEnvelope, testimonialsEnvelope] = await Promise.all([
+        getEnvelope<BackendSlider[]>("/sliders").catch(
+          (): ApiEnvelope<BackendSlider[]> => ({ success: true, data: [] }),
+        ),
+        getEnvelope<BackendTestimonial[]>("/testimonials").catch(
+          (): ApiEnvelope<BackendTestimonial[]> => ({
+            success: true,
+            data: [],
+          }),
+        ),
+      ]);
+
+      const faqCategories = (home.faq_categories ?? []).map((category) => ({
+        slug: category.slug,
+        href: `/faq/${category.slug}` as const,
+        title: category.title,
+        description: category.description ?? undefined,
+      }));
+
+      const knowledgeTips = (home.knowledge_tips ?? []).map((tip) => ({
+        id: String(tip.id),
+        title: tip.title,
+        body: tip.description?.trim() || tip.title,
+        categoryTitle: tip.category?.name ?? "دانش",
+        href: tip.category?.slug
+          ? `/knowledge/${tip.category.slug}`
+          : "/knowledge",
+      }));
+
+      const popularFromHome = (home.popular_services ?? []).map((service) => {
+        const title = service.short_title || service.title;
+        return {
+          id: String(service.id),
+          title,
+          description: stripHtml(service.description) || title,
+          href: `/services/${service.slug}`,
+          imageSrc:
+            resolveMediaUrl(service.image) ?? "/images/services/surveying.png",
+        };
+      });
+
+      const drawingFromHome = (home.drawing_services ?? []).map((service) => {
+        const title = service.short_title || service.title;
+        return {
+          id: String(service.id),
+          title,
+          description: stripHtml(service.description) || title,
+          href: `/services/${service.slug}`,
+        };
+      });
+
+      const { popularServices, drawingServices } =
+        popularFromHome.length > 0 || drawingFromHome.length > 0
+          ? {
+              popularServices: popularFromHome,
+              drawingServices: drawingFromHome,
+            }
+          : mapPopularFromServices(services);
+
+      return {
+        experts: (home.experts ?? []).map(mapProfessionalCard),
+        cities: (home.cities ?? []).map(mapCity),
+        popularServices,
+        drawingServices,
+        faqCategories,
+        knowledgeTips,
+        serviceCategories: services.map(mapServiceCategory),
+        heroSlides: unwrapApiData(slidersEnvelope).map((slider) => {
+          const linked = flat.find((service) => service.id === slider.service_id);
+          return mapSliderToHeroSlide(slider, linked?.slug);
+        }),
+        testimonials: unwrapApiData(testimonialsEnvelope)
+          .map(mapTestimonial)
+          .filter((item) => item.quote.trim() !== ""),
+      };
+    }
+
     const [
       services,
       professionalsEnvelope,

@@ -1,18 +1,39 @@
-import { TicketInboxPage } from "@/components/store/tickets/ticketInboxPage/ticketInboxPage";
-import { userAccountPageTitles } from "@/config/user-account.config/user-account.config";
+import { UserMessagesPage } from "@/components/store/userAccount/userMessagesPage/userMessagesPage";
+import {
+  userAccountPageTitles,
+  userAccountPaths,
+} from "@/config/user-account.config/user-account.config";
+import { paginateItems } from "@/lib/pagination/paginate-items/paginate-items";
+import { parsePageParam } from "@/lib/pagination/page-param/page-param";
 import { userAccountMetadata } from "@/lib/auth/user-account-metadata/user-account-metadata";
-import { getUserAccess } from "@/services/user-auth-service/user-access-service";
-import { listTicketRooms } from "@/services/ticket-service/ticket-service";
+import { getUserWorkspace } from "@/services/user-account-service/user-account-service";
 
 export const metadata = userAccountMetadata(userAccountPageTitles.messages);
 export const dynamic = "force-dynamic";
 
-export default async function AccountMessagesRoute() {
-  const access = await getUserAccess();
-  if (access.kind !== "authenticated") {
+type AccountMessagesRouteProps = {
+  searchParams: Promise<{ page?: string | string[] }>;
+};
+
+export default async function AccountMessagesRoute({
+  searchParams,
+}: AccountMessagesRouteProps) {
+  const workspace = await getUserWorkspace();
+
+  if (!workspace) {
     return null;
   }
 
-  const tickets = await listTicketRooms().catch(() => []);
-  return <TicketInboxPage tickets={tickets} />;
+  const pagination = paginateItems(
+    workspace.conversations,
+    parsePageParam((await searchParams).page),
+  );
+
+  return (
+    <UserMessagesPage
+      conversations={pagination.items}
+      pagination={pagination}
+      pathname={userAccountPaths.messages}
+    />
+  );
 }

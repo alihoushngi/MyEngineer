@@ -16,7 +16,6 @@ import {
   SelectValue,
 } from "@/components/ui/select/select";
 
-import { userAccountPaths } from "@/config/user-account.config/user-account.config";
 import { createTicketAction } from "@/services/ticket-service/ticket-actions";
 import {
   priorityLabels,
@@ -28,7 +27,7 @@ type CreateTicketFormProps = {
 };
 
 export function CreateTicketForm({
-  redirectBase = userAccountPaths.messages,
+  redirectBase = "/account/support",
 }: CreateTicketFormProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();

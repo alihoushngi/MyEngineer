@@ -2,6 +2,7 @@ import {
   type ApiEnvelope,
   unwrapApiData,
 } from "@/lib/api/api-envelope/api-envelope";
+import { authHeaders } from "@/lib/api/auth-headers/auth-headers";
 import { httpGet, httpPost, httpPut } from "@/lib/api/http-client/http-client";
 import { resolveMediaUrl } from "@/lib/api/resolve-media-url/resolve-media-url";
 import { readAccessToken } from "@/lib/auth/access-token-cookie/access-token-cookie";
@@ -46,13 +47,6 @@ export type ProfileUpdateInput = {
   province_id?: number;
   city_id?: number;
 };
-
-function authHeaders(token?: string): HeadersInit | undefined {
-  if (!token) {
-    return undefined;
-  }
-  return { Authorization: `Bearer ${token}` };
-}
 
 export async function getCurrentProfile(): Promise<ProfileRecord | null> {
   if (!env.apiBaseUrl) {

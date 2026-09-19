@@ -7,6 +7,10 @@ import {
   engineerPanelNavigation,
 } from "@/config/navigation.config/navigation.config";
 import {
+  isAccountFeatureEnabled,
+  isPageEnabled,
+} from "@/config/feature-flags.config/feature-flags.config";
+import {
   userAuthCopy,
   userAuthPaths,
 } from "@/config/user-auth.config/user-auth.config";
@@ -28,28 +32,34 @@ export function HeaderAuthActions({
   className,
 }: HeaderAuthActionsProps) {
   if (chrome.status === "user") {
+    if (!isPageEnabled("userAccount")) {
+      return null;
+    }
+
     return (
       <div className={cn("hidden items-center gap-1.5 lg:flex", className)}>
-        <Button
-          asChild
-          variant="ghost"
-          size="icon"
-          className="relative rounded-xl text-primary-deep-foreground/75 transition-all duration-200 ease-in-out hover:bg-primary-deep-foreground/8 hover:text-primary-deep-foreground focus-visible:ring-offset-primary-deep"
-        >
-          <Link
-            href={userAccountPaths.notifications}
-            aria-label={userAccountPageTitles.notifications}
+        {isAccountFeatureEnabled("notifications") ? (
+          <Button
+            asChild
+            variant="ghost"
+            size="icon"
+            className="relative rounded-xl text-primary-deep-foreground/75 transition-all duration-200 ease-in-out hover:bg-primary-deep-foreground/8 hover:text-primary-deep-foreground focus-visible:ring-offset-primary-deep"
           >
-            <BellIcon aria-hidden="true" />
-            {chrome.unreadNotificationCount > 0 ? (
-              <span className="absolute inset-e-2 top-2 size-2 rounded-full bg-accent ring-2 ring-primary-deep">
-                <span className="sr-only">
-                  {userAccountPageTitles.notifications}
+            <Link
+              href={userAccountPaths.notifications}
+              aria-label={userAccountPageTitles.notifications}
+            >
+              <BellIcon aria-hidden="true" />
+              {chrome.unreadNotificationCount > 0 ? (
+                <span className="absolute inset-e-2 top-2 size-2 rounded-full bg-accent ring-2 ring-primary-deep">
+                  <span className="sr-only">
+                    {userAccountPageTitles.notifications}
+                  </span>
                 </span>
-              </span>
-            ) : null}
-          </Link>
-        </Button>
+              ) : null}
+            </Link>
+          </Button>
+        ) : null}
 
         <Button
           asChild
@@ -70,6 +80,10 @@ export function HeaderAuthActions({
   }
 
   if (chrome.status === "engineer") {
+    if (!isPageEnabled("engineerPanel")) {
+      return null;
+    }
+
     return (
       <Button
         asChild
@@ -88,23 +102,27 @@ export function HeaderAuthActions({
 
   return (
     <div className={cn("hidden items-center gap-1.5 lg:flex", className)}>
-      <Button
-        asChild
-        variant="ghost"
-        className="min-h-10 rounded-xl px-4 text-primary-deep-foreground/70 transition-all duration-200 ease-in-out hover:bg-primary-deep-foreground/8 hover:text-primary-deep-foreground focus-visible:ring-offset-primary-deep"
-      >
-        <Link href={engineerLoginNavigation.href}>
-          {engineerLoginNavigation.label}
-        </Link>
-      </Button>
+      {isPageEnabled("engineerLogin") ? (
+        <Button
+          asChild
+          variant="ghost"
+          className="min-h-10 rounded-xl px-4 text-primary-deep-foreground/70 transition-all duration-200 ease-in-out hover:bg-primary-deep-foreground/8 hover:text-primary-deep-foreground focus-visible:ring-offset-primary-deep"
+        >
+          <Link href={engineerLoginNavigation.href}>
+            {engineerLoginNavigation.label}
+          </Link>
+        </Button>
+      ) : null}
 
-      <Button
-        asChild
-        variant="secondary"
-        className="min-h-10 rounded-xl shadow-none transition-all duration-200 ease-in-out hover:-translate-y-0.5 hover:shadow-sm motion-reduce:transform-none"
-      >
-        <Link href={userAuthPaths.login}>{userAuthCopy.loginCta}</Link>
-      </Button>
+      {isPageEnabled("userLogin") ? (
+        <Button
+          asChild
+          variant="secondary"
+          className="min-h-10 rounded-xl shadow-none transition-all duration-200 ease-in-out hover:-translate-y-0.5 hover:shadow-sm motion-reduce:transform-none"
+        >
+          <Link href={userAuthPaths.login}>{userAuthCopy.loginCta}</Link>
+        </Button>
+      ) : null}
     </div>
   );
 }

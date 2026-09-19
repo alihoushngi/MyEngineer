@@ -11,7 +11,7 @@ export type HomeHeroSlide = {
 export const homeHeroSlides: readonly HomeHeroSlide[] = [
   {
     id: "surveying",
-    imageSrc: "/images/home/hero-construction.png",
+    imageSrc: "/images/home/slide 1.png",
     imageAlt: "بنر معرفی خدمات نقشه‌برداری و اجرای ساختمان",
     headline: "از نقشه‌برداری و طراحی",
     description: "تا اخذ مجوز و اجرای پروژه در کنار شما هستیم",
@@ -20,7 +20,7 @@ export const homeHeroSlides: readonly HomeHeroSlide[] = [
   },
   {
     id: "engineers",
-    imageSrc: "/images/home/project-engineer.png",
+    imageSrc: "/images/home/slide 2.png",
     imageAlt: "مهندس پروژه در محیط ساختمان",
     headline: "ارتباط رایگان با مهندسان و متخصصان",
     description: "مهندسان، پیمانکاران و متخصصان ساخت‌وساز را پیدا کنید.",
@@ -29,7 +29,7 @@ export const homeHeroSlides: readonly HomeHeroSlide[] = [
   },
   {
     id: "interior",
-    imageSrc: "/images/home/interior-design.png",
+    imageSrc: "/images/home/slide 3.png",
     imageAlt: "نمونه طراحی فضای داخلی ساختمان",
     headline: "طراحی نما و فضای داخلی",
     description: "از ایده تا انتخاب طراح برای پروژه ساختمانی.",

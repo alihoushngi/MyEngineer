@@ -1,37 +1,43 @@
 import { notFound } from "next/navigation";
-import { TicketDetailPage } from "@/components/store/tickets/ticketDetailPage/ticketDetailPage";
+import { UserConversationPage } from "@/components/store/userAccount/userConversationPage/userConversationPage";
 import { userAccountPageTitles } from "@/config/user-account.config/user-account.config";
 import { userAccountMetadata } from "@/lib/auth/user-account-metadata/user-account-metadata";
-import { getUserAccess } from "@/services/user-auth-service/user-access-service";
-import { getTicketRoom } from "@/services/ticket-service/ticket-service";
-import { getCurrentProfile } from "@/services/profile-service/profile-service";
+import {
+  getUserConversation,
+  getUserMessages,
+  getUserWorkspace,
+} from "@/services/user-account-service/user-account-service";
 
-type AccountTicketRouteProps = {
+type AccountConversationRouteProps = {
   params: Promise<{ id: string }>;
 };
 
 export const metadata = userAccountMetadata(userAccountPageTitles.conversation);
 export const dynamic = "force-dynamic";
 
-export default async function AccountTicketRoute({
+export default async function AccountConversationRoute({
   params,
-}: AccountTicketRouteProps) {
-  const access = await getUserAccess();
-  if (access.kind !== "authenticated") {
+}: AccountConversationRouteProps) {
+  const workspace = await getUserWorkspace();
+
+  if (!workspace) {
     return null;
   }
 
   const { id } = await params;
-  const [room, profile] = await Promise.all([
-    getTicketRoom(id),
-    getCurrentProfile().catch(() => null),
-  ]);
+  const conversation = await getUserConversation(id);
 
-  if (!room) {
+  if (!conversation) {
     notFound();
   }
 
+  const messages = await getUserMessages(id);
+
   return (
-    <TicketDetailPage room={room} currentUserId={profile?.id} />
+    <UserConversationPage
+      conversation={conversation}
+      messages={messages}
+      conversations={workspace.conversations}
+    />
   );
 }

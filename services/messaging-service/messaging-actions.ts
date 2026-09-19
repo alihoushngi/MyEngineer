@@ -20,6 +20,13 @@ import {
   mutationUnavailable,
 } from "@/lib/auth/service-mutation-result/service-mutation-result";
 import { getUserSession } from "@/lib/auth/user-session/user-session";
+import { isApiError } from "@/lib/api/api-error/api-error";
+import { env } from "@/lib/env/env";
+import {
+  createConversation,
+  markRead,
+  postMessage,
+} from "@/services/messaging-service/messaging-api";
 import {
   canAccessConversation,
   resolveMessagingViewer,
@@ -31,10 +38,48 @@ const UNAVAILABLE =
   "گفتگو پس از اتصال سرویس پیام‌رسانی فعال می‌شود. مسیر API هنوز تعریف نشده است.";
 const UNAUTHORIZED = "برای ادامه باید وارد حساب شوید.";
 
+function mutationFromApiError(error: unknown): ServiceMutationResult {
+  if (isApiError(error)) {
+    if (error.status === 401) {
+      return mutationUnauthorized(UNAUTHORIZED);
+    }
+
+    return mutationFailed(error.message || UNAVAILABLE);
+  }
+
+  return mutationFailed(UNAVAILABLE);
+}
+
 export async function sendMessageAction(input: {
   conversationId: string;
   body: string;
 }): Promise<ServiceMutationResult> {
+  const content = input.body.trim();
+
+  if (content.length === 0) {
+    return mutationFailed("متن پیام نمی‌تواند خالی باشد.");
+  }
+
+  if (env.apiBaseUrl) {
+    const viewer = await resolveMessagingViewer();
+
+    if (viewer.kind === "unauthorized") {
+      return mutationUnauthorized(UNAUTHORIZED);
+    }
+
+    if (viewer.kind === "unavailable") {
+      return mutationUnavailable(UNAVAILABLE);
+    }
+
+    try {
+      await postMessage(input.conversationId, content);
+      revalidateMessaging(input.conversationId);
+      return { ok: true };
+    } catch (error) {
+      return mutationFromApiError(error);
+    }
+  }
+
   const viewer = await resolveMessagingViewer();
 
   if (viewer.kind === "unavailable") {
@@ -43,12 +88,6 @@ export async function sendMessageAction(input: {
 
   if (viewer.kind === "unauthorized") {
     return mutationUnauthorized(UNAUTHORIZED);
-  }
-
-  const content = input.body.trim();
-
-  if (content.length === 0) {
-    return mutationFailed("متن پیام نمی‌تواند خالی باشد.");
   }
 
   const snapshot = await readMessagingSnapshot();
@@ -84,6 +123,26 @@ export async function sendMessageAction(input: {
 export async function markConversationReadAction(input: {
   conversationId: string;
 }): Promise<ServiceMutationResult> {
+  if (env.apiBaseUrl) {
+    const viewer = await resolveMessagingViewer();
+
+    if (viewer.kind === "unauthorized") {
+      return mutationUnauthorized(UNAUTHORIZED);
+    }
+
+    if (viewer.kind === "unavailable") {
+      return mutationUnavailable(UNAVAILABLE);
+    }
+
+    try {
+      await markRead(input.conversationId);
+      revalidateMessaging(input.conversationId);
+      return { ok: true };
+    } catch (error) {
+      return mutationFromApiError(error);
+    }
+  }
+
   const viewer = await resolveMessagingViewer();
 
   if (viewer.kind === "unavailable") {
@@ -113,6 +172,22 @@ export async function markConversationReadAction(input: {
 export async function startConversationAction(input: {
   expertId: string;
 }): Promise<ServiceMutationResult & { conversationId?: string }> {
+  if (env.apiBaseUrl) {
+    const session = await getUserSession();
+
+    if (!session) {
+      return mutationUnauthorized(UNAUTHORIZED);
+    }
+
+    try {
+      const result = await createConversation({ expertId: input.expertId });
+      revalidateMessaging(result.conversationId);
+      return { ok: true, conversationId: result.conversationId };
+    } catch (error) {
+      return mutationFromApiError(error);
+    }
+  }
+
   if (!isMockUserAuthEnabled()) {
     return mutationUnavailable(UNAVAILABLE);
   }

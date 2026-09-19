@@ -26,28 +26,65 @@ pnpm install
 
 ## Environment setup
 
-Copy the example environment file:
+Copy the example environment file, then edit the copy:
 
 ```bash
 cp .env.example .env.local
 ```
 
+`.env.local` is gitignored and is what `pnpm dev` reads. Compose reads a sibling `.env` next to `compose.yaml` (also gitignored). `.env.example` is tracked and must not contain secrets or a live host URL.
+
+After changing env files, restart the Next.js process. `NEXT_PUBLIC_*` values are inlined at startup.
+
+Do not hardcode API hosts in source. Read them through `lib/env/env.ts`. Endpoint contracts live in [API-CONTRACTS.md](API-CONTRACTS.md). Docker build-time notes are in [DOCKER.md](DOCKER.md).
+
 ### `NEXT_PUBLIC_API_BASE_URL`
 
-Public API origin used by the application. Set an origin only, with no trailing slash.
+Base URL of the Mohandes Man HTTP API, **including** `/api/v1`. Do not use the site origin alone. Do not add a trailing slash.
 
-Examples:
+Current test API:
 
 ```bash
-NEXT_PUBLIC_API_BASE_URL=http://localhost:3001
-NEXT_PUBLIC_API_BASE_URL=https://api.example.com
+NEXT_PUBLIC_API_BASE_URL=https://test.kbdcland.ir/api/v1
 ```
 
-Leave it empty until the API environment is available. Do not hardcode production or test URLs in source code. Read the value through `lib/env/env.ts`. The HTTP client in `lib/api/http-client/http-client.ts` uses this origin.
+Local backend example:
 
-`.env.local` is gitignored. `.env.example` is tracked and must not contain secrets.
+```bash
+NEXT_PUBLIC_API_BASE_URL=http://localhost:3001/api/v1
+```
 
-Development mock engineer login/registration is documented in
+`lib/env/api-env/api-env.ts` trims the value and strips trailing slashes. `lib/api/http-client/http-client.ts` then joins it with paths such as `/home` and `/services` (`https://test.kbdcland.ir/api/v1/home`).
+
+When this variable is set, the app is live-first: catalog and content come from the API, and `NEXT_PUBLIC_USE_MOCK_DATA` is ignored. Leave it empty only when you intentionally want empty public catalogs.
+
+If the variable is missing, public pages still render, but lists (experts, services, articles) stay empty.
+
+### `API_TLS_INSECURE`
+
+The certificate on `test.kbdcland.ir` does not match that hostname. Node `fetch` then fails with `ERR_TLS_CERT_ALTNAME_INVALID`, and the home catalog (and other server-side lists) come back empty.
+
+Enable this **only** against that broken test certificate:
+
+```bash
+API_TLS_INSECURE=true
+```
+
+On the Node/server process this sets `NODE_TLS_REJECT_UNAUTHORIZED=0` (`instrumentation.ts` plus `lib/env/env.ts`). You may also put `NODE_TLS_REJECT_UNAUTHORIZED=0` in `.env.local` so `next/image` remote fetches against the same host succeed.
+
+Never enable this against a production host with a valid certificate. The durable fix is a certificate whose SAN includes `test.kbdcland.ir`.
+
+Server Components and Server Actions can load data with this flag. Browser requests that go **directly** to `https://test.kbdcland.ir` can still fail TLS in the user’s browser.
+
+### `NEXT_PUBLIC_MEDIA_BASE_URL`
+
+Optional absolute base for relative upload paths such as `front/upload/...`. If unset, the app uses `{apiOrigin}/public` (for the test API: `https://test.kbdcland.ir/public`).
+
+### Mock data and mock auth
+
+`NEXT_PUBLIC_USE_MOCK_DATA=true` is only read when `NEXT_PUBLIC_API_BASE_URL` is empty. Keep it `false` while talking to the live API.
+
+Development-only mock engineer login/registration is documented in
 [MOCK-AUTH.md](MOCK-AUTH.md). Customer mock login is documented in
 [USER-AUTH.md](USER-AUTH.md). Do not enable either in production.
 
@@ -58,6 +95,8 @@ pnpm dev
 ```
 
 The App Router application starts in development mode.
+
+If the chrome renders but experts, services, articles, or FAQ stay empty, check `.env.local`: the API URL must include `/api/v1`, the process must have been restarted after the change, and `API_TLS_INSECURE=true` is required against the current `test.kbdcland.ir` certificate.
 
 A development-only design system preview is available at `/dev/design-system`. It is not linked in product navigation and returns 404 in production builds. Visual rules are documented in [DESIGN-SYSTEM.md](DESIGN-SYSTEM.md).
 
@@ -311,7 +350,7 @@ export async function getUser(userId: string): Promise<unknown> {
 }
 ```
 
-Do not hardcode the API origin. Do not invent endpoints in this phase; this example only shows the service shape.
+Do not hardcode the API origin. Do not invent endpoints; follow [API-CONTRACTS.md](API-CONTRACTS.md) and the live `/api/v1` paths.
 
 ## Creating a new route
 
@@ -371,12 +410,12 @@ Registration wizard (Tasks 08–10):
 - **Step 7 ترافیک / شهرسازی.** Discipline options exist in source; qualification options do not. The UI shows an info state and does not invent qualifications.
 - **Step 9 min/max images.** Not defined in source. Images are optional on the client; `accept_rules` is required.
 - **Completion destination.** `/expert-registration/complete` is the in-wizard success screen. Home is offered as a canonical exit. Pending-review vs login vs profile is still **BUSINESS DECISION REQUIRED**.
-- **Articles / FAQ / knowledge.** No content API and no employer copy in this repository. Listing pages render empty states. Unknown category/article slugs call `notFound()`. Do not copy legacy demo UTM cards or invent FAQ/knowledge taxonomies.
+- **Articles / FAQ / knowledge.** Live list and detail endpoints are used when `NEXT_PUBLIC_API_BASE_URL` is set. Unknown category/article slugs still call `notFound()`. Do not copy legacy demo UTM cards or invent taxonomies.
 - **Engineering forms (`/engineering-forms`).** Reserved in IA and still **NEEDS CONFIRMATION**. Legacy `knowledge/forms.html` is a stub with no files or metadata. The route is not implemented. Do not invent categories, downloads, or calculators.
 - **Legal / about copy.** `/about`, `/terms`, and `/privacy-policy` use employer text from the legacy about-us HTML. Do not invent statistics, certifications, or extra legal clauses.
 - **Privacy contact.** Source support email is incomplete (`@info-mohandeseman`) and is shown as-is. A complete address is a **legal/business requirement**. Phone and Rasht office address are from the same source.
 - **Legal-implied product surfaces.** Terms/privacy mention accounts, passwords, optional platform fees / «پرداخت امن», complaint intake, account deletion, user panel edit, and cookies. Those product surfaces remain **BUSINESS DECISION REQUIRED** and are not built from this copy.
-- **Service listing.** `/services/[slug]` validates known slugs and `notFound()` otherwise. Expert results are empty until a listing API exists. Do not invent specialists to hide that empty state.
+- **Service listing.** `/services/[slug]` loads the live service tree. Unknown slugs call `notFound()`. Home marketplace experts come from `GET /home` (and related professional endpoints). Do not invent specialists to hide an empty API response.
 - **Public metadata.** Titles, descriptions, and canonicals use existing copy. The root title template appends the site name. Search and expert-registration are `noindex`. `app/robots.ts` disallows `/expert-registration` and `/dev`. Do not invent a production origin or sitemap until the public site URL is known.
 - **Fonts.** Kalameh (FaNum) is loaded locally at weights 400–700, matching the type scale. Do not load Vazirmatn or Google Fonts.
 

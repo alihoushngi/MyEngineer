@@ -5,6 +5,10 @@ import { NewsletterSubscribeForm } from "@/components/common/newsletterSubscribe
 import { BrandLogo } from "@/components/layout/brandLogo/brandLogo";
 import { JoinLink } from "@/components/layout/joinLink/joinLink";
 
+import {
+  isFooterFeatureEnabled,
+  isPageEnabled,
+} from "@/config/feature-flags.config/feature-flags.config";
 import { buildFooterNavigation } from "@/config/navigation.config/navigation.config";
 import { siteConfig } from "@/config/site.config/site.config";
 import { listServiceCategories } from "@/services/lookup-service/lookup-service";
@@ -38,13 +42,17 @@ export async function StoreFooter() {
               سابقه حرفه‌ای.
             </p>
 
-            <JoinLink
-              size="sm"
-              variant="outline"
-              className="mt-6 border-primary-deep-foreground/15 bg-primary-deep-foreground/5 text-primary-deep-foreground backdrop-blur-md transition-all duration-200 ease-in-out hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary hover:text-primary-foreground hover:shadow-md motion-reduce:transform-none"
-            />
+            {isPageEnabled("expertRegistration") ? (
+              <JoinLink
+                size="sm"
+                variant="outline"
+                className="mt-6 border-primary-deep-foreground/15 bg-primary-deep-foreground/5 text-primary-deep-foreground backdrop-blur-md transition-all duration-200 ease-in-out hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary hover:text-primary-foreground hover:shadow-md motion-reduce:transform-none"
+              />
+            ) : null}
 
-            <NewsletterSubscribeForm />
+            {isFooterFeatureEnabled("newsletter") ? (
+              <NewsletterSubscribeForm />
+            ) : null}
           </div>
 
           <nav aria-label="پیوندهای پاورقی">
