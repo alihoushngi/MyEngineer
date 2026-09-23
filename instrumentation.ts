@@ -3,9 +3,11 @@ export async function register() {
     return;
   }
 
-  const { applyApiTlsPolicy, isApiTlsInsecure } = await import(
-    "@/lib/env/api-env/api-env"
-  );
+  const { configureApiTlsServername } =
+    await import("@/lib/env/api-tls-servername/api-tls-servername");
 
-  applyApiTlsPolicy(isApiTlsInsecure(process.env.API_TLS_INSECURE));
+  configureApiTlsServername(
+    process.env.NEXT_PUBLIC_API_BASE_URL,
+    process.env.API_TLS_SERVERNAME,
+  );
 }

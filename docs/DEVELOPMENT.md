@@ -60,21 +60,21 @@ When this variable is set, the app is live-first: catalog and content come from 
 
 If the variable is missing, public pages still render, but lists (experts, services, articles) stay empty.
 
-### `API_TLS_INSECURE`
+### `API_TLS_SERVERNAME`
 
 The certificate on `test.kbdcland.ir` does not match that hostname. Node `fetch` then fails with `ERR_TLS_CERT_ALTNAME_INVALID`, and the home catalog (and other server-side lists) come back empty.
 
-Enable this **only** against that broken test certificate:
+For the test API, set the valid name from its certificate:
 
 ```bash
-API_TLS_INSECURE=true
+API_TLS_SERVERNAME=kbdcland.ir
 ```
 
-On the Node/server process this sets `NODE_TLS_REJECT_UNAUTHORIZED=0` (`instrumentation.ts` plus `lib/env/env.ts`). You may also put `NODE_TLS_REJECT_UNAUTHORIZED=0` in `.env.local` so `next/image` remote fetches against the same host succeed.
+The Node process uses that server name only for TLS connections to the configured API origin. Certificate verification remains enabled, and other HTTPS requests keep their normal dispatcher.
 
-Never enable this against a production host with a valid certificate. The durable fix is a certificate whose SAN includes `test.kbdcland.ir`.
+Leave this unset for a host whose certificate already matches its hostname. The durable fix is a certificate whose SAN includes `test.kbdcland.ir`.
 
-Server Components and Server Actions can load data with this flag. Browser requests that go **directly** to `https://test.kbdcland.ir` can still fail TLS in the user’s browser.
+Server Components, Server Actions, and server-side image requests can load data with this setting. Browser requests that go **directly** to `https://test.kbdcland.ir` can still fail TLS in the user’s browser.
 
 ### `NEXT_PUBLIC_MEDIA_BASE_URL`
 
@@ -96,7 +96,7 @@ pnpm dev
 
 The App Router application starts in development mode.
 
-If the chrome renders but experts, services, articles, or FAQ stay empty, check `.env.local`: the API URL must include `/api/v1`, the process must have been restarted after the change, and `API_TLS_INSECURE=true` is required against the current `test.kbdcland.ir` certificate.
+If the chrome renders but experts, services, articles, or FAQ stay empty, check `.env.local`: the API URL must include `/api/v1`, the process must have been restarted after the change, and `API_TLS_SERVERNAME=kbdcland.ir` is required against the current `test.kbdcland.ir` certificate.
 
 A development-only design system preview is available at `/dev/design-system`. It is not linked in product navigation and returns 404 in production builds. Visual rules are documented in [DESIGN-SYSTEM.md](DESIGN-SYSTEM.md).
 

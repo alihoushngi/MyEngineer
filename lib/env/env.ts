@@ -1,9 +1,5 @@
 import { parsePublicBool } from "@/lib/auth/parse-public-bool/parse-public-bool";
-import {
-  applyApiTlsPolicy,
-  isApiTlsInsecure,
-  normalizeApiBaseUrl,
-} from "@/lib/env/api-env/api-env";
+import { normalizeApiBaseUrl } from "@/lib/env/api-env/api-env";
 
 function parseOptionalPublicBool(
   value: string | undefined,
@@ -39,14 +35,10 @@ function resolveMediaBaseUrl(apiBaseUrl: string): string {
 }
 
 const apiBaseUrl = normalizeApiBaseUrl(process.env.NEXT_PUBLIC_API_BASE_URL);
-const apiTlsInsecure = isApiTlsInsecure(process.env.API_TLS_INSECURE);
 const liveApi = apiBaseUrl !== "";
-
-applyApiTlsPolicy(apiTlsInsecure);
 
 export const env = {
   apiBaseUrl,
-  apiTlsInsecure,
   mediaBaseUrl: resolveMediaBaseUrl(apiBaseUrl),
   useMockData: liveApi
     ? false

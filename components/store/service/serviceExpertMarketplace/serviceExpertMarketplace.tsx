@@ -211,11 +211,13 @@ function CitySelect({
         aria-label={serviceFilterCopy.cityFilterLabel}
         className="h-12 min-w-0 flex-1 gap-2 rounded-xl bg-surface md:w-52"
       >
-        <MapPinIcon
-          aria-hidden="true"
-          className="size-4 shrink-0 text-primary"
-        />
-        <SelectValue placeholder={serviceFilterCopy.allCitiesLabel} />
+        <div className="flex items-center justify-center gap-2">
+          <MapPinIcon
+            aria-hidden="true"
+            className="size-4 shrink-0 text-primary"
+          />
+          <SelectValue placeholder={serviceFilterCopy.allCitiesLabel} />
+        </div>
       </SelectTrigger>
 
       <SelectContent>
