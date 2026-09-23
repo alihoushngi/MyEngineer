@@ -1,22 +1,21 @@
 import * as yup from "yup";
+import {
+  EDUCATION_API_LEVELS,
+  type EducationApiLevel,
+} from "@/lib/registration/education-levels/education-levels";
+
+const LEVEL_IDS = EDUCATION_API_LEVELS.map((item) => item.id) as [
+  EducationApiLevel,
+  ...EducationApiLevel[],
+];
 
 export const educationStepSchema = yup.object({
-  level: yup
-    .mixed<"diplomaOrLower" | "aboveDiploma">()
-    .oneOf(["diplomaOrLower", "aboveDiploma"])
-    .required(),
-  degrees: yup
+  level: yup.mixed<EducationApiLevel>().oneOf(LEVEL_IDS).required(),
+  fieldIds: yup
     .array(yup.string().required())
     .default([])
-    .when("level", {
-      is: "aboveDiploma",
-      then: (schema) =>
-        schema.min(
-          1,
-          "برای سطح بالاتر از دیپلم، حداقل یک مقطع تحصیلی انتخاب کنید.",
-        ),
-      otherwise: (schema) => schema,
-    }),
+    .min(1, "حداقل یک رشته تحصیلی انتخاب کنید."),
+  university: yup.string().trim().default(""),
 });
 
 export type EducationStepFormData = yup.InferType<typeof educationStepSchema>;

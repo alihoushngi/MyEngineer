@@ -193,6 +193,7 @@ export async function apiUpdatePassword(
 
 export async function apiSendContactMessage(body: {
   name: string;
+  family: string;
   mobile: string;
   email?: string;
   subject: string;

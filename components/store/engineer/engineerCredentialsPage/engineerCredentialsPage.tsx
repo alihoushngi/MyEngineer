@@ -1,4 +1,5 @@
 import { FileBadgeIcon, GraduationCapIcon, InfoIcon } from "lucide-react";
+import { EngineerCredentialAddForm } from "@/components/store/engineer/engineerCredentialAddForm/engineerCredentialAddForm";
 import { EngineerPageHeader } from "@/components/store/engineer/engineerPageHeader/engineerPageHeader";
 import { credentialStatusBadge } from "@/components/store/engineer/engineerStatusLabel/engineerStatusLabel";
 import {
@@ -37,6 +38,8 @@ export function EngineerCredentialsPage({
           {engineerPanelCopy.documentPrivateNote}
         </AlertDescription>
       </Alert>
+
+      <EngineerCredentialAddForm />
 
       {profile.education.length > 0 ? (
         <section className="rounded-3xl border border-border-subtle bg-surface p-5 shadow-xs sm:p-6">

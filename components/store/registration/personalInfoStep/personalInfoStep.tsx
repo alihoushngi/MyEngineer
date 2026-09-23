@@ -22,6 +22,7 @@ import {
 } from "@/components/store/registration/personalInfoStep/type/personalInfoStep.types";
 import { registrationCopy } from "@/config/registration.config/registration.config";
 import { toUserErrorMessage } from "@/lib/errors/to-user-error-message/to-user-error-message";
+import { uploadUserFile } from "@/lib/uploads/upload-user-file/upload-user-file";
 import { useApiMutation } from "@/hooks/use-api-mutation/use-api-mutation";
 import { useRegistrationWizard } from "@/providers/registration-wizard-provider/registration-wizard-provider";
 import { savePersonalInfo } from "@/services/registration-service/registration-service";
@@ -31,9 +32,7 @@ export function PersonalInfoStep() {
   const { data, commitPersonalInfo } = useRegistrationWizard();
   const [apiError, setApiError] = useState<string | null>(null);
   const saveMutation = useApiMutation(savePersonalInfo);
-  const [avatarFile, setAvatarFile] = useState<File | undefined>(
-    data.personalInfo?.avatarFile,
-  );
+  const [avatarFile, setAvatarFile] = useState<File | undefined>();
   const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | undefined>(
     undefined,
   );
@@ -93,24 +92,27 @@ export function PersonalInfoStep() {
     setApiError(null);
 
     try {
+      const avatarUploadId = avatarFile
+        ? await uploadUserFile("avatar", avatarFile)
+        : data.personalInfo?.avatarUploadId;
+
       await saveMutation.mutateAsync({
         firstName: formData.firstName,
         lastName: formData.lastName,
-        // avatarUploadId: not available until upload API exists
+        avatarUploadId,
       });
+
+      commitPersonalInfo({
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        avatarUploadId,
+      });
+      router.push("/expert-registration/education");
     } catch (err) {
       setApiError(
         toUserErrorMessage(err, registrationCopy.errorGenericDescription),
       );
-      return;
     }
-
-    commitPersonalInfo({
-      firstName: formData.firstName,
-      lastName: formData.lastName,
-      avatarFile,
-    });
-    router.push("/expert-registration/education");
   }
 
   function handleBack() {

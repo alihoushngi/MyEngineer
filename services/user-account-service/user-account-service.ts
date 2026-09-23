@@ -24,6 +24,7 @@ import {
 import { getConversation } from "@/services/messaging-service/messaging-api";
 import {
   fetchSavedExpertIds,
+  fetchUserRequest,
   fetchUserWorkspace,
 } from "@/services/user-account-service/user-panel-api";
 import {
@@ -106,6 +107,14 @@ export async function getUserWorkspace(): Promise<UserWorkspace | null> {
 }
 
 export async function getUserRequest(id: string): Promise<UserRequest | null> {
+  if (env.apiBaseUrl) {
+    try {
+      return await fetchUserRequest(id);
+    } catch {
+      return null;
+    }
+  }
+
   const workspace = await getUserWorkspace();
   return workspace ? findById(workspace.requests, id) : null;
 }

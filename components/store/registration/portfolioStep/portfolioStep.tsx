@@ -15,6 +15,7 @@ import {
 import { RegistrationStepNav } from "@/components/store/registration/registrationStepNav/registrationStepNav";
 import { registrationCopy } from "@/config/registration.config/registration.config";
 import { toUserErrorMessage } from "@/lib/errors/to-user-error-message/to-user-error-message";
+import { uploadUserFile } from "@/lib/uploads/upload-user-file/upload-user-file";
 import { useApiMutation } from "@/hooks/use-api-mutation/use-api-mutation";
 import { RegistrationError } from "@/components/store/registration/registrationError/registrationError";
 import { registrationPaths } from "@/lib/registration/guard-path/guard-path";
@@ -122,10 +123,28 @@ export function PortfolioStep() {
     setApiError(null);
 
     try {
+      const imageUploadIds: string[] = [];
+      for (const item of images) {
+        imageUploadIds.push(await uploadUserFile("portfolio_image", item.file));
+      }
+
+      const certificatePayload: { title: string; uploadId?: string }[] = [];
+      for (const item of certificates) {
+        const uploadId = item.file
+          ? await uploadUserFile("certificate", item.file)
+          : undefined;
+        certificatePayload.push({
+          title: item.title.trim(),
+          uploadId,
+        });
+      }
+
       await submitMutation.mutateAsync({
         imageCount: images.length,
         certificateCount: certificates.length,
         acceptRules: formData.acceptRules,
+        imageUploadIds,
+        certificates: certificatePayload,
         profile: toMockEngineerProfileSnapshot({
           ...data,
           portfolio: {

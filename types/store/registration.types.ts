@@ -1,3 +1,5 @@
+import { type EducationApiLevel } from "@/lib/registration/education-levels/education-levels";
+
 export type Province = {
   id: string;
   name: string;
@@ -28,47 +30,26 @@ export type RegistrationExpertiseData = {
 export type RegistrationPersonalInfoData = {
   firstName: string;
   lastName: string;
-  /** Avatar file reference — local File object until upload API exists. */
-  avatarFile?: File;
+  avatarUploadId?: string;
 };
 
-export type EducationLevel = "diplomaOrLower" | "aboveDiploma";
-
-export type DegreeKey =
-  "associate" | "bachelor" | "master" | "doctorate" | "diploma";
+export type { EducationApiLevel };
 
 export type RegistrationEducationData = {
-  level: EducationLevel;
-  degrees: readonly DegreeKey[];
-  /**
-   * Uploaded file per degree key.
-   * API CONTRACT REQUIRED for actual upload endpoint.
-   * Kept as File objects until upload service is established.
-   */
-  degreeFiles: Partial<Record<DegreeKey, File>>;
+  level: EducationApiLevel;
+  fieldIds: readonly string[];
+  university?: string;
+  degreeFileUploadIds: Readonly<Record<string, string>>;
 };
-
-/** SOURCE: legacy step7 discipline keys. Do not invent additional disciplines. */
-export type EngineeringDiscipline =
-  | "omran"
-  | "bargh"
-  | "mechanic"
-  | "memari"
-  | "naghshe"
-  | "traffic"
-  | "shahrsazi";
-
-/** SOURCE: طراحی، نظارت، اجرا. naghshe has no اجرا. */
-export type EngineeringQualification = "design" | "supervision" | "execution";
 
 export type RegistrationOrganizationData = {
   isMember: boolean;
   membershipNumber?: string;
   hasLicense?: boolean;
   licenseNumber?: string;
-  licenseFile?: File;
-  discipline?: EngineeringDiscipline;
-  qualifications?: readonly EngineeringQualification[];
+  licenseUploadId?: string;
+  disciplineId?: string;
+  qualificationIds?: readonly string[];
 };
 
 export type RegistrationResumeData = {
@@ -79,12 +60,14 @@ export type RegistrationResumeData = {
 export type PortfolioImageEntry = {
   id: string;
   file: File;
+  uploadId?: string;
 };
 
 export type CertificateEntry = {
   id: string;
   title: string;
   file?: File;
+  uploadId?: string;
 };
 
 export type RegistrationPortfolioData = {
@@ -93,11 +76,6 @@ export type RegistrationPortfolioData = {
   acceptRules: true;
 };
 
-/**
- * Aggregated committed registration data.
- * Values are set only after each step succeeds (API or local-schema commit).
- * API CONTRACT REQUIRED for step-level persistence.
- */
 export type RegistrationWizardData = {
   identity?: RegistrationIdentityData;
   otpVerified?: boolean;
@@ -111,5 +89,4 @@ export type RegistrationWizardData = {
   submitted?: boolean;
 };
 
-/** Maximum step index the user is currently allowed to visit. */
 export type RegistrationMaxStep = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;

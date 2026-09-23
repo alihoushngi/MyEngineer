@@ -6,6 +6,7 @@ import {
   UserIcon,
 } from "lucide-react";
 
+import { AuthSessionsPanel } from "@/components/store/account/authSessionsPanel/authSessionsPanel";
 import { AccountPageHeader } from "@/components/store/userAccount/accountPageHeader/accountPageHeader";
 import { ChangePasswordForm } from "@/components/store/userAccount/changePasswordForm/changePasswordForm";
 import { UserLogoutButton } from "@/components/store/userAccount/userLogoutButton/userLogoutButton";
@@ -21,12 +22,17 @@ import {
 } from "@/config/user-account.config/user-account.config";
 
 import { type UserAccount } from "@/types/store/user-account.types";
+import { type AuthSession } from "@/services/session-service/session-service";
 
 type UserSettingsPageProps = {
   account: UserAccount;
+  sessions: readonly AuthSession[];
 };
 
-export function UserSettingsPage({ account }: UserSettingsPageProps) {
+export function UserSettingsPage({
+  account,
+  sessions,
+}: UserSettingsPageProps) {
   return (
     <div className="flex flex-col gap-6">
       <AccountPageHeader
@@ -81,6 +87,8 @@ export function UserSettingsPage({ account }: UserSettingsPageProps) {
           {userAccountCopy.notificationPrefsUnavailable}
         </AlertDescription>
       </Alert>
+
+      <AuthSessionsPanel sessions={sessions} />
 
       <section className="rounded-3xl border border-danger/15 bg-surface p-5 shadow-xs sm:p-6">
         <div className="mb-4 flex items-center gap-3">

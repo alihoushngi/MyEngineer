@@ -5,11 +5,14 @@ import {
 import { authHeaders } from "@/lib/api/auth-headers/auth-headers";
 import { httpGet, httpPost } from "@/lib/api/http-client/http-client";
 import {
+  mapBackendServiceRequest,
   mapBackendUserWorkspace,
+  type BackendServiceRequest,
   type BackendUserWorkspace,
 } from "@/lib/api/map-panel/map-panel";
 import { readAccessToken } from "@/lib/auth/access-token-cookie/access-token-cookie";
-import { type UserWorkspace } from "@/types/store/user-account.types";
+import { toUserRequest } from "@/lib/marketplace/request-projections/request-projections";
+import { type UserRequest, type UserWorkspace } from "@/types/store/user-account.types";
 
 type SavedExpertsResponse = {
   ids: readonly number[];
@@ -49,6 +52,21 @@ export type ReviewEligibility = {
   reason?: "already_reviewed" | "expert_unavailable" | null;
   reviewId?: string;
 };
+
+export async function fetchUserRequest(
+  requestId: string,
+): Promise<UserRequest | null> {
+  const envelope = await httpGet<ApiEnvelope<BackendServiceRequest | null>>(
+    `/user/requests/${encodeURIComponent(requestId)}`,
+    {
+      headers: await authorizedHeaders(),
+      cache: "no-store",
+    },
+  );
+
+  const data = unwrapApiData(envelope);
+  return data ? toUserRequest(mapBackendServiceRequest(data)) : null;
+}
 
 export async function fetchReviewEligibility(
   requestId: string,

@@ -147,7 +147,7 @@ export const registrationCopy = {
   uploadDegreeAccept: ".pdf,.jpg,.jpeg,.png",
   uploadDegreeDescription: "PDF، JPG، JPEG یا PNG",
   uploadApiNote:
-    "بارگذاری مدارک پس از اتصال سرویس انجام خواهد شد. فایل‌ها به صورت محلی انتخاب شده‌اند.",
+    "فایل مدرک پس از ادامه، با سرویس بارگذاری سامانه ارسال می‌شود.",
   fileSelected: (name: string) => `فایل انتخاب‌شده: ${name}`,
   fileRemoveLabel: "حذف فایل",
   fileChangeLabel: "تغییر فایل",
@@ -165,7 +165,7 @@ export const registrationCopy = {
   licenseNumberLabel: "شماره پروانه",
   licenseNumberPlaceholder: "شماره پروانه",
   licenseNumberRequired: "شماره پروانه الزامی است.",
-  licenseFileLabel: "تصویر یا فایل پروانه (اختیاری تا اتصال سرویس آپلود)",
+  licenseFileLabel: "تصویر یا فایل پروانه",
   disciplineLabel: "رشته",
   disciplinePlaceholder: "انتخاب رشته",
   disciplineRequired: "انتخاب رشته الزامی است.",
@@ -173,8 +173,7 @@ export const registrationCopy = {
   qualificationsRequired: "حداقل یک صلاحیت انتخاب کنید.",
   qualificationsUnavailable:
     "صلاحیت‌های این رشته هنوز از طرف محصول تعریف نشده است و در این مرحله انتخاب نمی‌شود.",
-  licenseUploadApiNote:
-    "آپلود فایل پروانه پس از اتصال سرویس انجام خواهد شد. فایل انتخابی فقط به‌صورت محلی نگه داشته می‌شود.",
+  licenseUploadApiNote: "فایل پروانه هنگام ذخیره این مرحله بارگذاری می‌شود.",
   // Step 8
   step8Title: "سوابق حرفه‌ای",
   step8Description: "سابقه کار و شرح فعالیت حرفه‌ای خود را وارد کنید.",
@@ -204,7 +203,7 @@ export const registrationCopy = {
   acceptRulesLabel: "قوانین و شرایط ثبت نمونه‌کار را می‌پذیرم",
   acceptRulesRequired: "پذیرش قوانین الزامی است.",
   portfolioUploadApiNote:
-    "آپلود تصاویر و مدارک پس از اتصال سرویس انجام می‌شود. فایل‌ها تا آن زمان فقط به‌صورت محلی انتخاب شده‌اند.",
+    "تصاویر و گواهی‌ها هنگام ارسال نهایی بارگذاری می‌شوند.",
   finalSubmitLabel: "ارسال ثبت‌نام",
   // Complete
   completeTitle: "درخواست ثبت‌نام دریافت شد",

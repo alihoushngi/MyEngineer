@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { ImagePlusIcon } from "lucide-react";
 import { useState, type ChangeEvent } from "react";
 import { EngineerActionError } from "@/components/layout/engineerLogoutItem/engineerLogoutItem";
@@ -15,28 +16,38 @@ import { Textarea } from "@/components/ui/textarea/textarea";
 import { engineerPanelCopy } from "@/config/engineer-panel.config/engineer-panel.config";
 import { useApiMutation } from "@/hooks/use-api-mutation/use-api-mutation";
 import { toUserErrorMessage } from "@/lib/errors/to-user-error-message/to-user-error-message";
+import { uploadUserFile } from "@/lib/uploads/upload-user-file/upload-user-file";
 import { addEngineerPortfolioItem } from "@/services/engineer-service/engineer-service";
 
 export function EngineerPortfolioAddForm() {
+  const router = useRouter();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [fileName, setFileName] = useState<string | null>(null);
+  const [file, setFile] = useState<File | undefined>();
   const [error, setError] = useState<string | null>(null);
   const mutation = useApiMutation(addEngineerPortfolioItem);
 
   function handleFile(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    setFileName(file?.name ?? null);
+    setFile(event.target.files?.[0]);
   }
 
   async function handleSubmit() {
     setError(null);
 
     try {
+      const imageUploadId = file
+        ? await uploadUserFile("portfolio_image", file)
+        : undefined;
+
       await mutation.mutateAsync({
         title: title.trim() || "نمونه‌کار جدید",
         description: description.trim() || undefined,
+        imageUploadId,
       });
+      setTitle("");
+      setDescription("");
+      setFile(undefined);
+      router.refresh();
     } catch (err) {
       setError(toUserErrorMessage(err, engineerPanelCopy.mutationUnavailable));
     }
@@ -89,14 +100,15 @@ export function EngineerPortfolioAddForm() {
           <FileUpload
             accept="image/*"
             onChange={handleFile}
+            label={file ? "تغییر تصویر" : "انتخاب تصویر"}
             description={
-              fileName
-                ? `فایل انتخاب‌شده: ${fileName}`
+              file
+                ? `فایل انتخاب‌شده: ${file.name}`
                 : engineerPanelCopy.uploadUnavailable
             }
           />
           <FieldDescription>
-            {engineerPanelCopy.uploadUnavailable}
+            تصویر ابتدا بارگذاری می‌شود و سپس به نمونه‌کار متصل می‌گردد.
           </FieldDescription>
         </Field>
 

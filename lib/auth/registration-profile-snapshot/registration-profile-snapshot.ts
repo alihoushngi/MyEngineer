@@ -1,25 +1,13 @@
-import { registrationCopy } from "@/config/registration.config/registration.config";
+import { EDUCATION_API_LEVELS } from "@/lib/registration/education-levels/education-levels";
 import { type MockEngineerProfileSnapshot } from "@/types/store/engineer-auth.types";
-import {
-  type DegreeKey,
-  type RegistrationWizardData,
-} from "@/types/store/registration.types";
-
-const DEGREE_LABELS: Record<DegreeKey, string> = {
-  associate: registrationCopy.degreeAssociate,
-  bachelor: registrationCopy.degreeBachelor,
-  master: registrationCopy.degreeMaster,
-  doctorate: registrationCopy.degreeDoctorate,
-  diploma: registrationCopy.degreeDiploma,
-};
+import { type RegistrationWizardData } from "@/types/store/registration.types";
 
 export function toMockEngineerProfileSnapshot(
   data: RegistrationWizardData,
 ): MockEngineerProfileSnapshot {
-  const educationLabels =
-    data.education?.level === "diplomaOrLower"
-      ? ["دیپلم"]
-      : (data.education?.degrees ?? []).map((key) => DEGREE_LABELS[key] ?? key);
+  const levelLabel =
+    EDUCATION_API_LEVELS.find((item) => item.id === data.education?.level)
+      ?.label ?? data.education?.level;
 
   return {
     firstName: data.personalInfo?.firstName,
@@ -32,7 +20,7 @@ export function toMockEngineerProfileSnapshot(
     software: data.expertise?.softwareIds,
     experienceYears: data.resume?.experienceYears,
     resumeText: data.resume?.resumeText,
-    educationLabels,
+    educationLabels: levelLabel ? [levelLabel] : [],
     isOrganizationMember: data.organization?.isMember,
   };
 }

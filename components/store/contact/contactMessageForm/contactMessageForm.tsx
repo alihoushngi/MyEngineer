@@ -14,6 +14,7 @@ export function ContactMessageForm() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [name, setName] = useState("");
+  const [family, setFamily] = useState("");
   const [mobile, setMobile] = useState("");
   const [email, setEmail] = useState("");
   const [subject, setSubject] = useState("");
@@ -26,9 +27,11 @@ export function ContactMessageForm() {
 
     if (
       name.trim().length < 2 ||
+      family.trim().length < 2 ||
       !/^09\d{9}$/.test(mobile.trim()) ||
       subject.trim().length < 3 ||
-      message.trim().length < 5
+      message.trim().length < 5 ||
+      message.trim().length > 200
     ) {
       setError("لطفاً همه فیلدهای ضروری را به‌درستی پر کنید.");
       return;
@@ -37,6 +40,7 @@ export function ContactMessageForm() {
     startTransition(async () => {
       const result = await sendContactMessageAction({
         name: name.trim(),
+        family: family.trim(),
         mobile: mobile.trim(),
         email: email.trim() || undefined,
         subject: subject.trim(),
@@ -50,6 +54,7 @@ export function ContactMessageForm() {
 
       setSuccess("پیام شما ثبت شد. به‌زودی پاسخ می‌دهیم.");
       setName("");
+      setFamily("");
       setMobile("");
       setEmail("");
       setSubject("");
@@ -64,7 +69,9 @@ export function ContactMessageForm() {
     >
       <div className="grid gap-4 sm:grid-cols-2">
         <Field>
-          <FieldLabel htmlFor="contact-name">نام</FieldLabel>
+          <FieldLabel htmlFor="contact-name" required>
+            نام
+          </FieldLabel>
           <Input
             id="contact-name"
             value={name}
@@ -73,18 +80,32 @@ export function ContactMessageForm() {
           />
         </Field>
         <Field>
-          <FieldLabel htmlFor="contact-mobile">موبایل</FieldLabel>
+          <FieldLabel htmlFor="contact-family" required>
+            نام خانوادگی
+          </FieldLabel>
           <Input
-            id="contact-mobile"
-            value={mobile}
-            onChange={(event) => setMobile(event.target.value)}
-            placeholder="09xxxxxxxxx"
+            id="contact-family"
+            value={family}
+            onChange={(event) => setFamily(event.target.value)}
             disabled={pending}
-            dir="ltr"
-            className="ltr-data"
           />
         </Field>
       </div>
+
+      <Field>
+        <FieldLabel htmlFor="contact-mobile" required>
+          موبایل
+        </FieldLabel>
+        <Input
+          id="contact-mobile"
+          value={mobile}
+          onChange={(event) => setMobile(event.target.value)}
+          placeholder="09xxxxxxxxx"
+          disabled={pending}
+          dir="ltr"
+          className="ltr-data"
+        />
+      </Field>
 
       <Field>
         <FieldLabel htmlFor="contact-email">ایمیل (اختیاری)</FieldLabel>
@@ -114,6 +135,7 @@ export function ContactMessageForm() {
         <Textarea
           id="contact-message"
           rows={5}
+          maxLength={200}
           value={message}
           onChange={(event) => setMessage(event.target.value)}
           disabled={pending}

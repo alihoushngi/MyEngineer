@@ -15,6 +15,7 @@ import {
   type BackendCity,
   type BackendField,
   type BackendServiceNode,
+  type BackendQualification,
   type BackendSoftware,
 } from "@/types/api/backend.types";
 import { type City } from "@/types/store/registration.types";
@@ -95,6 +96,13 @@ export async function listBackendFields(): Promise<
     id: String(item.id),
     label: item.name,
   }));
+}
+
+export async function listBackendQualifications(): Promise<
+  readonly BackendQualification[]
+> {
+  const envelope = await getEnvelope<BackendQualification[]>("/qualifications");
+  return unwrapApiData(envelope);
 }
 
 export async function listProfessionalsByServiceId(

@@ -7,7 +7,13 @@ import { ArrowRightIcon } from "lucide-react";
 
 import { AccountPageHeader } from "@/components/store/userAccount/accountPageHeader/accountPageHeader";
 import { Button } from "@/components/ui/button/button";
-import { Field, FieldError, FieldLabel } from "@/components/ui/field/field";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from "@/components/ui/field/field";
+import { FileUpload } from "@/components/ui/fileUpload/fileUpload";
 import { Textarea } from "@/components/ui/textarea/textarea";
 
 import {
@@ -15,11 +21,15 @@ import {
   replyTicketAction,
 } from "@/services/ticket-service/ticket-actions";
 import {
-  formatFaDate,
-  priorityLabels,
-  statusLabels,
-  type TicketRoomDetail,
-} from "@/services/ticket-service/ticket-service";
+  ticketPriorityLabels,
+  ticketStatusLabels,
+} from "@/lib/tickets/ticket-labels/ticket-labels";
+import { TicketMessageThread } from "@/components/store/tickets/ticketMessageThread/ticketMessageThread";
+import { type TicketRoomDetail } from "@/lib/tickets/parse-ticket-room/parse-ticket-room";
+import {
+  TICKET_FILE_ACCEPT,
+  ticketFileError,
+} from "@/lib/tickets/ticket-attachment/ticket-attachment";
 
 type TicketDetailPageProps = {
   room: TicketRoomDetail;
@@ -35,27 +45,38 @@ export function TicketDetailPage({
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [message, setMessage] = useState("");
+  const [file, setFile] = useState<File | undefined>();
   const [error, setError] = useState<string | null>(null);
   const isClosed = room.status === "closed";
 
   function onReply(event: React.FormEvent) {
     event.preventDefault();
     setError(null);
-    if (message.trim().length < 2) {
-      setError("متن پاسخ را وارد کنید.");
+    const attachmentError = ticketFileError(file);
+    if (attachmentError) {
+      setError(attachmentError);
+      return;
+    }
+    if (message.trim().length < 2 && !file) {
+      setError("متن پاسخ یا پیوست تصویر را وارد کنید.");
       return;
     }
 
+    const formData = new FormData();
+    formData.set("roomId", String(room.id));
+    formData.set("message", message.trim());
+    if (file) {
+      formData.set("file", file);
+    }
+
     startTransition(async () => {
-      const result = await replyTicketAction({
-        roomId: String(room.id),
-        message: message.trim(),
-      });
+      const result = await replyTicketAction(formData);
       if (!result.ok) {
         setError(result.message);
         return;
       }
       setMessage("");
+      setFile(undefined);
       router.refresh();
     });
   }
@@ -75,7 +96,7 @@ export function TicketDetailPage({
     <div className="flex flex-col gap-6">
       <AccountPageHeader
         title={room.subject}
-        description={`شماره ${room.number} · ${statusLabels[room.status]} · اولویت ${priorityLabels[room.priority]}`}
+        description={`شماره ${room.number} · ${ticketStatusLabels[room.status]} · اولویت ${ticketPriorityLabels[room.priority]}`}
         actions={
           <Button asChild variant="outline" className="min-h-11 gap-2">
             <Link href={backHref}>
@@ -86,43 +107,12 @@ export function TicketDetailPage({
         }
       />
 
-      <ul className="flex flex-col gap-3 rounded-3xl border border-border-subtle bg-surface p-4 shadow-xs sm:p-5">
-        {(room.messages ?? []).length === 0 ? (
-          <li className="type-body-sm text-foreground-muted">
-            هنوز پیامی در این تیکت نیست.
-          </li>
-        ) : (
-          (room.messages ?? []).map((item) => {
-            const own =
-              currentUserId !== undefined && item.sender_id === currentUserId;
-            return (
-              <li
-                key={item.id}
-                className={
-                  own
-                    ? "ms-auto max-w-[85%] rounded-2xl bg-primary px-4 py-3 text-primary-foreground"
-                    : "me-auto max-w-[85%] rounded-2xl bg-surface-subtle px-4 py-3 text-foreground"
-                }
-              >
-                <p className="type-body-sm whitespace-pre-wrap">
-                  {item.message || "فایل پیوست"}
-                </p>
-                {item.created_at ? (
-                  <p
-                    className={
-                      own
-                        ? "mt-2 type-caption text-primary-foreground/70"
-                        : "mt-2 type-caption text-foreground-muted"
-                    }
-                  >
-                    {formatFaDate(item.created_at)}
-                  </p>
-                ) : null}
-              </li>
-            );
-          })
-        )}
-      </ul>
+      <div className="rounded-3xl border border-border-subtle bg-surface p-4 shadow-xs sm:p-5">
+        <TicketMessageThread
+          messages={room.messages}
+          currentUserId={currentUserId}
+        />
+      </div>
 
       {isClosed ? (
         <p className="rounded-2xl bg-surface-subtle px-4 py-3 type-body-sm text-foreground-muted">
@@ -142,6 +132,23 @@ export function TicketDetailPage({
               onChange={(event) => setMessage(event.target.value)}
               disabled={pending}
             />
+          </Field>
+          <Field>
+            <FieldLabel>پیوست تصویر (اختیاری)</FieldLabel>
+            <FileUpload
+              accept={TICKET_FILE_ACCEPT}
+              disabled={pending}
+              label={file ? "تغییر تصویر" : "انتخاب تصویر"}
+              description={
+                file
+                  ? `فایل انتخاب‌شده: ${file.name}`
+                  : "jpeg، png یا gif تا ۲ مگابایت"
+              }
+              onChange={(event) => setFile(event.currentTarget.files?.[0])}
+            />
+            <FieldDescription>
+              می‌توانید فقط تصویر بفرستید یا متن و تصویر را با هم ارسال کنید.
+            </FieldDescription>
           </Field>
           {error ? <FieldError>{error}</FieldError> : null}
           <div className="flex flex-wrap gap-2">

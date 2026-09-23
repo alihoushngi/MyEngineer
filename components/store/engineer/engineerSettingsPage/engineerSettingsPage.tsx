@@ -5,6 +5,7 @@ import {
   Trash2Icon,
   UserRoundIcon,
 } from "lucide-react";
+import { AuthSessionsPanel } from "@/components/store/account/authSessionsPanel/authSessionsPanel";
 import { EngineerLogoutButton } from "@/components/store/engineer/engineerLogoutButton/engineerLogoutButton";
 import { EngineerPageHeader } from "@/components/store/engineer/engineerPageHeader/engineerPageHeader";
 import {
@@ -17,12 +18,17 @@ import {
   engineerPanelCopy,
 } from "@/config/engineer-panel.config/engineer-panel.config";
 import { type EngineerWorkspace } from "@/types/store/engineer.types";
+import { type AuthSession } from "@/services/session-service/session-service";
 
 type EngineerSettingsPageProps = {
   workspace: EngineerWorkspace;
+  sessions: readonly AuthSession[];
 };
 
-export function EngineerSettingsPage({ workspace }: EngineerSettingsPageProps) {
+export function EngineerSettingsPage({
+  workspace,
+  sessions,
+}: EngineerSettingsPageProps) {
   const { account } = workspace;
 
   return (
@@ -82,6 +88,8 @@ export function EngineerSettingsPage({ workspace }: EngineerSettingsPageProps) {
           </AlertDescription>
         </Alert>
       </div>
+
+      <AuthSessionsPanel sessions={sessions} />
 
       <section className="rounded-3xl border border-danger/15 bg-surface p-5 shadow-xs sm:p-6">
         <div className="mb-4 flex items-center gap-3">

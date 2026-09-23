@@ -4,6 +4,9 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useQuery } from "@tanstack/react-query";
+import { CircleAlertIcon } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert/alert";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field/field";
 import { Input } from "@/components/ui/input/input";
 import {
@@ -18,25 +21,28 @@ import {
 } from "@/components/store/registration/organizationStep/type/organizationStep.types";
 import { registrationCopy } from "@/config/registration.config/registration.config";
 import { toUserErrorMessage } from "@/lib/errors/to-user-error-message/to-user-error-message";
+import { groupQualifications } from "@/lib/registration/group-qualifications/group-qualifications";
+import { uploadUserFile } from "@/lib/uploads/upload-user-file/upload-user-file";
 import { useApiMutation } from "@/hooks/use-api-mutation/use-api-mutation";
 import { RegistrationError } from "@/components/store/registration/registrationError/registrationError";
 import { registrationPaths } from "@/lib/registration/guard-path/guard-path";
 import { useRegistrationWizard } from "@/providers/registration-wizard-provider/registration-wizard-provider";
+import { listBackendQualifications } from "@/services/lookup-service/lookup-service";
 import { saveOrganization } from "@/services/registration-service/registration-service";
-import {
-  type EngineeringDiscipline,
-  type EngineeringQualification,
-  type RegistrationOrganizationData,
-} from "@/types/store/registration.types";
+import { type RegistrationOrganizationData } from "@/types/store/registration.types";
 
 export function OrganizationStep() {
   const router = useRouter();
   const { data, commitOrganization } = useRegistrationWizard();
   const [apiError, setApiError] = useState<string | null>(null);
   const saveMutation = useApiMutation(saveOrganization);
-  const [licenseFile, setLicenseFile] = useState<File | undefined>(
-    data.organization?.licenseFile,
-  );
+  const [licenseFile, setLicenseFile] = useState<File | undefined>();
+  const qualificationsQuery = useQuery({
+    queryKey: ["registration", "qualifications"],
+    queryFn: listBackendQualifications,
+    retry: false,
+  });
+  const disciplines = groupQualifications(qualificationsQuery.data ?? []);
 
   const {
     control,
@@ -51,40 +57,44 @@ export function OrganizationStep() {
       membershipNumber: data.organization?.membershipNumber ?? "",
       hasLicense: data.organization?.hasLicense === true ? "yes" : "no",
       licenseNumber: data.organization?.licenseNumber ?? "",
-      discipline: data.organization?.discipline ?? "",
-      qualifications: data.organization?.qualifications
-        ? [...data.organization.qualifications]
+      disciplineId: data.organization?.disciplineId ?? "",
+      qualificationIds: data.organization?.qualificationIds
+        ? [...data.organization.qualificationIds]
         : [],
     },
   });
 
   const isMember = watch("isMember");
   const hasLicense = watch("hasLicense");
-  const discipline = watch("discipline");
-  const qualifications = watch("qualifications");
+  const discipline = watch("disciplineId");
+  const qualifications = watch("qualificationIds");
 
   async function onSubmit(formData: OrganizationStepData) {
     setApiError(null);
-    const payload = toOrganizationPayload(formData, licenseFile);
+    const payload = toOrganizationPayload(formData);
 
     try {
+      const licenseUploadId = licenseFile
+        ? await uploadUserFile("license", licenseFile)
+        : data.organization?.licenseUploadId;
+
       await saveMutation.mutateAsync({
         isMember: payload.isMember,
         membershipNumber: payload.membershipNumber,
         hasLicense: payload.hasLicense,
         licenseNumber: payload.licenseNumber,
-        discipline: payload.discipline,
-        qualifications: payload.qualifications,
+        licenseUploadId,
+        disciplineId: payload.disciplineId,
+        qualificationIds: payload.qualificationIds,
       });
+
+      commitOrganization({ ...payload, licenseUploadId });
+      router.push(registrationPaths.resume);
     } catch (err) {
       setApiError(
         toUserErrorMessage(err, registrationCopy.errorGenericDescription),
       );
-      return;
     }
-
-    commitOrganization(payload);
-    router.push(registrationPaths.resume);
   }
 
   return (
@@ -112,6 +122,18 @@ export function OrganizationStep() {
             setValue("isMember", value);
           }}
         />
+
+        {qualificationsQuery.error ? (
+          <Alert variant="danger">
+            <CircleAlertIcon />
+            <AlertDescription>
+              {toUserErrorMessage(
+                qualificationsQuery.error,
+                registrationCopy.errorGenericDescription,
+              )}
+            </AlertDescription>
+          </Alert>
+        ) : null}
 
         {isMember === "yes" ? (
           <>
@@ -154,6 +176,7 @@ export function OrganizationStep() {
                 setValue={setValue}
                 discipline={discipline ?? ""}
                 qualifications={qualifications ?? []}
+                disciplines={disciplines}
                 licenseFile={licenseFile}
                 onLicenseFileChange={setLicenseFile}
                 errors={errors}
@@ -180,7 +203,9 @@ export function OrganizationStep() {
             void handleSubmit(onSubmit)();
           }}
           isPending={isSubmitting || saveMutation.isPending}
-          isContinueDisabled={isSubmitting || saveMutation.isPending}
+          isContinueDisabled={
+            isSubmitting || saveMutation.isPending || qualificationsQuery.isPending
+          }
         />
       </form>
     </div>
@@ -233,7 +258,6 @@ function YesNoField({ id, label, value, disabled, onChange }: YesNoFieldProps) {
 
 function toOrganizationPayload(
   formData: OrganizationStepData,
-  licenseFile: File | undefined,
 ): RegistrationOrganizationData {
   if (formData.isMember === "no") {
     return { isMember: false };
@@ -252,8 +276,7 @@ function toOrganizationPayload(
     membershipNumber: formData.membershipNumber?.trim() ?? "",
     hasLicense: true,
     licenseNumber: formData.licenseNumber?.trim() ?? "",
-    licenseFile,
-    discipline: formData.discipline as EngineeringDiscipline,
-    qualifications: formData.qualifications as EngineeringQualification[],
+    disciplineId: formData.disciplineId,
+    qualificationIds: formData.qualificationIds,
   };
 }

@@ -25,8 +25,12 @@ type UseProvinceCitiesReturn = {
 const PROVINCE_ERROR_FALLBACK = "خطا در بارگذاری استان‌ها";
 const CITY_ERROR_FALLBACK = "خطا در بارگذاری شهرها";
 
-export function useProvinceCities(): UseProvinceCitiesReturn {
-  const [selectedProvinceId, setSelectedProvinceId] = useState("");
+export function useProvinceCities(options?: {
+  initialProvinceId?: string;
+}): UseProvinceCitiesReturn {
+  const [selectedProvinceId, setSelectedProvinceId] = useState(
+    options?.initialProvinceId ?? "",
+  );
 
   const provincesQuery = useQuery({
     queryKey: ["registration", "provinces"],

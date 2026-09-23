@@ -20,8 +20,13 @@ import {
   mutationUnavailable,
 } from "@/lib/auth/service-mutation-result/service-mutation-result";
 import { isApiError } from "@/lib/api/api-error/api-error";
+import { mapEducationToApi } from "@/lib/registration/education-levels/education-levels";
 import { type ServiceMutationFailure } from "@/types/store/engineer-auth.types";
 import { type ServiceMutationResult } from "@/types/store/engineer-auth.types";
+import {
+  createEngineerCredential,
+  createEngineerPortfolioItem,
+} from "@/services/engineer-service/engineer-panel-api";
 import {
   type SaveEducationRequest,
   type SaveExpertiseRequest,
@@ -77,30 +82,35 @@ function toFailure(error: unknown, fallback: string): ServiceMutationResult {
   return mutationFailed(fallback);
 }
 
-const DEGREE_LEVEL_MAP: Record<string, string> = {
-  diploma: "diplom",
-  associate: "kardani",
-  bachelor: "karshenasi",
-  master: "arshad",
-  doctorate: "doctori",
-};
-
-function mapEducationLevel(
-  level: SaveEducationRequest["level"],
-  degrees: readonly string[],
-): string {
-  if (level === "diplomaOrLower") {
-    return degrees.includes("diploma") ? "diplom" : "zire_diplom";
-  }
-
-  for (const degree of degrees) {
-    const mapped = DEGREE_LEVEL_MAP[degree];
-    if (mapped) {
-      return mapped;
+async function persistRegistrationAssets(
+  request: SubmitRegistrationRequest,
+): Promise<void> {
+  for (const [index, uploadId] of (request.imageUploadIds ?? []).entries()) {
+    try {
+      await createEngineerPortfolioItem({
+        title: `نمونه‌کار ${index + 1}`,
+        imageUploadId: uploadId,
+      });
+    } catch {
+      continue;
     }
   }
 
-  return "karshenasi";
+  for (const certificate of request.certificates ?? []) {
+    if (!certificate.uploadId && certificate.title.trim() === "") {
+      continue;
+    }
+
+    try {
+      await createEngineerCredential({
+        kind: "certificate",
+        title: certificate.title.trim() || "گواهی",
+        uploadId: certificate.uploadId,
+      });
+    } catch {
+      continue;
+    }
+  }
 }
 
 async function persistEngineerLogin(data: LoginData): Promise<ServiceMutationResult> {
@@ -248,7 +258,7 @@ export async function savePersonalInfoAction(
       await apiSaveRegistrationPersonalInfo({
         first_name: request.firstName.trim(),
         last_name: request.lastName.trim(),
-        avatar_upload_id: request.avatarUploadId ?? null,
+        avatar_upload_id: request.avatarUploadId?.trim() || null,
       });
       return mutationOk();
     } catch (error) {
@@ -267,33 +277,27 @@ export async function saveEducationAction(
   request: SaveEducationRequest,
 ): Promise<ServiceMutationResult> {
   if (env.apiBaseUrl) {
-    const level = mapEducationLevel(request.level, request.degrees);
-    const degrees = request.degrees
-      .map((degree) => {
-        const fieldId = Number(degree);
-        if (!Number.isFinite(fieldId) || fieldId <= 0) {
-          return null;
-        }
-        return { field_id: fieldId };
-      })
-      .filter((item): item is { field_id: number } => item !== null);
-
-    if (degrees.length === 0) {
-      return mutationFailed(
-        "برای ذخیره تحصیلات، شناسه رشته تحصیلی معتبر لازم است. از کاتالوگ رشته‌ها انتخاب کنید.",
-      );
+    let payload;
+    try {
+      payload = mapEducationToApi({
+        level: request.level,
+        fieldIds: request.fieldIds,
+        university: request.university,
+        uploadIds: request.degreeFileUploadIds,
+      });
+    } catch {
+      return mutationFailed("مقطع تحصیلی معتبر انتخاب کنید.");
     }
 
-    const uploadIds = degrees.map(
-      (degree) =>
-        request.degreeFileUploadIds[String(degree.field_id)] ?? null,
-    );
+    if (payload.degrees.length === 0) {
+      return mutationFailed("حداقل یک رشته تحصیلی از فهرست سامانه انتخاب کنید.");
+    }
 
     try {
       await apiSaveRegistrationEducation({
-        level,
-        degrees,
-        degree_file_upload_ids: uploadIds,
+        level: payload.level,
+        degrees: payload.degrees,
+        degree_file_upload_ids: payload.degree_file_upload_ids,
       });
       return mutationOk();
     } catch (error) {
@@ -312,10 +316,10 @@ export async function saveOrganizationAction(
   request: SaveOrganizationRequest,
 ): Promise<ServiceMutationResult> {
   if (env.apiBaseUrl) {
-    const disciplineId = request.discipline
-      ? Number(request.discipline)
+    const disciplineId = request.disciplineId
+      ? Number(request.disciplineId)
       : null;
-    const qualificationIds = (request.qualifications ?? [])
+    const qualificationIds = (request.qualificationIds ?? [])
       .map((id) => Number(id))
       .filter((id) => Number.isFinite(id) && id > 0);
 
@@ -386,6 +390,7 @@ export async function submitRegistrationAction(
         image_count: request.imageCount,
         certificate_count: request.certificateCount,
       });
+      await persistRegistrationAssets(request);
       return mutationOk();
     } catch (error) {
       return toFailure(error, "ارسال نهایی ثبت‌نام ناموفق بود.");

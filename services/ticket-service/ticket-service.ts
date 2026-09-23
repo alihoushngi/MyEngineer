@@ -9,9 +9,18 @@ import {
 } from "@/lib/api/http-client/http-client";
 import { readAccessToken } from "@/lib/auth/access-token-cookie/access-token-cookie";
 import { env } from "@/lib/env/env";
-
-export type TicketPriority = "low" | "mid" | "high";
-export type TicketStatus = "answered" | "seen" | "pending" | "closed";
+import { authHeaders } from "@/lib/api/auth-headers/auth-headers";
+import {
+  parseTicketRoomDetail,
+  type TicketPriority,
+  type TicketRoomDetail,
+  type TicketStatus,
+} from "@/lib/tickets/parse-ticket-room/parse-ticket-room";
+import {
+  formatFaDate,
+  ticketPriorityLabels,
+  ticketStatusLabels,
+} from "@/lib/tickets/ticket-labels/ticket-labels";
 
 export type TicketRoom = {
   id: number;
@@ -24,17 +33,8 @@ export type TicketRoom = {
   created_at?: string | null;
 };
 
-export type TicketMessage = {
-  id: number;
-  message?: string | null;
-  file?: string | null;
-  sender_id: number;
-  created_at?: string | null;
-};
-
-export type TicketRoomDetail = TicketRoom & {
-  messages?: readonly TicketMessage[];
-};
+export type { TicketPriority, TicketStatus, TicketRoomDetail };
+export type { TicketMessage } from "@/lib/tickets/parse-ticket-room/parse-ticket-room";
 
 export type TicketListItem = {
   id: string;
@@ -47,39 +47,11 @@ export type TicketListItem = {
   isClosed: boolean;
 };
 
-const statusLabels: Record<TicketStatus, string> = {
-  answered: "پاسخ داده‌شده",
-  seen: "دیده‌شده",
-  pending: "در انتظار",
-  closed: "بسته‌شده",
+export {
+  ticketStatusLabels as statusLabels,
+  ticketPriorityLabels as priorityLabels,
+  formatFaDate,
 };
-
-const priorityLabels: Record<TicketPriority, string> = {
-  low: "کم",
-  mid: "متوسط",
-  high: "بالا",
-};
-
-function authHeaders(token?: string): HeadersInit | undefined {
-  if (!token) {
-    return undefined;
-  }
-  return { Authorization: `Bearer ${token}` };
-}
-
-function formatFaDate(value?: string | null): string {
-  if (!value) {
-    return "";
-  }
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return value;
-  }
-  return new Intl.DateTimeFormat("fa-IR", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(date);
-}
 
 export function toTicketListItem(
   room: TicketRoom,
@@ -89,8 +61,8 @@ export function toTicketListItem(
     id: String(room.id),
     number: room.number,
     subject: room.subject,
-    statusLabel: statusLabels[room.status] ?? room.status,
-    priorityLabel: priorityLabels[room.priority] ?? room.priority,
+    statusLabel: ticketStatusLabels[room.status] ?? room.status,
+    priorityLabel: ticketPriorityLabels[room.priority] ?? room.priority,
     createdAtLabel: formatFaDate(room.created_at),
     href: `${basePath}/${room.id}`,
     isClosed: room.status === "closed",
@@ -132,14 +104,14 @@ export async function getTicketRoom(
   }
 
   try {
-    const envelope = await httpGet<ApiEnvelope<TicketRoomDetail>>(
+    const envelope = await httpGet<ApiEnvelope<unknown>>(
       `/tickets/rooms/${id}`,
       {
         headers: authHeaders(token),
         cache: "no-store",
       },
     );
-    return unwrapApiData(envelope);
+    return parseTicketRoomDetail(unwrapApiData(envelope));
   } catch {
     return null;
   }
@@ -149,13 +121,19 @@ export async function createTicketRoom(input: {
   subject: string;
   message: string;
   priority?: TicketPriority;
+  file?: File;
 }): Promise<TicketRoom> {
   const token = await readAccessToken();
   const form = new FormData();
   form.append("subject", input.subject);
-  form.append("message", input.message);
+  if (input.message.trim()) {
+    form.append("message", input.message);
+  }
   if (input.priority) {
     form.append("priority", input.priority);
+  }
+  if (input.file) {
+    form.append("file", input.file);
   }
 
   const envelope = await httpPost<ApiEnvelope<TicketRoom>>("/tickets/rooms", {
@@ -168,10 +146,16 @@ export async function createTicketRoom(input: {
 export async function replyTicketRoom(input: {
   roomId: string;
   message: string;
+  file?: File;
 }): Promise<void> {
   const token = await readAccessToken();
   const form = new FormData();
-  form.append("message", input.message);
+  if (input.message.trim()) {
+    form.append("message", input.message);
+  }
+  if (input.file) {
+    form.append("file", input.file);
+  }
 
   await httpPost<ApiEnvelope<null>>(`/tickets/rooms/${input.roomId}/reply`, {
     body: form,
@@ -185,5 +169,3 @@ export async function closeTicketRoom(roomId: string): Promise<void> {
     headers: authHeaders(token),
   });
 }
-
-export { statusLabels, priorityLabels, formatFaDate };

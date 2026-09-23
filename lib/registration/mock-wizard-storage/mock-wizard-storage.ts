@@ -68,18 +68,18 @@ function stripFiles(data: RegistrationWizardData): RegistrationWizardData {
       ? {
           firstName: data.personalInfo.firstName,
           lastName: data.personalInfo.lastName,
+          avatarUploadId: data.personalInfo.avatarUploadId,
         }
       : undefined,
     education: data.education
       ? {
           ...data.education,
-          degreeFiles: {},
+          degreeFileUploadIds: data.education.degreeFileUploadIds ?? {},
         }
       : undefined,
     organization: data.organization
       ? {
           ...data.organization,
-          licenseFile: undefined,
         }
       : undefined,
     portfolio: data.portfolio

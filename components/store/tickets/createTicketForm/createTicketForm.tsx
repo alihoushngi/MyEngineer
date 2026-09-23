@@ -5,7 +5,13 @@ import { useState, useTransition } from "react";
 import { TicketIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button/button";
-import { Field, FieldError, FieldLabel } from "@/components/ui/field/field";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from "@/components/ui/field/field";
+import { FileUpload } from "@/components/ui/fileUpload/fileUpload";
 import { Input } from "@/components/ui/input/input";
 import { Textarea } from "@/components/ui/textarea/textarea";
 import {
@@ -18,9 +24,13 @@ import {
 
 import { createTicketAction } from "@/services/ticket-service/ticket-actions";
 import {
-  priorityLabels,
+  ticketPriorityLabels,
   type TicketPriority,
-} from "@/services/ticket-service/ticket-service";
+} from "@/lib/tickets/ticket-labels/ticket-labels";
+import {
+  TICKET_FILE_ACCEPT,
+  ticketFileError,
+} from "@/lib/tickets/ticket-attachment/ticket-attachment";
 
 type CreateTicketFormProps = {
   redirectBase?: string;
@@ -34,23 +44,34 @@ export function CreateTicketForm({
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [priority, setPriority] = useState<TicketPriority>("mid");
+  const [file, setFile] = useState<File | undefined>();
   const [error, setError] = useState<string | null>(null);
 
   function onSubmit(event: React.FormEvent) {
     event.preventDefault();
     setError(null);
 
-    if (subject.trim().length < 3 || message.trim().length < 5) {
-      setError("موضوع و متن پیام را کامل وارد کنید.");
+    const attachmentError = ticketFileError(file);
+    if (attachmentError) {
+      setError(attachmentError);
       return;
     }
 
+    if (subject.trim().length < 3 || (message.trim().length < 5 && !file)) {
+      setError("موضوع و متن پیام یا پیوست تصویر را کامل وارد کنید.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.set("subject", subject.trim());
+    formData.set("message", message.trim());
+    formData.set("priority", priority);
+    if (file) {
+      formData.set("file", file);
+    }
+
     startTransition(async () => {
-      const result = await createTicketAction({
-        subject: subject.trim(),
-        message: message.trim(),
-        priority,
-      });
+      const result = await createTicketAction(formData);
 
       if (!result.ok) {
         setError(result.message);
@@ -82,7 +103,9 @@ export function CreateTicketForm({
       </div>
 
       <Field>
-        <FieldLabel htmlFor="ticket-subject">موضوع</FieldLabel>
+        <FieldLabel htmlFor="ticket-subject" required>
+          موضوع
+        </FieldLabel>
         <Input
           id="ticket-subject"
           value={subject}
@@ -103,11 +126,13 @@ export function CreateTicketForm({
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {(Object.keys(priorityLabels) as TicketPriority[]).map((key) => (
-              <SelectItem key={key} value={key}>
-                {priorityLabels[key]}
-              </SelectItem>
-            ))}
+            {(Object.keys(ticketPriorityLabels) as TicketPriority[]).map(
+              (key) => (
+                <SelectItem key={key} value={key}>
+                  {ticketPriorityLabels[key]}
+                </SelectItem>
+              ),
+            )}
           </SelectContent>
         </Select>
       </Field>
@@ -122,6 +147,25 @@ export function CreateTicketForm({
           placeholder="توضیح کامل موضوع را بنویسید…"
           disabled={pending}
         />
+      </Field>
+
+      <Field>
+        <FieldLabel>پیوست تصویر (اختیاری)</FieldLabel>
+        <FileUpload
+          accept={TICKET_FILE_ACCEPT}
+          disabled={pending}
+          invalid={Boolean(ticketFileError(file))}
+          label={file ? "تغییر تصویر" : "انتخاب تصویر"}
+          description={
+            file
+              ? `فایل انتخاب‌شده: ${file.name}`
+              : "jpeg، png یا gif تا ۲ مگابایت"
+          }
+          onChange={(event) => setFile(event.currentTarget.files?.[0])}
+        />
+        <FieldDescription>
+          اگر متن پیام خالی باشد، پیوست تصویر الزامی است.
+        </FieldDescription>
       </Field>
 
       {error ? <FieldError>{error}</FieldError> : null}

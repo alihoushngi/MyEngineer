@@ -31,5 +31,11 @@ export default async function EngineerSupportTicketRoute({
     notFound();
   }
 
-  return <TicketDetailPage room={room} currentUserId={profile?.id} />;
+  return (
+    <TicketDetailPage
+      room={room}
+      currentUserId={profile?.id}
+      backHref="/engineer/support"
+    />
+  );
 }

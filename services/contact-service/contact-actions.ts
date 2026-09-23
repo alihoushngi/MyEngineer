@@ -31,6 +31,7 @@ function toFailure(error: unknown, fallback: string): ServiceMutationResult {
 
 export async function sendContactMessageAction(input: {
   name: string;
+  family: string;
   mobile: string;
   email?: string;
   subject: string;

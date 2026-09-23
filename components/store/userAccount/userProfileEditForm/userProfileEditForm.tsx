@@ -16,6 +16,10 @@ import {
 } from "@/components/ui/select/select";
 
 import { ProfileAvatarUpload } from "@/components/store/userAccount/profileAvatarUpload/profileAvatarUpload";
+import {
+  UserProfileExtendedFields,
+  type ProfileExtendedValues,
+} from "@/components/store/userAccount/userProfileExtendedFields/userProfileExtendedFields";
 import { resolveMediaUrl } from "@/lib/api/resolve-media-url/resolve-media-url";
 import { updateProfileAction } from "@/services/profile-service/profile-actions";
 import { type ProfileRecord } from "@/services/profile-service/profile-service";
@@ -23,6 +27,24 @@ import { type ProfileRecord } from "@/services/profile-service/profile-service";
 type UserProfileEditFormProps = {
   profile: ProfileRecord;
 };
+
+function toDateInput(value?: string | null): string {
+  return value?.slice(0, 10) ?? "";
+}
+
+function toExtendedValues(profile: ProfileRecord): ProfileExtendedValues {
+  return {
+    birthday: toDateInput(profile.birthday),
+    maritalStatus: profile.marital_status ?? "",
+    workingYears: profile.working_years ?? "",
+    textContact: profile.text_contact ?? "",
+    showMobile: profile.show_mobile !== "no",
+    showImage: profile.show_image !== "no",
+    provinceId:
+      profile.province?.id != null ? String(profile.province.id) : "",
+    cityId: profile.city?.id != null ? String(profile.city.id) : "",
+  };
+}
 
 export function UserProfileEditForm({ profile }: UserProfileEditFormProps) {
   const router = useRouter();
@@ -35,6 +57,7 @@ export function UserProfileEditForm({ profile }: UserProfileEditFormProps) {
   const [bio, setBio] = useState(profile.bio ?? "");
   const [gender, setGender] = useState(profile.gender ?? "");
   const [phoneContact, setPhoneContact] = useState(profile.phone_contact ?? "");
+  const [extended, setExtended] = useState(() => toExtendedValues(profile));
 
   const displayName =
     [profile.name, profile.family].filter(Boolean).join(" ").trim() || "کاربر";
@@ -51,10 +74,22 @@ export function UserProfileEditForm({ profile }: UserProfileEditFormProps) {
         email: email.trim() || null,
         bio: bio.trim() || null,
         gender:
-          gender === "male" || gender === "female"
-            ? gender
-            : undefined,
+          gender === "male" || gender === "female" ? gender : undefined,
         phone_contact: phoneContact.trim() || undefined,
+        birthday: extended.birthday || undefined,
+        marital_status:
+          extended.maritalStatus === "single" ||
+          extended.maritalStatus === "married"
+            ? extended.maritalStatus
+            : undefined,
+        working_years: extended.workingYears.trim() || undefined,
+        text_contact: extended.textContact.trim() || undefined,
+        show_mobile: extended.showMobile ? "yes" : "no",
+        show_image: extended.showImage ? "yes" : "no",
+        province_id: extended.provinceId
+          ? Number(extended.provinceId)
+          : undefined,
+        city_id: extended.cityId ? Number(extended.cityId) : undefined,
       });
 
       if (!result.ok) {
@@ -153,6 +188,12 @@ export function UserProfileEditForm({ profile }: UserProfileEditFormProps) {
           disabled={pending}
         />
       </Field>
+
+      <UserProfileExtendedFields
+        value={extended}
+        onChange={setExtended}
+        disabled={pending}
+      />
 
       <dl className="grid gap-3 rounded-2xl bg-surface-subtle p-4 sm:grid-cols-2">
         <div>

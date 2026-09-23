@@ -4,28 +4,30 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { CircleAlertIcon, FileIcon, XIcon } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { EducationDegreeFileCard } from "@/components/store/registration/educationDegreeFileCard/educationDegreeFileCard";
+import { CircleAlertIcon } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert/alert";
-import { Button } from "@/components/ui/button/button";
-import { FileUpload } from "@/components/ui/fileUpload/fileUpload";
 import { Checkbox } from "@/components/ui/checkbox/checkbox";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field/field";
 import {
   RadioGroup,
   RadioGroupItem,
 } from "@/components/ui/radioGroup/radioGroup";
+import { Input } from "@/components/ui/input/input";
 import { RegistrationStepNav } from "@/components/store/registration/registrationStepNav/registrationStepNav";
 import {
-  ABOVE_DIPLOMA_DEGREES,
   educationStepSchema,
   type EducationStepFormData,
 } from "@/components/store/registration/educationStep/type/educationStep.types";
-import { registrationCopy } from "@/config/registration.config/registration.config";
-import { toUserErrorMessage } from "@/lib/errors/to-user-error-message/to-user-error-message";
-import { useApiMutation } from "@/hooks/use-api-mutation/use-api-mutation";
 import { RegistrationError } from "@/components/store/registration/registrationError/registrationError";
-import { type DegreeKey } from "@/types/store/registration.types";
+import { registrationCopy } from "@/config/registration.config/registration.config";
+import { EDUCATION_API_LEVELS } from "@/lib/registration/education-levels/education-levels";
+import { toUserErrorMessage } from "@/lib/errors/to-user-error-message/to-user-error-message";
+import { uploadUserFile } from "@/lib/uploads/upload-user-file/upload-user-file";
+import { useApiMutation } from "@/hooks/use-api-mutation/use-api-mutation";
 import { useRegistrationWizard } from "@/providers/registration-wizard-provider/registration-wizard-provider";
+import { listBackendFields } from "@/services/lookup-service/lookup-service";
 import { saveEducation } from "@/services/registration-service/registration-service";
 
 export function EducationStep() {
@@ -33,72 +35,68 @@ export function EducationStep() {
   const { data, commitEducation } = useRegistrationWizard();
   const [apiError, setApiError] = useState<string | null>(null);
   const saveMutation = useApiMutation(saveEducation);
-  // Local file selections per degree key — not stored in RHF (File objects)
   const [degreeFiles, setDegreeFiles] = useState<
-    Partial<Record<DegreeKey, File>>
-  >(data.education?.degreeFiles ?? {});
+    Partial<Record<string, File>>
+  >({});
+  const fieldsQuery = useQuery({
+    queryKey: ["registration", "fields"],
+    queryFn: listBackendFields,
+    retry: false,
+  });
 
   const {
     control,
+    register,
     handleSubmit,
     watch,
     formState: { errors, isSubmitting },
   } = useForm<EducationStepFormData>({
     resolver: yupResolver(educationStepSchema),
     defaultValues: {
-      level: data.education?.level ?? "aboveDiploma",
-      degrees: data.education?.degrees ? [...data.education.degrees] : [],
+      level: data.education?.level ?? "karshenasi",
+      fieldIds: data.education?.fieldIds ? [...data.education.fieldIds] : [],
+      university: data.education?.university ?? "",
     },
   });
 
-  const level = watch("level");
-  const selectedDegrees = watch("degrees");
-
-  function handleFileChange(degreeKey: DegreeKey, file: File | undefined) {
-    setDegreeFiles((prev) => {
-      if (file === undefined) {
-        const next = { ...prev };
-        delete next[degreeKey];
-        return next;
-      }
-      return { ...prev, [degreeKey]: file };
-    });
-  }
+  const selectedFields = watch("fieldIds");
 
   async function onSubmit(formData: EducationStepFormData) {
     setApiError(null);
 
     try {
+      const degreeFileUploadIds: Record<string, string> = {
+        ...(data.education?.degreeFileUploadIds ?? {}),
+      };
+
+      for (const fieldId of formData.fieldIds) {
+        const file = degreeFiles[fieldId];
+        if (!file) {
+          continue;
+        }
+        degreeFileUploadIds[fieldId] = await uploadUserFile("degree", file);
+      }
+
       await saveMutation.mutateAsync({
         level: formData.level,
-        degrees: formData.degrees,
-        degreeFileUploadIds: {},
-        // API CONTRACT REQUIRED: files must be uploaded separately first,
-        // then their IDs included here. Not yet possible.
+        fieldIds: formData.fieldIds,
+        university: formData.university,
+        degreeFileUploadIds,
       });
+
+      commitEducation({
+        level: formData.level,
+        fieldIds: formData.fieldIds,
+        university: formData.university,
+        degreeFileUploadIds,
+      });
+      router.push("/expert-registration/engineering-organization");
     } catch (err) {
       setApiError(
         toUserErrorMessage(err, registrationCopy.errorGenericDescription),
       );
-      return;
     }
-
-    commitEducation({
-      level: formData.level,
-      degrees: formData.degrees as DegreeKey[],
-      degreeFiles,
-    });
-    router.push("/expert-registration/engineering-organization");
   }
-
-  function handleBack() {
-    router.push("/expert-registration/personal-info");
-  }
-
-  const degreesError =
-    errors.degrees?.message ??
-    (errors as { degrees?: { root?: { message?: string } } }).degrees?.root
-      ?.message;
 
   return (
     <div className="space-y-6">
@@ -117,7 +115,6 @@ export function EducationStep() {
         className="space-y-5"
         aria-label={registrationCopy.step6Title}
       >
-        {/* Education level branch */}
         <Field>
           <FieldLabel id="reg-edu-level-label">
             {registrationCopy.educationLevelLabel}
@@ -132,133 +129,125 @@ export function EducationStep() {
                 aria-labelledby="reg-edu-level-label"
                 className="grid gap-3 sm:grid-cols-2"
               >
-                <div className="flex min-h-12 items-center gap-3 rounded-md border border-border px-4 py-2 has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary-subtle">
-                  <RadioGroupItem id="reg-edu-above" value="aboveDiploma" />
-                  <label
-                    htmlFor="reg-edu-above"
-                    className="min-h-11 content-center type-body cursor-pointer"
+                {EDUCATION_API_LEVELS.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex min-h-12 items-center gap-3 rounded-md border border-border px-4 py-2 has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary-subtle"
                   >
-                    {registrationCopy.educationLevelAboveDiploma}
-                  </label>
-                </div>
-                <div className="flex min-h-12 items-center gap-3 rounded-md border border-border px-4 py-2 has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary-subtle">
-                  <RadioGroupItem id="reg-edu-diploma" value="diplomaOrLower" />
-                  <label
-                    htmlFor="reg-edu-diploma"
-                    className="min-h-11 content-center type-body cursor-pointer"
-                  >
-                    {registrationCopy.educationLevelDiplomaOrLower}
-                  </label>
-                </div>
+                    <RadioGroupItem
+                      id={`reg-edu-level-${item.id}`}
+                      value={item.id}
+                    />
+                    <label
+                      htmlFor={`reg-edu-level-${item.id}`}
+                      className="min-h-11 content-center type-body cursor-pointer"
+                    >
+                      {item.label}
+                    </label>
+                  </div>
+                ))}
               </RadioGroup>
             )}
           />
         </Field>
 
-        {/* Degree multi-select — only shown for aboveDiploma */}
-        {level === "aboveDiploma" ? (
-          <Field invalid={Boolean(degreesError)}>
-            <FieldLabel id="reg-edu-degrees-label">
-              {registrationCopy.degreeSelectionLabel}
-            </FieldLabel>
+        <Field invalid={Boolean(errors.fieldIds)}>
+          <FieldLabel id="reg-edu-fields-label" required>
+            {registrationCopy.degreeSelectionLabel}
+          </FieldLabel>
+          {fieldsQuery.isPending ? (
             <p className="type-body-sm text-foreground-muted">
-              {registrationCopy.degreeSelectionHelp}
+              {registrationCopy.expertiseCatalogLoading}
             </p>
+          ) : null}
+          {fieldsQuery.error ? (
+            <Alert variant="danger">
+              <CircleAlertIcon />
+              <AlertDescription>
+                {toUserErrorMessage(
+                  fieldsQuery.error,
+                  registrationCopy.errorGenericDescription,
+                )}
+              </AlertDescription>
+            </Alert>
+          ) : (
             <Controller
               control={control}
-              name="degrees"
+              name="fieldIds"
               render={({ field }) => (
                 <div
                   role="group"
-                  aria-labelledby="reg-edu-degrees-label"
+                  aria-labelledby="reg-edu-fields-label"
                   className="grid gap-2 sm:grid-cols-2"
-                  aria-describedby={
-                    degreesError ? "reg-edu-degrees-error" : undefined
-                  }
                 >
-                  {ABOVE_DIPLOMA_DEGREES.map(({ key, label }) => (
-                    <div key={key} className="flex items-center gap-3">
+                  {(fieldsQuery.data ?? []).map((item) => (
+                    <div key={item.id} className="flex items-center gap-3">
                       <Checkbox
-                        id={`reg-edu-degree-${key}`}
-                        checked={field.value.includes(key)}
+                        id={`reg-edu-field-${item.id}`}
+                        checked={field.value.includes(item.id)}
                         onCheckedChange={(checked) => {
                           if (checked) {
-                            field.onChange([...field.value, key]);
+                            field.onChange([...field.value, item.id]);
                           } else {
                             field.onChange(
-                              field.value.filter((d) => d !== key),
+                              field.value.filter((id) => id !== item.id),
                             );
-                            // Clear file when degree deselected
-                            handleFileChange(key, undefined);
                           }
                         }}
                       />
                       <label
-                        htmlFor={`reg-edu-degree-${key}`}
+                        htmlFor={`reg-edu-field-${item.id}`}
                         className="min-h-11 content-center type-body cursor-pointer"
                       >
-                        {label}
+                        {item.label}
                       </label>
                     </div>
                   ))}
                 </div>
               )}
             />
-            <FieldError id="reg-edu-degrees-error">{degreesError}</FieldError>
-          </Field>
-        ) : null}
+          )}
+          <FieldError>{errors.fieldIds?.message}</FieldError>
+        </Field>
 
-        {/* Per-degree file upload cards */}
-        {level === "aboveDiploma" && selectedDegrees.length > 0 ? (
+        <Field>
+          <FieldLabel htmlFor="reg-edu-university">دانشگاه</FieldLabel>
+          <Input
+            id="reg-edu-university"
+            {...register("university")}
+            disabled={isSubmitting}
+          />
+        </Field>
+
+        {selectedFields.length > 0 ? (
           <div className="grid gap-4 sm:grid-cols-2">
-            {/*
-             * API CONTRACT REQUIRED — file upload endpoint does not exist.
-             * Files are selected locally and stored in wizard memory only.
-             */}
-            <Alert variant="info" className="sm:col-span-2">
-              <CircleAlertIcon />
-              <AlertDescription>
-                {registrationCopy.uploadApiNote}
-              </AlertDescription>
-            </Alert>
-            {selectedDegrees.map((degreeKey) => {
-              const degreeLabel =
-                ABOVE_DIPLOMA_DEGREES.find((d) => d.key === degreeKey)?.label ??
-                degreeKey;
-              const file = degreeFiles[degreeKey as DegreeKey];
-
+            {selectedFields.map((fieldId) => {
+              const label =
+                fieldsQuery.data?.find((item) => item.id === fieldId)?.label ??
+                fieldId;
               return (
-                <DegreeFileCard
-                  key={degreeKey}
-                  degreeKey={degreeKey as DegreeKey}
-                  label={degreeLabel}
-                  file={file}
+                <EducationDegreeFileCard
+                  key={fieldId}
+                  fieldId={fieldId}
+                  label={label}
+                  file={degreeFiles[fieldId]}
+                  uploaded={Boolean(
+                    data.education?.degreeFileUploadIds?.[fieldId],
+                  )}
                   disabled={isSubmitting}
-                  onFileChange={(f) =>
-                    handleFileChange(degreeKey as DegreeKey, f)
-                  }
+                  onFileChange={(file) => {
+                    setDegreeFiles((prev) => {
+                      if (!file) {
+                        const next = { ...prev };
+                        delete next[fieldId];
+                        return next;
+                      }
+                      return { ...prev, [fieldId]: file };
+                    });
+                  }}
                 />
               );
             })}
-          </div>
-        ) : null}
-
-        {/* Diploma or lower: single diploma upload */}
-        {level === "diplomaOrLower" ? (
-          <div className="space-y-4">
-            <Alert variant="info">
-              <CircleAlertIcon />
-              <AlertDescription>
-                {registrationCopy.uploadApiNote}
-              </AlertDescription>
-            </Alert>
-            <DegreeFileCard
-              degreeKey="diploma"
-              label={registrationCopy.degreeDiploma}
-              file={degreeFiles["diploma"]}
-              disabled={isSubmitting}
-              onFileChange={(f) => handleFileChange("diploma", f)}
-            />
           </div>
         ) : null}
 
@@ -272,87 +261,18 @@ export function EducationStep() {
         ) : null}
 
         <RegistrationStepNav
-          onBack={handleBack}
+          onBack={() => {
+            router.push("/expert-registration/personal-info");
+          }}
           onContinue={() => {
             void handleSubmit(onSubmit)();
           }}
           isPending={isSubmitting || saveMutation.isPending}
-          isContinueDisabled={isSubmitting || saveMutation.isPending}
+          isContinueDisabled={
+            isSubmitting || saveMutation.isPending || fieldsQuery.isPending
+          }
         />
       </form>
-    </div>
-  );
-}
-
-type DegreeFileCardProps = {
-  degreeKey: DegreeKey;
-  label: string;
-  file: File | undefined;
-  disabled: boolean;
-  onFileChange: (file: File | undefined) => void;
-};
-
-function DegreeFileCard({
-  degreeKey,
-  label,
-  file,
-  disabled,
-  onFileChange,
-}: DegreeFileCardProps) {
-  const inputId = `reg-edu-file-${degreeKey}`;
-
-  function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const selected = event.target.files?.[0];
-    onFileChange(selected);
-  }
-
-  function handleRemove() {
-    onFileChange(undefined);
-    // Reset file input by key remount isn't available; just clear via DOM
-    const input = document.getElementById(inputId) as HTMLInputElement | null;
-    if (input) {
-      input.value = "";
-    }
-  }
-
-  return (
-    <div className="space-y-3 rounded-lg border border-border bg-surface p-4">
-      <p className="type-body-sm font-medium text-foreground">
-        {registrationCopy.uploadDegreeLabel(label)}
-      </p>
-      {file ? (
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex min-w-0 items-center gap-2">
-            <FileIcon
-              className="size-4 shrink-0 text-foreground-muted"
-              aria-hidden="true"
-            />
-            <span className="type-body-sm truncate text-foreground">
-              {file.name}
-            </span>
-          </div>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            disabled={disabled}
-            onClick={handleRemove}
-            aria-label={registrationCopy.fileRemoveLabel}
-          >
-            <XIcon className="size-4" aria-hidden="true" />
-          </Button>
-        </div>
-      ) : null}
-      <FileUpload
-        key={file?.name ?? "empty"}
-        id={inputId}
-        accept={registrationCopy.uploadDegreeAccept}
-        disabled={disabled}
-        aria-label={registrationCopy.uploadDegreeLabel(label)}
-        label={file ? registrationCopy.fileChangeLabel : "انتخاب فایل"}
-        description={registrationCopy.uploadDegreeDescription}
-        onChange={handleChange}
-      />
     </div>
   );
 }

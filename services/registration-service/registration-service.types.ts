@@ -1,5 +1,6 @@
 import { type MockEngineerProfileSnapshot } from "@/types/store/engineer-auth.types";
 import { type MockExpertiseCatalog } from "@/lib/mock-data/registration-expertise-catalog/registration-expertise-catalog";
+import { type EducationApiLevel } from "@/lib/registration/education-levels/education-levels";
 
 export type SendOtpRequest = {
   phone: string;
@@ -29,9 +30,10 @@ export type SavePersonalInfoRequest = {
 };
 
 export type SaveEducationRequest = {
-  level: "diplomaOrLower" | "aboveDiploma";
-  degrees: readonly string[];
-  degreeFileUploadIds: Partial<Record<string, string>>;
+  level: EducationApiLevel;
+  fieldIds: readonly string[];
+  university?: string;
+  degreeFileUploadIds?: Readonly<Record<string, string>>;
 };
 
 export type SaveOrganizationRequest = {
@@ -40,8 +42,8 @@ export type SaveOrganizationRequest = {
   hasLicense?: boolean;
   licenseNumber?: string;
   licenseUploadId?: string;
-  discipline?: string;
-  qualifications?: readonly string[];
+  disciplineId?: string;
+  qualificationIds?: readonly string[];
 };
 
 export type SaveResumeRequest = {
@@ -53,6 +55,8 @@ export type SubmitRegistrationRequest = {
   imageCount: number;
   certificateCount: number;
   acceptRules: true;
+  imageUploadIds?: readonly string[];
+  certificates?: readonly { title: string; uploadId?: string }[];
   profile?: MockEngineerProfileSnapshot;
 };
 

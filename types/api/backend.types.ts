@@ -180,3 +180,10 @@ export type BackendField = {
   id: number;
   name: string;
 };
+
+export type BackendQualification = {
+  id: number;
+  title: string;
+  slug?: string | null;
+  parent_id?: number | null;
+};

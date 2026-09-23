@@ -16,9 +16,12 @@ import {
   listBackendSoftwares,
 } from "@/services/lookup-service/lookup-service";
 import {
+  createEngineerCredential,
+  createEngineerPortfolioItem,
   updateEngineerProfileApi,
   updateEngineerServiceAreaApi,
   updateEngineerSpecialtiesApi,
+  type CreateEngineerCredentialInput,
 } from "@/services/engineer-service/engineer-panel-api";
 import { type ServiceMutationResult } from "@/types/store/engineer-auth.types";
 
@@ -193,6 +196,50 @@ export async function updateEngineerServiceAreaAction(
     return mutationOk();
   } catch (error) {
     return toFailure(error, "ذخیره محدوده خدمات انجام نشد.");
+  }
+}
+
+function revalidateEngineerAssets() {
+  revalidatePath(engineerPanelPaths.portfolio);
+  revalidatePath(engineerPanelPaths.credentials);
+  revalidatePath(engineerPanelPaths.dashboard);
+}
+
+export async function addEngineerPortfolioItemAction(input: {
+  title: string;
+  description?: string;
+  imageUploadId?: string;
+}): Promise<ServiceMutationResult> {
+  if (!env.apiBaseUrl) {
+    return mutationFailed("API پیکربندی نشده است.");
+  }
+
+  try {
+    await createEngineerPortfolioItem({
+      title: input.title.trim(),
+      description: input.description?.trim() || null,
+      imageUploadId: input.imageUploadId ?? null,
+    });
+    revalidateEngineerAssets();
+    return mutationOk();
+  } catch (error) {
+    return toFailure(error, "افزودن نمونه‌کار انجام نشد.");
+  }
+}
+
+export async function addEngineerCredentialAction(
+  input: CreateEngineerCredentialInput,
+): Promise<ServiceMutationResult> {
+  if (!env.apiBaseUrl) {
+    return mutationFailed("API پیکربندی نشده است.");
+  }
+
+  try {
+    await createEngineerCredential(input);
+    revalidateEngineerAssets();
+    return mutationOk();
+  } catch (error) {
+    return toFailure(error, "افزودن مدرک انجام نشد.");
   }
 }
 

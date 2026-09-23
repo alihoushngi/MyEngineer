@@ -5,6 +5,7 @@
 
 import { env } from "@/lib/env/env";
 import { throwApiUnavailable } from "@/lib/api/throw-api-unavailable/throw-api-unavailable";
+import { throwIfMutationFailed } from "@/lib/auth/service-mutation-result/service-mutation-result";
 import { logoutEngineer } from "@/services/engineer-auth-service/engineer-auth-service";
 import { sendMessage } from "@/services/messaging-service/messaging-service";
 import {
@@ -13,7 +14,10 @@ import {
 } from "@/services/city-service/city-service";
 import { listCatalogCities } from "@/services/catalog-service/catalog-service";
 import {
-  createEngineerPortfolioItem,
+  addEngineerCredentialAction,
+  addEngineerPortfolioItemAction,
+} from "@/services/engineer-service/engineer-actions";
+import {
   deleteEngineerPortfolioItem,
   fetchEngineerLocationCatalog,
 } from "@/services/engineer-service/engineer-panel-api";
@@ -33,6 +37,16 @@ export type AddEngineerPortfolioItemRequest = {
   imageUploadId?: string;
 };
 
+export type AddEngineerCredentialRequest = {
+  kind: "degree" | "certificate" | "license";
+  level?: string;
+  fieldId?: number;
+  university?: string | null;
+  title?: string;
+  licenseNumber?: string;
+  uploadId?: string;
+};
+
 export async function sendEngineerMessage(
   request: SendEngineerMessageRequest,
 ): Promise<void> {
@@ -42,15 +56,13 @@ export async function sendEngineerMessage(
 export async function addEngineerPortfolioItem(
   request: AddEngineerPortfolioItemRequest,
 ): Promise<void> {
-  if (!env.apiBaseUrl) {
-    throwApiUnavailable(WRITE_UNAVAILABLE);
-  }
+  throwIfMutationFailed(await addEngineerPortfolioItemAction(request));
+}
 
-  await createEngineerPortfolioItem({
-    title: request.title.trim(),
-    description: request.description?.trim() || null,
-    imageUploadId: request.imageUploadId ?? null,
-  });
+export async function addEngineerCredential(
+  request: AddEngineerCredentialRequest,
+): Promise<void> {
+  throwIfMutationFailed(await addEngineerCredentialAction(request));
 }
 
 export async function removeEngineerPortfolioItem(id: string): Promise<void> {
