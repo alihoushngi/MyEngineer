@@ -70,3 +70,12 @@ export async function getNearbyCities(
   );
   return unwrapApiData(envelope).map(mapCity);
 }
+
+export async function getAllCities(): Promise<readonly City[]> {
+  if (!env.apiBaseUrl) {
+    throwApiUnavailable(API_NOT_AVAILABLE_MESSAGE);
+  }
+
+  const envelope = await getEnvelope<BackendCity[]>("/cities");
+  return unwrapApiData(envelope).map(mapCity);
+}

@@ -34,12 +34,21 @@ function resolveMediaBaseUrl(apiBaseUrl: string): string {
   }
 }
 
-const apiBaseUrl = normalizeApiBaseUrl(process.env.NEXT_PUBLIC_API_BASE_URL);
+const publicApiBaseUrl = normalizeApiBaseUrl(
+  process.env.NEXT_PUBLIC_API_BASE_URL,
+);
+// Server-side calls (SSR, server actions) may use a private address such as
+// http://backend/api/v1 inside Docker: a container often cannot reach its own
+// public IP. This variable is not NEXT_PUBLIC_, so it never reaches the browser.
+const internalApiBaseUrl = normalizeApiBaseUrl(
+  process.env.API_INTERNAL_BASE_URL,
+);
+const apiBaseUrl = internalApiBaseUrl || publicApiBaseUrl;
 const liveApi = apiBaseUrl !== "";
 
 export const env = {
   apiBaseUrl,
-  mediaBaseUrl: resolveMediaBaseUrl(apiBaseUrl),
+  mediaBaseUrl: resolveMediaBaseUrl(publicApiBaseUrl),
   useMockData: liveApi
     ? false
     : process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true",

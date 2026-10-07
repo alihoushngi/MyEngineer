@@ -46,6 +46,69 @@
 - **Tickets** (5) — تیکت پشتیبانی (Room/Ticket)
 - **Admin** (2) — endpointهای مخصوص ادمین/دستیار (فاز ۲)
 
+## وضعیت پیاده‌سازی و endpointهای مصرف‌شده در فرانت‌اند (به‌روزرسانی دستی)
+
+> بخش‌های زیر پس از تولید خودکار اسکیما اضافه شده‌اند. جدول‌ها و جزئیات پایین‌تر فقط بخشی از endpointهای فعلی را پوشش می‌دهند؛
+> endpointهای این بخش توسط بک‌اند پیاده‌سازی شده‌اند و فرانت‌اند از آن‌ها استفاده می‌کند.
+> پاسخ‌ها همگی در envelope استاندارد `{success, message, data, meta}` هستند و `API_BASE_URL` شامل `/api/v1` است.
+
+### پیاده‌سازی‌شده توسط بک‌اند (قبلاً در این سند «آماده نشده» بود)
+
+| Method | Path | مصرف در فرانت‌اند |
+| --- | --- | --- |
+| GET | `/home` | داده‌ی صفحه‌ی اصلی (متخصصان، شهرها، خدمات پرکاربرد، دسته‌های FAQ، نکته‌های دانش) |
+| GET | `/search`, `/search/suggest` | جستجوی سراسری (`query`, `cities[]`) |
+| GET | `/user/*` | فضای کاربری: workspace، درخواست‌ها، ذخیره‌شده‌ها، اعلان‌ها، `POST /user/reviews` |
+| GET/POST/PUT | `/engineer/*` | پنل مهندس: workspace، پروفایل، نمونه‌کار، مدارک، `POST /engineer/reviews/{review}/reply` |
+| GET/POST | `/conversations`, `/conversations/{id}/messages` | پیام‌رسانی |
+| GET/POST | `/notifications` | اعلان‌ها |
+| GET/POST | `/service-requests` | ثبت و پیگیری درخواست خدمت |
+| POST | `/uploads` | آپلود فایل (`purpose`: avatar، degree، license، portfolio_image، certificate، testimonial) |
+| GET | `/faq-categories`, `/faq-categories/{slug}` | دسته‌های سوالات متداول (کلید `icon` اختیاری) |
+| GET/POST | `/articles/{blog}/comments` | نظرات مقاله |
+| GET | `/cities/{id}/nearby` | شهرهای مجاور (مرحله‌ی «محدوده خدمت» ثبت‌نام) |
+| GET | `/professionals/{id}/card` | کارت خلاصه‌ی متخصص |
+| POST | `/auth/user-registration/*`, `/auth/engineer-registration/*` | ثبت‌نام کاربر و متخصص (OTP و ...) |
+| GET/PUT/POST | `/profile/registration/*` | مراحل ویزارد ثبت‌نام متخصص |
+
+### Endpointهای جدید / گسترش‌یافته
+
+**`GET /site-settings`** — `data`: `{name, tagline, address, phones:[{label,number}], email|null, socials:[{key,label,url}], copyright}`.
+فوتر با revalidate حدود ۳۰۰ ثانیه می‌خواند و در صورت خطا به مقادیر پیش‌فرض `config/site.config` برمی‌گردد.
+
+**`GET /review-tags`** — `data`: `{positive:[{id,title}], negative:[{id,title}]}`. برای انتخاب تگ در فرم نظر.
+
+**`POST /professionals/{id}/comments`** و **`POST /user/reviews`** — علاوه بر فیلدهای قبلی:
+`tag_ids: number[]`، `is_anonymous: boolean`. آبجکت نظر شامل `is_anonymous`، `author` («کاربر ناشناس» هنگام ناشناس بودن)،
+`tags: {positive: string[], negative: string[]}` و `reply: null | {body, author, created_at_label}` است.
+
+**`POST /engineer/reviews/{review}/reply`** (پنل مهندس) — body: `{body}`؛ پاسخ مهندس به نظر.
+
+**`GET /professionals`** — فیلترها: `service_id`، `city_ids[]`، `min_experience`، `max_experience` (سال)، `has_license`،
+`field_id` / `discipline_id`، `degree` (`zire_diplom|diplom|kardani|karshenasi|arshad|doctori`)، `sort=newest|rating|popular|experience`،
+`page`، `per_page`. `meta`: `{current_page, last_page, per_page, total}`. صفحه‌ی خدمت (`/services/{slug}`) با این فیلترها سمت سرور
+فیلتر و صفحه‌بندی می‌شود (`per_page=12`؛ بازه‌های سابقه: ۰–۵، ۵–۱۰، ۱۰–۱۵، ۱۵+).
+
+**`GET /blogs`** — `q`، `sort=newest|popular`، `category`، `page`، `per_page`؛ آبجکت شامل `author_name` و `view_count`.
+
+**`GET /knowledges?q=`**، **`GET /knowledge-categories`** (شامل `items_count`)، **`GET /faqs?q=`**،
+**`GET /forms?q=&category_id=&province_id=`**.
+
+**`POST /faq-questions`** — body: `{question (۱۰–۱۰۰۰ نویسه), name?, mobile?}`؛ سؤال کاربر در صندوق پیام‌ها ثبت می‌شود.
+
+**`POST /testimonials`** (نیازمند ورود) — body: `{job_title, comment (حداقل ۱۰), name?, photo_upload_id?}`؛ تا تأیید ادمین نمایش داده نمی‌شود.
+`GET /testimonials` اکنون `job_title`، `photo`، `comment` و `author` را هم برمی‌گرداند.
+
+**OTP** — طول کد در همه‌ی جریان‌ها (ورود، ثبت‌نام، فراموشی رمز، ویزارد ثبت‌نام) ۵ رقم است
+(ثابت مشترک `lib/validation/otp-length/otp-length.ts`).
+
+### فرض‌های فرانت‌اند که هنوز با بک‌اند تأیید نشده‌اند
+
+- `GET /form-categories` برای فیلتر دسته‌ی فرم‌ها (در صورت نبود endpoint، انتخاب‌گر دسته پنهان می‌شود).
+- مقدارهای کلید `icon` در `/faq-categories` (نگاشت به آیکن در `lib/faq/faq-category-icon`؛ کلید ناشناخته آیکن پیش‌فرض می‌گیرد).
+- فیلتر «دسته‌بندی خدمات» صفحه‌ی خدمت با `service_id` فرزند انجام می‌شود (نه `skill_id`).
+- بازه‌های سابقه روی مرز مشترک هستند (۵ هم در ۰–۵ و هم در ۵–۱۰).
+
 ## فهرست سریع Endpointها
 
 | Method | Path | Tag | Summary | Auth |

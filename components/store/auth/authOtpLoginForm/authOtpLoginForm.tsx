@@ -22,7 +22,7 @@ import {
   loginOtpSchema,
   type LoginOtpData,
 } from "@/lib/validation/login/login-otp.schema";
-import { LOGIN_OTP_LENGTH } from "@/lib/validation/login/login-otp-length";
+import { OTP_LENGTH } from "@/lib/validation/otp-length/otp-length";
 import {
   loginPhoneSchema,
   type LoginPhoneData,
@@ -183,7 +183,7 @@ export function AuthOtpLoginForm({
           render={({ field }) => (
             <OtpInput
               id={`${idPrefix}-otp-code`}
-              length={LOGIN_OTP_LENGTH}
+              length={OTP_LENGTH}
               value={field.value}
               onChange={(value) => {
                 field.onChange(value);

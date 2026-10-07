@@ -95,6 +95,8 @@ export async function submitUserReview(input: {
   requestId: string;
   rating: number;
   body: string;
+  tagIds?: readonly number[];
+  isAnonymous?: boolean;
 }): Promise<string> {
   const envelope = await httpPost<ApiEnvelope<{ review_id: number }>>(
     "/user/reviews",

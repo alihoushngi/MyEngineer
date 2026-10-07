@@ -9,7 +9,8 @@ import { Button } from "@/components/ui/button/button";
 import { type HeaderCityButtonProps } from "@/components/layout/storeHeader/headerCityButton/type/headerCityButton.types";
 import {
   type PreferredCity,
-  readPreferredCityFromDocumentCookie,
+  formatPreferredCitiesLabel,
+  readPreferredCitiesFromDocumentCookie,
 } from "@/lib/city/preferred-city/preferred-city";
 import { buildSearchHref } from "@/lib/search/search-params/search-params";
 
@@ -18,14 +19,18 @@ const defaultCityLabel = "انتخاب شهر";
 export function HeaderCityButton({ selectedCityLabel }: HeaderCityButtonProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const [selected, setSelected] = useState<PreferredCity | null>(null);
+  const [selected, setSelected] = useState<readonly PreferredCity[]>([]);
 
   useEffect(() => {
-    setSelected(readPreferredCityFromDocumentCookie());
+    // Cookie is only readable in the browser, so hydrate after mount.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setSelected(readPreferredCitiesFromDocumentCookie());
   }, []);
 
-  const label =
-    selected?.name ?? selectedCityLabel ?? defaultCityLabel;
+  const label = formatPreferredCitiesLabel(
+    selected,
+    selectedCityLabel ?? defaultCityLabel,
+  );
 
   return (
     <>
@@ -65,10 +70,12 @@ export function HeaderCityButton({ selectedCityLabel }: HeaderCityButtonProps) {
         open={open}
         onOpenChange={setOpen}
         title={defaultCityLabel}
-        description="استان و شهر خود را برای فیلتر متخصصان انتخاب کنید."
-        onSelected={(city) => {
-          setSelected(city);
-          router.push(buildSearchHref({ cities: [city.name] }));
+        description="یک یا چند شهر را برای فیلتر متخصصان انتخاب کنید."
+        onSelected={(cities) => {
+          setSelected(cities);
+          if (cities.length > 0) {
+            router.push(buildSearchHref({ cities: cities.map((city) => city.name) }));
+          }
           router.refresh();
         }}
       />

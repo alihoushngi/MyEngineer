@@ -62,6 +62,7 @@ export type HomeTestimonialItem = {
   quote: string;
   author: string;
   role?: string;
+  photoSrc?: string;
 };
 
 export type ExtendedHomeCatalogData = HomeCatalogData & {

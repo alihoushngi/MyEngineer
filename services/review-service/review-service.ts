@@ -12,6 +12,8 @@ export async function submitReview(input: {
   requestId: string;
   rating: number;
   body: string;
+  tagIds?: readonly number[];
+  isAnonymous?: boolean;
 }): Promise<string> {
   const result = await submitReviewAction(input);
   throwIfMutationFailed(result);

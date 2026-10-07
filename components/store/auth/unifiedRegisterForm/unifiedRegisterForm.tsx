@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field/field";
 import { Input } from "@/components/ui/input/input";
 import { OtpInput } from "@/components/ui/otpInput/otpInput";
+import { OTP_LENGTH } from "@/lib/validation/otp-length/otp-length";
 
 import { storePaths } from "@/config/navigation.config/navigation.config";
 import {
@@ -127,7 +128,7 @@ export function UnifiedRegisterForm() {
         isMockMode={false}
       >
         <div className="space-y-5">
-          <OtpInput length={6} value={otpCode} onChange={setOtpCode} />
+          <OtpInput length={OTP_LENGTH} value={otpCode} onChange={setOtpCode} />
           {error ? (
             <p className="type-caption text-destructive" role="alert">
               {error}
@@ -183,7 +184,7 @@ export function UnifiedRegisterForm() {
         </div>
       }
     >
-      <form
+      <form method="post"
         className="space-y-4"
         noValidate
         onSubmit={form.handleSubmit(onRegister)}

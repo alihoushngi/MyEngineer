@@ -13,4 +13,11 @@ export const knowledgeCopy = {
   serviceCtaLabel: "مشاهده خدمت مرتبط",
   metadataDescription: "نکته‌ها و راهنمایی‌های کاربردی مهندس من.",
   paginationLabel: "صفحه‌بندی نکته‌ها",
+  searchLabel: "جستجو در دانش",
+  searchPlaceholder: "جستجو در نکته‌ها...",
+  categorySelectLabel: "فیلتر دسته‌بندی",
+  allCategoriesLabel: "همه دسته‌ها",
+  searchEmptyTitle: "نتیجه‌ای پیدا نشد.",
+  searchEmptyDescription: "عبارت یا دسته دیگری را امتحان کنید.",
+  itemsCount: (count: string) => `${count} نکته`,
 } as const;

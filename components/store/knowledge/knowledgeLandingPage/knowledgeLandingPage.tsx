@@ -2,6 +2,7 @@ import Link from "next/link";
 import { BookOpenIcon } from "lucide-react";
 
 import { ContentPageHeader } from "@/components/common/contentPageHeader/contentPageHeader";
+import { ContentFilterBar } from "@/components/common/contentFilterBar/contentFilterBar";
 import { StoreBreadcrumb } from "@/components/common/storeBreadcrumb/storeBreadcrumb";
 import { KnowledgeCategoryCard } from "@/components/store/knowledge/knowledgeCategoryCard/knowledgeCategoryCard";
 import { Button } from "@/components/ui/button/button";
@@ -15,6 +16,9 @@ import { type KnowledgeCategory } from "@/types/store/knowledge.types";
 
 type KnowledgeLandingPageProps = {
   categories: readonly KnowledgeCategory[];
+  categoryOptions?: readonly KnowledgeCategory[];
+  q?: string;
+  category?: string;
 };
 
 const categoryTones = [
@@ -26,6 +30,9 @@ const categoryTones = [
 
 export function KnowledgeLandingPage({
   categories,
+  categoryOptions = [],
+  q = "",
+  category = "",
 }: KnowledgeLandingPageProps) {
   return (
     <div className="relative isolate overflow-hidden py-page">
@@ -49,6 +56,24 @@ export function KnowledgeLandingPage({
         <ContentPageHeader
           title={knowledgeCopy.landingTitle}
           description={knowledgeCopy.landingDescription}
+        />
+
+        <ContentFilterBar
+          q={q}
+          searchLabel={knowledgeCopy.searchLabel}
+          searchPlaceholder={knowledgeCopy.searchPlaceholder}
+          selects={[
+            {
+              param: "category",
+              label: knowledgeCopy.categorySelectLabel,
+              allLabel: knowledgeCopy.allCategoriesLabel,
+              value: category,
+              options: categoryOptions.map((item) => ({
+                value: item.slug,
+                label: item.title,
+              })),
+            },
+          ]}
         />
 
         {categories.length > 0 ? (

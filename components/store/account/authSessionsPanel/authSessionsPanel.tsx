@@ -12,7 +12,7 @@ import {
   logoutAllSessionsAction,
   revokeSessionAction,
 } from "@/services/session-service/session-actions";
-import { type AuthSession } from "@/services/session-service/session-service";
+import type { AuthSession } from "@/services/session-service/session-service";
 
 type AuthSessionsPanelProps = {
   sessions: readonly AuthSession[];

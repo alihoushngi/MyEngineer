@@ -22,6 +22,7 @@ import { marketplaceCopy } from "@/config/marketplace.config/marketplace.config"
 import { type ServiceSlug } from "@/config/services.config/services.config";
 import { userAccountPaths } from "@/config/user-account.config/user-account.config";
 import { useApiMutation } from "@/hooks/use-api-mutation/use-api-mutation";
+import { env } from "@/lib/env/env";
 import { toUserErrorMessage } from "@/lib/errors/to-user-error-message/to-user-error-message";
 import {
   createServiceRequestSchema,
@@ -94,13 +95,15 @@ export function RequestCreateForm({
       onSubmit={form.handleSubmit(onSubmit)}
       noValidate
     >
-      <Alert variant="info">
-        <InfoIcon />
-        <AlertTitle>{marketplaceCopy.mockNotProductionTitle}</AlertTitle>
-        <AlertDescription>
-          {marketplaceCopy.mockNotProductionDescription}
-        </AlertDescription>
-      </Alert>
+      {env.apiBaseUrl ? null : (
+        <Alert variant="info">
+          <InfoIcon />
+          <AlertTitle>{marketplaceCopy.mockNotProductionTitle}</AlertTitle>
+          <AlertDescription>
+            {marketplaceCopy.mockNotProductionDescription}
+          </AlertDescription>
+        </Alert>
+      )}
       {mutation.isError ? (
         <Alert variant="danger">
           <AlertTitle>

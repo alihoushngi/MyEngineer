@@ -55,6 +55,8 @@ export async function submitReviewAction(input: {
   requestId: string;
   rating: number;
   body: string;
+  tagIds?: readonly number[];
+  isAnonymous?: boolean;
 }): Promise<ServiceMutationResult & { reviewId?: string }> {
   const rating = input.rating;
 
@@ -90,6 +92,8 @@ export async function submitReviewAction(input: {
         requestId: input.requestId.trim(),
         rating,
         body: text,
+        tagIds: input.tagIds,
+        isAnonymous: input.isAnonymous,
       });
 
       revalidatePath("/account");

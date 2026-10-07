@@ -13,6 +13,7 @@ import { type BackendFaq } from "@/types/api/backend.types";
 import {
   type FaqCategory,
   type FaqCategoryDetail,
+  type FaqItem,
 } from "@/types/store/faq.types";
 import { listBackendServices } from "@/services/lookup-service/lookup-service";
 
@@ -21,6 +22,7 @@ const PUBLIC_REVALIDATE_SECONDS = 300;
 type BackendFaqCategory = {
   slug: string;
   key?: string | null;
+  icon?: string | null;
   title: string;
   description?: string | null;
   service_id?: number | null;
@@ -45,6 +47,7 @@ function mapFaqCategorySummary(category: BackendFaqCategory): FaqCategory {
     href: `/faq/${category.slug}`,
     title: category.title,
     description: category.description ?? undefined,
+    icon: category.icon ?? undefined,
   };
 }
 
@@ -140,4 +143,39 @@ export async function getFaqCategory(
 
   const details = await listFaqCategoryDetails();
   return details.find((category) => category.slug === slug) ?? null;
+}
+
+export type FaqSearchResult = {
+  categories: readonly FaqCategory[];
+  items: readonly FaqItem[];
+};
+
+/**
+ * Server-side FAQ search (GET /faqs?q=). Categories are kept when they contain
+ * a matching question (by service_id) or their title matches.
+ */
+export async function searchFaq(query: string): Promise<FaqSearchResult> {
+  const q = query.trim();
+
+  if (!env.apiBaseUrl || q === "") {
+    return { categories: [], items: [] };
+  }
+
+  const [categoriesEnvelope, faqsEnvelope] = await Promise.all([
+    getEnvelope<BackendFaqCategory[]>("/faq-categories"),
+    getEnvelope<BackendFaq[]>("/faqs", { q }),
+  ]);
+  const faqs = unwrapApiData(faqsEnvelope);
+  const serviceIds = new Set(faqs.map((faq) => faq.service_id));
+
+  return {
+    categories: unwrapApiData(categoriesEnvelope)
+      .filter(
+        (category) =>
+          category.title.includes(q) ||
+          (category.service_id != null && serviceIds.has(category.service_id)),
+      )
+      .map(mapFaqCategorySummary),
+    items: faqs.map(mapFaqItem),
+  };
 }

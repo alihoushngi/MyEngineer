@@ -112,7 +112,23 @@ export const homeTestimonialCopy = {
   eyebrow: "تجربه کاربران",
   title: "نظر کاربران",
 
-  submitNote: "ارسال نظر پس از اتصال سرویس نظرات و احراز هویت فعال می‌شود.",
+  submitCta: "ثبت نظر شما",
+  submitNote: "تجربه خود را با دیگران به اشتراک بگذارید.",
+  dialogTitle: "ثبت نظر شما",
+  dialogDescription:
+    "نظر شما پس از بررسی و تأیید در این بخش نمایش داده می‌شود.",
+  nameLabel: "نام",
+  jobTitleLabel: "سمت یا شغل",
+  commentLabel: "متن نظر",
+  commentMinError: "متن نظر باید حداقل ۱۰ نویسه باشد.",
+  jobTitleError: "سمت یا شغل را وارد کنید.",
+  photoLabel: "تصویر (اختیاری)",
+  photoDescription: "JPG، PNG یا WEBP تا ۴ مگابایت",
+  submitLabel: "ارسال نظر",
+  submittingLabel: "در حال ارسال…",
+  cancelLabel: "انصراف",
+  closeLabel: "بستن",
+  successText: "نظر شما پس از تأیید نمایش داده می‌شود.",
 } as const;
 
 export const homePopularCopy = {

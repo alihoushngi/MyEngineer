@@ -11,7 +11,7 @@ import { userAuthCopy } from "@/config/user-auth.config/user-auth.config";
 
 import { formatFaNumber } from "@/lib/format/format-fa-number/format-fa-number";
 import { type LoginOtpData } from "@/lib/validation/login/login-otp.schema";
-import { LOGIN_OTP_LENGTH } from "@/lib/validation/login/login-otp-length";
+import { OTP_LENGTH } from "@/lib/validation/otp-length/otp-length";
 
 type UserRegisterOtpStepProps = {
   form: UseFormReturn<LoginOtpData>;
@@ -74,7 +74,7 @@ export function UserRegisterOtpStep({
             render={({ field }) => (
               <OtpInput
                 id="user-register-otp"
-                length={LOGIN_OTP_LENGTH}
+                length={OTP_LENGTH}
                 value={field.value}
                 onChange={(value) => {
                   field.onChange(value);

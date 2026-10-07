@@ -85,9 +85,9 @@ export function ArticleCommentForm({
 
         {mutation.isSuccess ? (
           <Alert variant="info" className="rounded-2xl">
-            <AlertTitle>{articlesCopy.commentMockSuccessTitle}</AlertTitle>
+            <AlertTitle>{articlesCopy.commentSuccessTitle}</AlertTitle>
             <AlertDescription>
-              {articlesCopy.commentMockSuccessDescription}
+              {articlesCopy.commentSuccessDescription}
             </AlertDescription>
           </Alert>
         ) : null}

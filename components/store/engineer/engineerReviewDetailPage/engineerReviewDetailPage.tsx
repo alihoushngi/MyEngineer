@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { ArrowRightIcon, MessageSquareQuoteIcon } from "lucide-react";
 import { EngineerPageHeader } from "@/components/store/engineer/engineerPageHeader/engineerPageHeader";
+import { EngineerReviewReplyForm } from "@/components/store/engineer/engineerReviewReplyForm/engineerReviewReplyForm";
+import { ReviewHighlights } from "@/components/store/reviews/reviewHighlights/reviewHighlights";
 import { ExpertRating } from "@/components/store/expert/expertRating/expertRating";
 import { Button } from "@/components/ui/button/button";
 import {
@@ -72,6 +74,8 @@ export function EngineerReviewDetailPage({
           {review.text}
         </p>
 
+        <ReviewHighlights highlights={review.highlights} className="mt-5" />
+
         {review.replyText ? (
           <div className="mt-6 rounded-2xl border border-border-subtle bg-surface-subtle p-4">
             <div className="flex items-center gap-2 text-primary">
@@ -81,11 +85,21 @@ export function EngineerReviewDetailPage({
               </p>
             </div>
 
+            {review.replyAuthorName || review.replyDateLabel ? (
+              <p className="mt-1 type-caption text-foreground-subtle">
+                {[review.replyAuthorName, review.replyDateLabel]
+                  .filter(Boolean)
+                  .join(" · ")}
+              </p>
+            ) : null}
+
             <p className="mt-2 type-body-sm leading-relaxed text-foreground">
               {review.replyText}
             </p>
           </div>
-        ) : null}
+        ) : (
+          <EngineerReviewReplyForm reviewId={review.id} />
+        )}
       </article>
     </div>
   );

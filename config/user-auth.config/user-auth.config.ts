@@ -19,7 +19,7 @@ export const userAuthCopy = {
   phonePlaceholder: "09xxxxxxxxx",
   requestOtpLabel: "دریافت کد تأیید",
   otpLabel: "کد تأیید",
-  otpHelp: "کد شش‌رقمی ارسال‌شده را وارد کنید.",
+  otpHelp: "کد پنج‌رقمی ارسال‌شده را وارد کنید.",
   verifyLabel: "ورود",
   passwordLabel: "رمز عبور",
   passwordPlaceholder: "رمز عبور",

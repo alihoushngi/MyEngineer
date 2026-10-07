@@ -1,28 +1,33 @@
 "use client";
 
-import { MapPinIcon, SlidersHorizontalIcon, UsersIcon } from "lucide-react";
+import {
+  AlertCircleIcon,
+  ChevronDownIcon,
+  MapPinIcon,
+  SlidersHorizontalIcon,
+  UsersIcon,
+} from "lucide-react";
 
+import { CitySelectorDialog } from "@/components/common/citySelectorDialog/citySelectorDialog";
 import { Pagination } from "@/components/common/pagination/pagination";
 import { ExpertCard } from "@/components/store/expert/expertCard/expertCard";
 import { ServiceActiveFilters } from "@/components/store/service/serviceActiveFilters/serviceActiveFilters";
 import { ServiceFilterOverlay } from "@/components/store/service/serviceFilterOverlay/serviceFilterOverlay";
 import { Button } from "@/components/ui/button/button";
 import { Empty } from "@/components/ui/empty/empty";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select/select";
 
 import { serviceFilterCopy } from "@/config/service-filters.config/service-filters.config";
 import { type ServiceSlug } from "@/config/services.config/services.config";
 
-import { useServiceDiscovery } from "@/hooks/use-service-discovery/use-service-discovery";
+import { useServiceFilters } from "@/hooks/use-service-filters/use-service-filters";
 
+import { formatPreferredCitiesLabel } from "@/lib/city/preferred-city/preferred-city";
 import { formatFaNumber } from "@/lib/format/format-fa-number/format-fa-number";
-import { ALL_FILTER } from "@/lib/service/filter-experts/filter-experts";
+import {
+  type FilterOption,
+  type ServiceFilterValues,
+} from "@/lib/service/service-query/service-query";
+import { cn } from "@/lib/utils/cn/cn";
 
 import { type ExpertCardData } from "@/types/store/expert.types";
 import { type City } from "@/types/store/registration.types";
@@ -30,24 +35,50 @@ import { type City } from "@/types/store/registration.types";
 type ServiceExpertMarketplaceProps = {
   slug: ServiceSlug;
   experts: readonly ExpertCardData[];
+  total: number;
+  page: number;
+  pageCount: number;
+  loadFailed: boolean;
+  filters: ServiceFilterValues;
   cities: readonly City[];
+  skills: readonly FilterOption[];
+  disciplines: readonly FilterOption[];
+  hasPreferredFallback: boolean;
 };
 
 export function ServiceExpertMarketplace({
   slug,
   experts,
+  total,
+  page,
+  pageCount,
+  loadFailed,
+  filters,
   cities,
+  skills,
+  disciplines,
+  hasPreferredFallback,
 }: ServiceExpertMarketplaceProps) {
-  const discovery = useServiceDiscovery({
-    slug,
-    experts,
+  const discovery = useServiceFilters({
+    filters,
     cities,
+    skills,
+    disciplines,
+    hasPreferredFallback,
   });
 
-  const { pagination, definition } = discovery;
+  const cityLabel = formatPreferredCitiesLabel(
+    discovery.selectedCities,
+    serviceFilterCopy.allCitiesLabel,
+  );
 
   return (
-    <section aria-labelledby="service-experts-heading" className="space-y-6">
+    <section
+      aria-labelledby="service-experts-heading"
+      aria-busy={discovery.isPending}
+      className="space-y-6"
+      data-service={slug}
+    >
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div className="min-w-0">
           <p className="type-label text-primary">
@@ -65,15 +96,17 @@ export function ServiceExpertMarketplace({
             aria-live="polite"
             className="mt-1 type-body-sm text-foreground-muted"
           >
-            {formatFaNumber(pagination.total)} {serviceFilterCopy.foundSuffix}
+            {formatFaNumber(total)} {serviceFilterCopy.foundSuffix}
           </p>
         </div>
 
         <div className="hidden items-center gap-2 md:flex">
-          <CitySelect
-            value={discovery.applied.city}
-            cities={cities}
-            onChange={discovery.changeCity}
+          <CityButton
+            label={cityLabel}
+            className="md:w-52"
+            onClick={() => {
+              discovery.setCityDialogOpen(true);
+            }}
           />
 
           <Button
@@ -86,39 +119,13 @@ export function ServiceExpertMarketplace({
         </div>
       </div>
 
-      {definition.tabs.length > 0 ? (
-        <div
-          role="tablist"
-          aria-label="زیردسته خدمت"
-          className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1"
-        >
-          {definition.tabs.map((tab) => {
-            const active = discovery.applied.tab === tab.id;
-
-            return (
-              <Button
-                key={tab.id}
-                role="tab"
-                size="sm"
-                variant={active ? "primary" : "outline"}
-                aria-selected={active}
-                className="shrink-0"
-                onClick={() => {
-                  discovery.changeTab(tab.id);
-                }}
-              >
-                {tab.label}
-              </Button>
-            );
-          })}
-        </div>
-      ) : null}
-
       <div className="sticky top-[calc(4.25rem+env(safe-area-inset-top))] z-30 -mx-4 flex items-center gap-2 border-y border-border-subtle bg-surface/95 px-4 py-3 shadow-xs backdrop-blur-xl md:hidden">
-        <CitySelect
-          value={discovery.applied.city}
-          cities={cities}
-          onChange={discovery.changeCity}
+        <CityButton
+          label={cityLabel}
+          className="flex-1"
+          onClick={() => {
+            discovery.setCityDialogOpen(true);
+          }}
         />
 
         <Button
@@ -132,7 +139,7 @@ export function ServiceExpertMarketplace({
         </Button>
 
         <span className="ms-auto inline-flex min-w-8 items-center justify-center rounded-lg bg-primary-subtle px-2 py-1 type-caption font-semibold text-primary">
-          {formatFaNumber(pagination.total)}
+          {formatFaNumber(total)}
         </span>
       </div>
 
@@ -142,10 +149,33 @@ export function ServiceExpertMarketplace({
         onReset={discovery.reset}
       />
 
-      {pagination.total > 0 ? (
+      {loadFailed ? (
+        <div className="rounded-3xl border border-border-subtle bg-surface p-3 shadow-xs">
+          <Empty
+            icon={
+              <AlertCircleIcon
+                aria-hidden="true"
+                className="text-destructive"
+              />
+            }
+            title={serviceFilterCopy.errorTitle}
+            description={serviceFilterCopy.errorDescription}
+            action={
+              <Button variant="outline" onClick={discovery.refresh}>
+                {serviceFilterCopy.retryLabel}
+              </Button>
+            }
+          />
+        </div>
+      ) : experts.length > 0 ? (
         <>
-          <ul className="grid auto-rows-fr gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {pagination.items.map((expert) => (
+          <ul
+            className={cn(
+              "grid auto-rows-fr gap-4 transition-opacity duration-200 md:grid-cols-2 xl:grid-cols-3",
+              discovery.isPending && "opacity-60",
+            )}
+          >
+            {experts.map((expert) => (
               <li key={expert.id} className="min-w-0">
                 <ExpertCard expert={expert} />
               </li>
@@ -154,8 +184,8 @@ export function ServiceExpertMarketplace({
 
           <div className="pt-2">
             <Pagination
-              page={pagination.page}
-              pageCount={pagination.pageCount}
+              page={page}
+              pageCount={pageCount}
               ariaLabel={serviceFilterCopy.paginationLabel}
               pathname={discovery.pathname}
               query={discovery.query}
@@ -172,7 +202,9 @@ export function ServiceExpertMarketplace({
               <Button
                 variant="outline"
                 icon={<MapPinIcon aria-hidden="true" />}
-                onClick={discovery.openOverlay}
+                onClick={() => {
+                  discovery.setCityDialogOpen(true);
+                }}
               >
                 {serviceFilterCopy.changeCityLabel}
               </Button>
@@ -183,54 +215,58 @@ export function ServiceExpertMarketplace({
 
       <ServiceFilterOverlay
         open={discovery.overlayOpen}
-        definition={definition}
+        options={discovery.options}
         values={discovery.draft}
         overlayKeys={discovery.overlayKeys}
-        draftCount={discovery.draftCount}
         onOpenChange={discovery.setOverlayOpen}
         onChange={discovery.setDraftValue}
         onApply={discovery.applyDraft}
         onReset={discovery.reset}
       />
+
+      <CitySelectorDialog
+        id="service-city-selector-surface"
+        open={discovery.cityDialogOpen}
+        onOpenChange={discovery.setCityDialogOpen}
+        initialCities={discovery.selectedCities}
+        onSelected={discovery.changeCities}
+      />
     </section>
   );
 }
 
-function CitySelect({
-  value,
-  cities,
-  onChange,
+function CityButton({
+  label,
+  className,
+  onClick,
 }: {
-  value: string;
-  cities: readonly City[];
-  onChange: (value: string) => void;
+  label: string;
+  className?: string;
+  onClick: () => void;
 }) {
   return (
-    <Select value={value} onValueChange={onChange}>
-      <SelectTrigger
-        aria-label={serviceFilterCopy.cityFilterLabel}
-        className="h-12 min-w-0 flex-1 gap-2 rounded-xl bg-surface md:w-52"
-      >
-        <div className="flex items-center justify-center gap-2">
-          <MapPinIcon
-            aria-hidden="true"
-            className="size-4 shrink-0 text-primary"
-          />
-          <SelectValue placeholder={serviceFilterCopy.allCitiesLabel} />
-        </div>
-      </SelectTrigger>
-
-      <SelectContent>
-        <SelectItem value={ALL_FILTER}>
-          {serviceFilterCopy.allCitiesLabel}
-        </SelectItem>
-
-        {cities.map((city) => (
-          <SelectItem key={city.id} value={city.name}>
-            {city.name}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+    <Button
+      type="button"
+      variant="outline"
+      aria-label={serviceFilterCopy.cityFilterLabel}
+      aria-haspopup="dialog"
+      className={cn(
+        "h-12 min-w-0 justify-between gap-2 rounded-xl bg-surface",
+        className,
+      )}
+      onClick={onClick}
+    >
+      <span className="flex min-w-0 items-center gap-2">
+        <MapPinIcon
+          aria-hidden="true"
+          className="size-4 shrink-0 text-primary"
+        />
+        <span className="truncate">{label}</span>
+      </span>
+      <ChevronDownIcon
+        aria-hidden="true"
+        className="size-4 shrink-0 text-foreground-muted"
+      />
+    </Button>
   );
 }

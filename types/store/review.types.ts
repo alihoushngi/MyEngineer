@@ -19,6 +19,8 @@ export type ExpertReview = {
   rating?: number;
   highlights?: readonly ReviewHighlight[];
   replyText?: string;
+  replyAuthorName?: string;
+  replyDateLabel?: string;
   relatedServiceLabel?: string;
 };
 
@@ -39,6 +41,8 @@ export type ServiceReview = {
   createdAtMs: number;
   highlights?: readonly ReviewHighlight[];
   replyText?: string;
+  replyAuthorName?: string;
+  replyDateLabel?: string;
 };
 
 export type ReviewOverlay = {

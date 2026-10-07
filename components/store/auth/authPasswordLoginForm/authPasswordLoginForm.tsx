@@ -67,7 +67,7 @@ export function AuthPasswordLoginForm({
   const isBusy = isSubmitting || mutation.isPending;
 
   return (
-    <form
+    <form method="post"
       noValidate
       className="space-y-5"
       onSubmit={handleSubmit(onSubmit)}

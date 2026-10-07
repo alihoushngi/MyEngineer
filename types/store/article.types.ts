@@ -8,6 +8,7 @@ export type ArticleCardData = {
   excerpt?: string;
   coverSrc?: string;
   author?: string;
+  viewCount?: number;
   publishedAt?: string;
   categorySlug?: string;
   categoryLabel?: string;

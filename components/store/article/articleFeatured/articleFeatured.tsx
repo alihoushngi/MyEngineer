@@ -4,6 +4,7 @@ import { ArrowLeftIcon, NewspaperIcon } from "lucide-react";
 
 import { articlesCopy } from "@/config/articles.config/articles.config";
 
+import { buildArticleMeta } from "@/lib/articles/article-meta/article-meta";
 import { type ArticleCardData } from "@/types/store/article.types";
 
 type ArticleFeaturedProps = {
@@ -11,9 +12,7 @@ type ArticleFeaturedProps = {
 };
 
 export function ArticleFeatured({ article }: ArticleFeaturedProps) {
-  const meta = [article.author, article.publishedAt]
-    .filter(Boolean)
-    .join(" · ");
+  const meta = buildArticleMeta(article);
 
   return (
     <Link

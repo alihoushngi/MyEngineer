@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card/card";
 
 import { articlesCopy } from "@/config/articles.config/articles.config";
 
+import { buildArticleMeta } from "@/lib/articles/article-meta/article-meta";
 import { cn } from "@/lib/utils/cn/cn";
 
 import { type ArticleCardData } from "@/types/store/article.types";
@@ -17,9 +18,7 @@ type ArticleCardProps = {
 };
 
 export function ArticleCard({ article, className }: ArticleCardProps) {
-  const meta = [article.author, article.publishedAt]
-    .filter(Boolean)
-    .join(" · ");
+  const meta = buildArticleMeta(article);
 
   return (
     <article className={cn("h-full", className)}>

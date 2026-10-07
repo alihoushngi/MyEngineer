@@ -33,6 +33,8 @@ export async function submitProfessionalCommentAction(input: {
   title: string;
   comment: string;
   rate: number;
+  tagIds?: readonly number[];
+  isAnonymous?: boolean;
 }): Promise<ServiceMutationResult> {
   const title = input.title.trim();
   const comment = input.comment.trim();
@@ -50,13 +52,15 @@ export async function submitProfessionalCommentAction(input: {
   }
 
   try {
-    await postProfessionalComment(input.professionalId, {
+    const message = await postProfessionalComment(input.professionalId, {
       title,
       comment,
       rate,
+      tagIds: input.tagIds,
+      isAnonymous: input.isAnonymous,
     });
     revalidatePath(`/experts/${input.professionalId}`);
-    return mutationOk();
+    return mutationOk(message);
   } catch (error) {
     return toFailure(error, "ثبت دیدگاه انجام نشد.");
   }

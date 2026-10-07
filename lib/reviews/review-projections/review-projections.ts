@@ -15,6 +15,8 @@ export function toPublicExpertReview(review: ServiceReview): ExpertReview {
     rating: review.rating,
     highlights: review.highlights,
     replyText: review.replyText,
+    replyAuthorName: review.replyAuthorName,
+    replyDateLabel: review.replyDateLabel,
     relatedServiceLabel: review.relatedServiceLabel,
   };
 }
@@ -31,6 +33,9 @@ export function toUserReviewItem(review: ServiceReview): UserReviewItem {
     relatedRequestId: review.relatedRequestId,
     relatedServiceLabel: review.relatedServiceLabel,
     replyText: review.replyText,
+    replyAuthorName: review.replyAuthorName,
+    replyDateLabel: review.replyDateLabel,
+    highlights: review.highlights,
     href: `${userAccountPaths.reviews}/${review.id}`,
   };
 }

@@ -1,7 +1,7 @@
 import { MessageSquareQuoteIcon } from "lucide-react";
 import { ExpertRating } from "@/components/store/expert/expertRating/expertRating";
 import { ExpertStarRating } from "@/components/store/expert/expertStarRating/expertStarRating";
-import { Badge } from "@/components/ui/badge/badge";
+import { ReviewHighlights } from "@/components/store/reviews/reviewHighlights/reviewHighlights";
 import { expertProfileCopy } from "@/config/experts.config/experts.config";
 import { type ExpertReview } from "@/types/store/review.types";
 
@@ -50,17 +50,7 @@ export function ExpertReviewCard({ review }: ExpertReviewCardProps) {
         {review.text}
       </p>
 
-      {review.highlights && review.highlights.length > 0 ? (
-        <ul className="mt-4 flex flex-wrap gap-2">
-          {review.highlights.map((item) => (
-            <li key={`${item.kind}-${item.label}`}>
-              <Badge variant={item.kind === "positive" ? "success" : "danger"}>
-                {item.label}
-              </Badge>
-            </li>
-          ))}
-        </ul>
-      ) : null}
+      <ReviewHighlights highlights={review.highlights} />
 
       {review.replyText ? (
         <div className="mt-5 rounded-2xl bg-surface-muted p-4">
@@ -68,6 +58,13 @@ export function ExpertReviewCard({ review }: ExpertReviewCardProps) {
             <MessageSquareQuoteIcon aria-hidden="true" className="size-4" />
             {expertProfileCopy.reviewReplyLabel}
           </p>
+          {review.replyAuthorName || review.replyDateLabel ? (
+            <p className="mt-1 type-caption text-foreground-subtle">
+              {[review.replyAuthorName, review.replyDateLabel]
+                .filter(Boolean)
+                .join(" · ")}
+            </p>
+          ) : null}
           <p className="mt-2 type-body-sm leading-relaxed text-foreground">
             {review.replyText}
           </p>

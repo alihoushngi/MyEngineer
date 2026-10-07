@@ -1,4 +1,9 @@
-import { cookies } from "next/headers";
+// Lazy import: keeps this module safe to be pulled into client bundles
+// (the functions below only ever run on the server).
+async function cookies() {
+  const { cookies: serverCookies } = await import("next/headers");
+  return serverCookies();
+}
 
 export const ACCESS_TOKEN_COOKIE = "mm_access_token";
 export const AUTH_ROLE_COOKIE = "mm_auth_role";
@@ -8,7 +13,10 @@ export const PENDING_TOKEN_COOKIE = "mm_pending_token";
 const TOKEN_COOKIE_OPTIONS = {
   httpOnly: true,
   sameSite: "lax" as const,
-  secure: process.env.NODE_ENV === "production",
+  // AUTH_COOKIE_SECURE=false lets a plain-HTTP test server keep its session.
+  secure: process.env.AUTH_COOKIE_SECURE
+    ? process.env.AUTH_COOKIE_SECURE === "true"
+    : process.env.NODE_ENV === "production",
   path: "/",
   maxAge: 60 * 60 * 24 * 30,
 };

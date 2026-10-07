@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { DownloadIcon } from "lucide-react";
 
+import { ContentFilterBar } from "@/components/common/contentFilterBar/contentFilterBar";
 import { StoreBreadcrumb } from "@/components/common/storeBreadcrumb/storeBreadcrumb";
 import { Button } from "@/components/ui/button/button";
 import { Empty } from "@/components/ui/empty/empty";
@@ -10,13 +11,20 @@ import { storePaths } from "@/config/navigation.config/navigation.config";
 import {
   type CareerListItem,
   type DownloadableFormItem,
+  type FormCategoryOption,
 } from "@/services/content-service/content-service";
+
+const loadErrorCopy = {
+  title: "دریافت اطلاعات ممکن نشد",
+  description: "اتصال به سرور برقرار نشد. کمی بعد دوباره تلاش کنید.",
+} as const;
 
 type CareersPageProps = {
   careers: readonly CareerListItem[];
+  loadFailed?: boolean;
 };
 
-export function CareersPage({ careers }: CareersPageProps) {
+export function CareersPage({ careers, loadFailed = false }: CareersPageProps) {
   return (
     <div className="pb-section">
       <div className="container-wide py-page">
@@ -34,7 +42,14 @@ export function CareersPage({ careers }: CareersPageProps) {
           آگهی‌های فعال همکاری در مهندس من.
         </p>
 
-        {careers.length === 0 ? (
+        {loadFailed ? (
+          <div className="mt-10">
+            <Empty
+              title={loadErrorCopy.title}
+              description={loadErrorCopy.description}
+            />
+          </div>
+        ) : careers.length === 0 ? (
           <div className="mt-10">
             <Empty title="در حال حاضر آگهی فعالی نیست" />
           </div>
@@ -84,9 +99,54 @@ export function CareersPage({ careers }: CareersPageProps) {
 
 type FormsPageProps = {
   forms: readonly DownloadableFormItem[];
+  loadFailed?: boolean;
+  q?: string;
+  category?: string;
+  province?: string;
+  categories?: readonly FormCategoryOption[];
+  provinces?: readonly { id: string; name: string }[];
 };
 
-export function FormsPage({ forms }: FormsPageProps) {
+export function FormsPage({
+  forms,
+  loadFailed = false,
+  q = "",
+  category = "",
+  province = "",
+  categories = [],
+  provinces = [],
+}: FormsPageProps) {
+  const selects = [
+    ...(categories.length > 0
+      ? [
+          {
+            param: "category",
+            label: "فیلتر دسته‌بندی فرم",
+            allLabel: "همه دسته‌ها",
+            value: category,
+            options: categories.map((item) => ({
+              value: item.id,
+              label: item.name,
+            })),
+          },
+        ]
+      : []),
+    ...(provinces.length > 0
+      ? [
+          {
+            param: "province",
+            label: "فیلتر استان",
+            allLabel: "همه استان‌ها",
+            value: province,
+            options: provinces.map((item) => ({
+              value: item.id,
+              label: item.name,
+            })),
+          },
+        ]
+      : []),
+  ];
+
   return (
     <div className="pb-section">
       <div className="container-wide py-page">
@@ -104,7 +164,23 @@ export function FormsPage({ forms }: FormsPageProps) {
           فرم‌های فعال برای دانلود و استفاده در فرآیندهای اداری و فنی.
         </p>
 
-        {forms.length === 0 ? (
+        <div className="mt-8">
+          <ContentFilterBar
+            q={q}
+            searchLabel="جستجو در فرم‌ها"
+            searchPlaceholder="جستجو در فرم‌ها..."
+            selects={selects}
+          />
+        </div>
+
+        {loadFailed ? (
+          <div className="mt-10">
+            <Empty
+              title={loadErrorCopy.title}
+              description={loadErrorCopy.description}
+            />
+          </div>
+        ) : forms.length === 0 ? (
           <div className="mt-10">
             <Empty title="فرمی برای نمایش نیست" />
           </div>

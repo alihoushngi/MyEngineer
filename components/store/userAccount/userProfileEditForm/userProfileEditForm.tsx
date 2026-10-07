@@ -22,7 +22,7 @@ import {
 } from "@/components/store/userAccount/userProfileExtendedFields/userProfileExtendedFields";
 import { resolveMediaUrl } from "@/lib/api/resolve-media-url/resolve-media-url";
 import { updateProfileAction } from "@/services/profile-service/profile-actions";
-import { type ProfileRecord } from "@/services/profile-service/profile-service";
+import type { ProfileRecord } from "@/services/profile-service/profile-service";
 
 type UserProfileEditFormProps = {
   profile: ProfileRecord;

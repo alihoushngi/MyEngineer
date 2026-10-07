@@ -2,6 +2,7 @@ import { MessageSquareReplyIcon } from "lucide-react";
 import Link from "next/link";
 
 import { ExpertRating } from "@/components/store/expert/expertRating/expertRating";
+import { ReviewHighlights } from "@/components/store/reviews/reviewHighlights/reviewHighlights";
 import { AccountPageHeader } from "@/components/store/userAccount/accountPageHeader/accountPageHeader";
 import { Button } from "@/components/ui/button/button";
 
@@ -56,6 +57,8 @@ export function UserReviewDetailPage({ review }: UserReviewDetailPageProps) {
           {review.text}
         </p>
 
+        <ReviewHighlights highlights={review.highlights} className="mt-5" />
+
         {review.replyText ? (
           <div className="mt-5 rounded-2xl border border-border-subtle bg-surface-muted p-4">
             <div className="mb-2 flex items-center gap-2 text-primary">
@@ -63,6 +66,13 @@ export function UserReviewDetailPage({ review }: UserReviewDetailPageProps) {
               <p className="type-caption font-semibold">
                 {expertProfileCopy.reviewReplyLabel}
               </p>
+              {review.replyAuthorName || review.replyDateLabel ? (
+                <p className="type-caption font-normal text-foreground-subtle">
+                  {[review.replyAuthorName, review.replyDateLabel]
+                    .filter(Boolean)
+                    .join(" · ")}
+                </p>
+              ) : null}
             </div>
 
             <p className="type-body-sm leading-relaxed text-foreground">

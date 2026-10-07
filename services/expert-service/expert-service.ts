@@ -4,6 +4,7 @@ import {
   unwrapApiData,
 } from "@/lib/api/api-envelope/api-envelope";
 import { httpGet, httpPost } from "@/lib/api/http-client/http-client";
+import { type ProfessionalsQuery } from "@/lib/service/service-query/service-query";
 import {
   mapProfessionalCard,
   mapProfessionalDetail,
@@ -148,18 +149,77 @@ function authHeaders(token?: string): HeadersInit | undefined {
 
 export async function postProfessionalComment(
   professionalId: string,
-  input: { title: string; comment: string; rate: number },
-): Promise<void> {
+  input: {
+    title: string;
+    comment: string;
+    rate: number;
+    tagIds?: readonly number[];
+    isAnonymous?: boolean;
+  },
+): Promise<string | undefined> {
   const token = await readAccessToken();
-  await httpPost<ApiEnvelope<BackendProfessionalComment>>(
+  const envelope = await httpPost<ApiEnvelope<BackendProfessionalComment>>(
     `/professionals/${encodeURIComponent(professionalId)}/comments`,
     {
       body: {
         title: input.title,
         comment: input.comment,
         rate: input.rate,
+        tag_ids: input.tagIds ?? [],
+        is_anonymous: input.isAnonymous ?? false,
       },
       headers: authHeaders(token),
     },
   );
+
+  return envelope.message ?? undefined;
+}
+
+export type ProfessionalsPage = {
+  experts: readonly ExpertCardData[];
+  total: number;
+  page: number;
+  pageCount: number;
+  /** True when the API call failed (distinct from an empty result). */
+  failed: boolean;
+};
+
+/** Server-side filtered/paginated directory search (GET /professionals). */
+export async function searchProfessionals(
+  query: ProfessionalsQuery,
+): Promise<ProfessionalsPage> {
+  const page = typeof query.page === "number" ? query.page : 1;
+  const failedResult: ProfessionalsPage = {
+    experts: [],
+    total: 0,
+    page,
+    pageCount: 1,
+    failed: true,
+  };
+
+  if (!env.apiBaseUrl) {
+    return failedResult;
+  }
+
+  try {
+    const envelope = await httpGet<
+      ApiEnvelope<BackendProfessionalCard[], ApiPaginationMeta>
+    >("/professionals", {
+      query,
+      next: { revalidate: 60 },
+    });
+    const experts = unwrapApiData(envelope).map(mapProfessionalCard);
+    const meta = envelope.meta;
+    const total = meta?.total ?? experts.length;
+
+    return {
+      experts,
+      total,
+      page: meta?.current_page ?? page,
+      pageCount: Math.max(1, meta?.last_page ?? 1),
+      failed: false,
+    };
+  } catch {
+    return failedResult;
+  }
 }

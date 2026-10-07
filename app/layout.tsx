@@ -14,6 +14,8 @@ export const metadata: Metadata = {
   },
   description: homeHeroCopy.description,
   applicationName: siteConfig.name,
+  // Test server: keep out of search engines. Remove when going live.
+  robots: { index: false, follow: false },
   manifest: "/manifest.webmanifest",
   icons: {
     icon: [

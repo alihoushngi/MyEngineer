@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { QuoteIcon, SparklesIcon } from "lucide-react";
 
 import { A11y, Autoplay, Pagination } from "swiper/modules";
@@ -13,19 +14,35 @@ import { homeTestimonialCopy } from "@/config/home.config/home.config";
 
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion/use-prefers-reduced-motion";
 
+import { AuthRequiredAction } from "@/components/store/auth/authRequiredAction/authRequiredAction";
+import { TestimonialSubmitDialog } from "@/components/store/home/homeTestimonials/testimonialSubmitDialog/testimonialSubmitDialog";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/ui/avatar/avatar";
+
 type HomeTestimonialItem = {
   id: string;
   quote: string;
   author: string;
   role?: string;
+  photoSrc?: string;
 };
 
 type HomeTestimonialsProps = {
   items?: readonly HomeTestimonialItem[];
+  isAuthenticated?: boolean;
+  userName?: string;
 };
 
-export function HomeTestimonials({ items = [] }: HomeTestimonialsProps) {
+export function HomeTestimonials({
+  items = [],
+  isAuthenticated = false,
+  userName,
+}: HomeTestimonialsProps) {
   const prefersReducedMotion = usePrefersReducedMotion();
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const testimonials = items;
 
@@ -377,6 +394,15 @@ export function HomeTestimonials({ items = [] }: HomeTestimonialsProps) {
                           gap-1
                         "
                     >
+                      {testimonial.photoSrc ? (
+                        <Avatar size="lg">
+                          <AvatarImage src={testimonial.photoSrc} alt="" />
+                          <AvatarFallback>
+                            {testimonial.author.slice(0, 1)}
+                          </AvatarFallback>
+                        </Avatar>
+                      ) : null}
+
                       <cite
                         className="
                             not-italic
@@ -389,14 +415,16 @@ export function HomeTestimonials({ items = [] }: HomeTestimonialsProps) {
                         {testimonial.author}
                       </cite>
 
-                      <p
-                        className="
+                      {testimonial.role ? (
+                        <p
+                          className="
                             type-body-sm
                             text-foreground-muted
                           "
-                      >
-                        {testimonial.role}
-                      </p>
+                        >
+                          {testimonial.role}
+                        </p>
+                      ) : null}
                     </footer>
 
                     <span
@@ -435,6 +463,23 @@ export function HomeTestimonials({ items = [] }: HomeTestimonialsProps) {
           >
             {homeTestimonialCopy.submitNote}
           </p>
+
+          <AuthRequiredAction
+            isAuthenticated={isAuthenticated}
+            nextPath="/"
+            label={homeTestimonialCopy.submitCta}
+            variant="outline"
+            className="mt-4"
+            onAuthenticatedClick={() => {
+              setDialogOpen(true);
+            }}
+          />
+
+          <TestimonialSubmitDialog
+            open={dialogOpen}
+            onOpenChange={setDialogOpen}
+            defaultName={userName}
+          />
         </div>
       </div>
     </section>

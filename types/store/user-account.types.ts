@@ -1,5 +1,6 @@
 import { type ParticipantRole } from "@/types/store/messaging.types";
 import { type ExpertCardData } from "@/types/store/expert.types";
+import { type ReviewHighlight } from "@/types/store/review.types";
 
 export type UserRequestStatus = "sent" | "in_review" | "closed";
 
@@ -75,6 +76,9 @@ export type UserReviewItem = {
   relatedRequestId?: string;
   relatedServiceLabel?: string;
   replyText?: string;
+  replyAuthorName?: string;
+  replyDateLabel?: string;
+  highlights?: readonly ReviewHighlight[];
   href: string;
 };
 

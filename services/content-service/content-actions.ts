@@ -1,29 +1,22 @@
 "use server";
 
-import { isApiError } from "@/lib/api/api-error/api-error";
+import {
+  resumeUploadRule,
+  validateUpload,
+} from "@/lib/uploads/validate-upload/validate-upload";
+import { toMutationFailure } from "@/lib/api/to-mutation-failure/to-mutation-failure";
 import {
   mutationFailed,
   mutationOk,
 } from "@/lib/auth/service-mutation-result/service-mutation-result";
-import { applyCareer } from "@/services/content-service/content-service";
+import {
+  applyCareer,
+  postTestimonial,
+} from "@/services/content-service/content-service";
 import { type ServiceMutationResult } from "@/types/store/engineer-auth.types";
 
 function toFailure(error: unknown, fallback: string): ServiceMutationResult {
-  if (isApiError(error)) {
-    return {
-      ok: false,
-      status: error.status,
-      code:
-        error.status === 401 || error.status === 403
-          ? "unauthorized"
-          : error.status >= 500
-            ? "server"
-            : "validation",
-      message: error.message || fallback,
-    };
-  }
-
-  return mutationFailed(fallback);
+  return toMutationFailure(error, fallback);
 }
 
 export async function applyCareerAction(
@@ -41,6 +34,13 @@ export async function applyCareerAction(
   const resume = formData.get("resume");
 
   const age = Number(ageRaw);
+
+  if (resume instanceof File && resume.size > 0) {
+    const resumeError = validateUpload(resume, resumeUploadRule);
+    if (resumeError) {
+      return mutationFailed(resumeError);
+    }
+  }
 
   if (
     !careerId ||
@@ -73,5 +73,35 @@ export async function applyCareerAction(
     return mutationOk();
   } catch (error) {
     return toFailure(error, "ارسال درخواست همکاری انجام نشد.");
+  }
+}
+
+export async function submitTestimonialAction(input: {
+  jobTitle: string;
+  comment: string;
+  name?: string;
+  photoUploadId?: string;
+}): Promise<ServiceMutationResult> {
+  const jobTitle = input.jobTitle.trim();
+  const comment = input.comment.trim();
+
+  if (jobTitle.length < 2 || jobTitle.length > 100) {
+    return mutationFailed("سمت یا شغل را وارد کنید.");
+  }
+
+  if (comment.length < 10 || comment.length > 1000) {
+    return mutationFailed("متن نظر باید بین ۱۰ تا ۱۰۰۰ نویسه باشد.");
+  }
+
+  try {
+    const message = await postTestimonial({
+      jobTitle,
+      comment,
+      name: input.name?.trim(),
+      photoUploadId: input.photoUploadId,
+    });
+    return mutationOk(message);
+  } catch (error) {
+    return toFailure(error, "ثبت نظر انجام نشد. دوباره تلاش کنید.");
   }
 }

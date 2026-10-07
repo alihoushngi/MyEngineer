@@ -1,6 +1,13 @@
 import { type Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ServiceDiscoveryPage } from "@/components/store/service/serviceDiscoveryPage/serviceDiscoveryPage";
+import { readPreferredCitiesFromRequest } from "@/lib/city/preferred-city-server/preferred-city-server";
+import {
+  buildProfessionalsQuery,
+  parseServiceFilterParams,
+} from "@/lib/service/service-query/service-query";
+import { listBackendFields } from "@/services/lookup-service/lookup-service";
+import { searchProfessionals } from "@/services/expert-service/expert-service";
 import { notFoundMetadata } from "@/lib/seo/not-found-metadata/not-found-metadata";
 import {
   getServiceCategoryBySlug,
@@ -11,6 +18,7 @@ import { isUserAuthenticated } from "@/services/user-auth-service/user-access-se
 
 type ServicePageProps = {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
 export async function generateMetadata({
@@ -32,8 +40,14 @@ export async function generateMetadata({
   };
 }
 
-export default async function ServiceRoutePage({ params }: ServicePageProps) {
-  const { slug: rawSlug } = await params;
+export default async function ServiceRoutePage({
+  params,
+  searchParams,
+}: ServicePageProps) {
+  const [{ slug: rawSlug }, rawSearchParams] = await Promise.all([
+    params,
+    searchParams,
+  ]);
   const slug = decodeURIComponent(rawSlug);
   const service = await getServiceCategoryBySlug(slug);
 
@@ -41,11 +55,25 @@ export default async function ServiceRoutePage({ params }: ServicePageProps) {
     notFound();
   }
 
-  const [detail, cities, userAuthenticated] = await Promise.all([
-    getServiceDetail(service.slug),
-    listCatalogCities(),
-    isUserAuthenticated(),
-  ]);
+  const query = parseServiceFilterParams(rawSearchParams);
+  const preferredCities = await readPreferredCitiesFromRequest();
+  const usePreferred = !query.citiesExplicit && preferredCities.length > 0;
+  const filters = usePreferred
+    ? { ...query.filters, cities: preferredCities.map((city) => city.id) }
+    : query.filters;
+
+  const [detail, cities, userAuthenticated, listing, fields] =
+    await Promise.all([
+      getServiceDetail(service.slug),
+      listCatalogCities(),
+      isUserAuthenticated(),
+      searchProfessionals(
+        buildProfessionalsQuery(filters, query.page, {
+          serviceId: service.id,
+        }),
+      ),
+      listBackendFields().catch(() => []),
+    ]);
 
   if (!detail) {
     notFound();
@@ -57,6 +85,10 @@ export default async function ServiceRoutePage({ params }: ServicePageProps) {
       detail={detail}
       cities={cities}
       isUserAuthenticated={userAuthenticated}
+      listing={listing}
+      filters={filters}
+      disciplines={fields}
+      hasPreferredFallback={preferredCities.length > 0}
     />
   );
 }

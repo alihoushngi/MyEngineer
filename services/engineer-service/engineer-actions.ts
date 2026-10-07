@@ -10,6 +10,7 @@ import {
   throwIfMutationFailed,
 } from "@/lib/auth/service-mutation-result/service-mutation-result";
 import { engineerPanelPaths } from "@/config/engineer-panel.config/engineer-panel.config";
+import { reviewsCopy } from "@/config/reviews.config/reviews.config";
 import { env } from "@/lib/env/env";
 import {
   listBackendServices,
@@ -18,6 +19,7 @@ import {
 import {
   createEngineerCredential,
   createEngineerPortfolioItem,
+  replyToEngineerReviewApi,
   updateEngineerProfileApi,
   updateEngineerServiceAreaApi,
   updateEngineerSpecialtiesApi,
@@ -259,4 +261,28 @@ export async function updateEngineerServiceArea(
   request: UpdateEngineerServiceAreaRequest,
 ): Promise<void> {
   throwIfMutationFailed(await updateEngineerServiceAreaAction(request));
+}
+
+export async function submitReviewReplyAction(input: {
+  reviewId: string;
+  body: string;
+}): Promise<ServiceMutationResult> {
+  const body = input.body.trim();
+
+  if (!input.reviewId || body.length < 5 || body.length > 2000) {
+    return mutationFailed(reviewsCopy.replyMinError);
+  }
+
+  if (!env.apiBaseUrl) {
+    return mutationFailed(reviewsCopy.replyErrorFallback);
+  }
+
+  try {
+    const message = await replyToEngineerReviewApi(input.reviewId, body);
+    revalidatePath(engineerPanelPaths.reviews);
+    revalidatePath(`${engineerPanelPaths.reviews}/${input.reviewId}`);
+    return mutationOk(message);
+  } catch (error) {
+    return toFailure(error, reviewsCopy.replyErrorFallback);
+  }
 }

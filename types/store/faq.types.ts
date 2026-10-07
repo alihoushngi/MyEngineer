@@ -3,6 +3,8 @@ export type FaqCategory = {
   href: `/faq/${string}`;
   title: string;
   description?: string;
+  /** Backend icon key, resolved by resolveFaqCategoryIcon. */
+  icon?: string;
   relatedServiceHref?: string;
   relatedServiceLabel?: string;
 };

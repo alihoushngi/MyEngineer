@@ -16,7 +16,7 @@ import {
   ACCESS_TOKEN_COOKIE,
   AUTH_ROLE_COOKIE,
   isEngineerPanelRole,
-} from "@/lib/auth/access-token-cookie/access-token-cookie";
+} from "@/lib/auth/cookie-names/cookie-names";
 import {
   MOCK_ENGINEER_SESSION_COOKIE,
   MOCK_ENGINEER_SESSION_VALUE,
@@ -25,7 +25,6 @@ import {
 } from "@/lib/auth/mock-session-cookies/mock-session-cookies";
 import { getSafeEngineerNext } from "@/lib/auth/safe-engineer-next/safe-engineer-next";
 import { getSafeUserNext } from "@/lib/auth/safe-user-next/safe-user-next";
-import { registrationPaths } from "@/lib/registration/guard-path/guard-path";
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -69,11 +68,10 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (
-    hasEngineerSession &&
-    pathname.startsWith("/expert-registration") &&
-    pathname !== registrationPaths.complete
-  ) {
+  // Only the wizard entry redirects a signed-in engineer to the panel. Deeper
+  // steps must stay reachable: OTP verification (step 2) already creates the
+  // session, and the remaining steps run while that session is active.
+  if (hasEngineerSession && pathname === "/expert-registration") {
     const url = request.nextUrl.clone();
     url.pathname = engineerPanelPaths.dashboard;
     url.search = "";

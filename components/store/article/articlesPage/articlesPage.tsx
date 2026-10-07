@@ -7,6 +7,7 @@ import { StoreBreadcrumb } from "@/components/common/storeBreadcrumb/storeBreadc
 import { ArticleCard } from "@/components/store/article/articleCard/articleCard";
 import { ArticleCategoryFilter } from "@/components/store/article/articleCategoryFilter/articleCategoryFilter";
 import { ArticleFeatured } from "@/components/store/article/articleFeatured/articleFeatured";
+import { ArticleSearchBar } from "@/components/store/article/articleSearchBar/articleSearchBar";
 import { RelatedArticles } from "@/components/store/article/relatedArticles/relatedArticles";
 import { Button } from "@/components/ui/button/button";
 import { Empty } from "@/components/ui/empty/empty";
@@ -15,8 +16,10 @@ import { articlesCopy } from "@/config/articles.config/articles.config";
 import { storePaths } from "@/config/navigation.config/navigation.config";
 import { siteConfig } from "@/config/site.config/site.config";
 
-import { ALL_ARTICLE_CATEGORY } from "@/lib/articles/article-query/article-query";
-import { type PaginatedItems } from "@/lib/pagination/paginate-items/paginate-items";
+import {
+  ALL_ARTICLE_CATEGORY,
+  type ArticleSort,
+} from "@/lib/articles/article-query/article-query";
 
 import {
   type ArticleCardData,
@@ -27,8 +30,11 @@ type ArticlesPageProps = {
   articles: readonly ArticleCardData[];
   categories: readonly ArticleCategory[];
   activeCategory: string;
-  recommended: readonly ArticleCardData[];
-  pagination: PaginatedItems<ArticleCardData>;
+  popular: readonly ArticleCardData[];
+  pagination: { page: number; pageCount: number; total: number };
+  q: string;
+  sort: ArticleSort;
+  loadFailed: boolean;
   pathname: string;
   query?: string;
 };
@@ -37,13 +43,20 @@ export function ArticlesPage({
   articles,
   categories,
   activeCategory,
-  recommended,
+  popular,
   pagination,
+  q,
+  sort,
+  loadFailed,
   pathname,
   query,
 }: ArticlesPageProps) {
-  const featured = pagination.page === 1 ? articles[0] : undefined;
+  const featured =
+    pagination.page === 1 && q === "" && sort === "newest"
+      ? articles[0]
+      : undefined;
   const list = featured ? articles.slice(1) : articles;
+  const filtered = q !== "" || activeCategory !== ALL_ARTICLE_CATEGORY;
 
   return (
     <div className="relative isolate overflow-hidden py-page">
@@ -69,13 +82,36 @@ export function ArticlesPage({
           description={articlesCopy.hubDescription}
         />
 
+        <ArticleSearchBar q={q} sort={sort} category={activeCategory} />
+
         <ArticleCategoryFilter
           categories={categories}
           activeSlug={activeCategory}
+          q={q}
+          sort={sort}
         />
 
-        {pagination.total > 0 ? (
+        {popular.length > 0 ? (
+          <RelatedArticles
+            items={popular}
+            heading={articlesCopy.popularHeading}
+            headingId="popular-articles-heading"
+            description={articlesCopy.popularDescription}
+          />
+        ) : null}
+
+        {loadFailed ? (
+          <Empty
+            icon={<NewspaperIcon aria-hidden="true" />}
+            title={articlesCopy.errorTitle}
+            description={articlesCopy.errorDescription}
+          />
+        ) : pagination.total > 0 ? (
           <>
+            <h2 className="type-h2 text-foreground">
+              {articlesCopy.latestHeading}
+            </h2>
+
             {featured ? <ArticleFeatured article={featured} /> : null}
 
             {list.length > 0 ? (
@@ -100,39 +136,32 @@ export function ArticlesPage({
           <Empty
             icon={<NewspaperIcon aria-hidden="true" />}
             title={
-              activeCategory === ALL_ARTICLE_CATEGORY
-                ? articlesCopy.emptyTitle
-                : articlesCopy.emptyCategoryTitle
+              q !== ""
+                ? articlesCopy.searchEmptyTitle
+                : activeCategory === ALL_ARTICLE_CATEGORY
+                  ? articlesCopy.emptyTitle
+                  : articlesCopy.emptyCategoryTitle
             }
             description={
-              activeCategory === ALL_ARTICLE_CATEGORY
-                ? articlesCopy.emptyDescription
-                : articlesCopy.emptyCategoryDescription
+              q !== ""
+                ? articlesCopy.searchEmptyDescription
+                : activeCategory === ALL_ARTICLE_CATEGORY
+                  ? articlesCopy.emptyDescription
+                  : articlesCopy.emptyCategoryDescription
             }
             action={
               <Button asChild variant="outline">
-                <Link
-                  href={
-                    activeCategory === ALL_ARTICLE_CATEGORY
-                      ? storePaths.home
-                      : storePaths.articles
-                  }
-                >
-                  {activeCategory === ALL_ARTICLE_CATEGORY
-                    ? articlesCopy.homeCta
-                    : articlesCopy.browseCta}
+                <Link href={filtered ? storePaths.articles : storePaths.home}>
+                  {q !== ""
+                    ? articlesCopy.clearSearchCta
+                    : filtered
+                      ? articlesCopy.browseCta
+                      : articlesCopy.homeCta}
                 </Link>
               </Button>
             }
           />
         )}
-
-        <RelatedArticles
-          items={recommended}
-          heading={articlesCopy.recommendedHeading}
-          headingId="recommended-articles-heading"
-          description={articlesCopy.recommendedDescription}
-        />
       </div>
     </div>
   );

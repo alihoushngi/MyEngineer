@@ -14,6 +14,8 @@ import {
   type ServiceCategory,
 } from "@/config/services.config/services.config";
 
+import { type FilterOption, type ServiceFilterValues } from "@/lib/service/service-query/service-query";
+import { type ProfessionalsPage } from "@/services/expert-service/expert-service";
 import { type City } from "@/types/store/registration.types";
 import { type ServiceDetailData } from "@/types/store/service.types";
 
@@ -22,6 +24,10 @@ type ServiceDiscoveryPageProps = {
   detail: ServiceDetailData;
   cities: readonly City[];
   isUserAuthenticated?: boolean;
+  listing: ProfessionalsPage;
+  filters: ServiceFilterValues;
+  disciplines: readonly FilterOption[];
+  hasPreferredFallback: boolean;
 };
 
 export function ServiceDiscoveryPage({
@@ -29,6 +35,10 @@ export function ServiceDiscoveryPage({
   detail,
   cities,
   isUserAuthenticated = false,
+  listing,
+  filters,
+  disciplines,
+  hasPreferredFallback,
 }: ServiceDiscoveryPageProps) {
   const suggestedExperts = detail.showSuggestedExperts
     ? detail.experts.filter((expert) => expert.isVerified).slice(0, 3)
@@ -72,8 +82,19 @@ export function ServiceDiscoveryPage({
           >
             <ServiceExpertMarketplace
               slug={service.slug}
-              experts={detail.experts}
+              experts={listing.experts}
+              total={listing.total}
+              page={listing.page}
+              pageCount={listing.pageCount}
+              loadFailed={listing.failed}
+              filters={filters}
               cities={cities}
+              skills={detail.specialties.map((item) => ({
+                id: item.id,
+                label: item.title,
+              }))}
+              disciplines={disciplines}
+              hasPreferredFallback={hasPreferredFallback}
             />
           </Suspense>
         </div>

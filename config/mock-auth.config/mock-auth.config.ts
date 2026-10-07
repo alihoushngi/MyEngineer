@@ -18,7 +18,7 @@ import { resolveMockFlag } from "@/lib/auth/resolve-mock-flag/resolve-mock-flag"
 export const mockAuthConfig = {
   mockRegister: {
     enabled: false,
-    /** Must match registration OTP_LENGTH (5 digits). Not the login OTP. */
+    /** Must match registration OTP_LENGTH (5 digits).  */
     otp: "12345",
     delayMs: 300,
     forceError: false,
@@ -26,22 +26,22 @@ export const mockAuthConfig = {
   mockLogin: {
     enabled: false,
     phone: "09115447316",
-    otp: "123456",
+    otp: "12345",
     password: "admin1234",
     delayMs: 300,
     forceError: false,
   },
   mockUserRegister: {
     enabled: false,
-    /** Must match LOGIN_OTP_LENGTH (6 digits). */
-    otp: "654321",
+    /** Must match OTP_LENGTH (5 digits). */
+    otp: "65432",
     delayMs: 300,
     forceError: false,
   },
   mockUserLogin: {
     enabled: false,
     phone: "09121112233",
-    otp: "654321",
+    otp: "65432",
     password: "user1234",
     displayName: "سارا مشتری",
     delayMs: 300,

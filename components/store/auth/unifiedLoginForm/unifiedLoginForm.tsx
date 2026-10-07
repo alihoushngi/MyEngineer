@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field/field";
 import { Input } from "@/components/ui/input/input";
 import { OtpInput } from "@/components/ui/otpInput/otpInput";
+import { OTP_LENGTH } from "@/lib/validation/otp-length/otp-length";
 
 import { engineerLoginCopy } from "@/config/engineer-login.config/engineer-login.config";
 import { storePaths } from "@/config/navigation.config/navigation.config";
@@ -29,7 +30,7 @@ import {
   type AuthActionResult,
   type AuthAudience,
 } from "@/services/auth-service/auth-actions";
-import { type BackendRole } from "@/services/auth-api-service/auth-api-service";
+import type { BackendRole } from "@/services/auth-api-service/auth-api-service";
 
 type UnifiedLoginFormProps = {
   audience: AuthAudience;
@@ -51,6 +52,7 @@ export function UnifiedLoginForm({
   const [otpMobile, setOtpMobile] = useState("");
   const [otpCode, setOtpCode] = useState("");
   const [otpSent, setOtpSent] = useState(false);
+  const [debugCode, setDebugCode] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
   const form = useForm<MelliLoginData>({
@@ -132,6 +134,7 @@ export function UnifiedLoginForm({
         return;
       }
       setOtpSent(true);
+      setDebugCode(result.debugCode ?? null);
     } finally {
       setPending(false);
     }
@@ -247,7 +250,7 @@ export function UnifiedLoginForm({
         otpLabel={userAuthCopy.otpMethod}
         passwordLabel="ورود با کد ملی"
         password={
-          <form
+          <form method="post"
             className="space-y-5"
             noValidate
             onSubmit={form.handleSubmit(onPasswordSubmit)}
@@ -310,7 +313,15 @@ export function UnifiedLoginForm({
             {otpSent ? (
               <Field>
                 <FieldLabel required>کد تأیید</FieldLabel>
-                <OtpInput length={6} value={otpCode} onChange={setOtpCode} />
+                <OtpInput length={OTP_LENGTH} value={otpCode} onChange={setOtpCode} />
+                {debugCode ? (
+                  <p
+                    className="mt-2 type-caption text-foreground-muted"
+                    dir="ltr"
+                  >
+                    Test code: <strong>{debugCode}</strong>
+                  </p>
+                ) : null}
               </Field>
             ) : null}
 

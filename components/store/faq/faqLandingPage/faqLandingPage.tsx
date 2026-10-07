@@ -2,7 +2,10 @@ import Link from "next/link";
 import { CircleHelpIcon } from "lucide-react";
 
 import { ContentPageHeader } from "@/components/common/contentPageHeader/contentPageHeader";
+import { ContentFilterBar } from "@/components/common/contentFilterBar/contentFilterBar";
 import { StoreBreadcrumb } from "@/components/common/storeBreadcrumb/storeBreadcrumb";
+import { FaqAccordion } from "@/components/store/faq/faqAccordion/faqAccordion";
+import { FaqAskDialog } from "@/components/store/faq/faqAskDialog/faqAskDialog";
 import { FaqCategoryCard } from "@/components/store/faq/faqCategoryCard/faqCategoryCard";
 import { Button } from "@/components/ui/button/button";
 import { Empty } from "@/components/ui/empty/empty";
@@ -11,10 +14,12 @@ import { faqCopy } from "@/config/faq.config/faq.config";
 import { storePaths } from "@/config/navigation.config/navigation.config";
 import { siteConfig } from "@/config/site.config/site.config";
 
-import { type FaqCategory } from "@/types/store/faq.types";
+import { type FaqCategory, type FaqItem } from "@/types/store/faq.types";
 
 type FaqLandingPageProps = {
   categories: readonly FaqCategory[];
+  q?: string;
+  matchedItems?: readonly FaqItem[];
 };
 
 const categoryTones = [
@@ -25,7 +30,11 @@ const categoryTones = [
   "bg-category-rose",
 ] as const;
 
-export function FaqLandingPage({ categories }: FaqLandingPageProps) {
+export function FaqLandingPage({
+  categories,
+  q = "",
+  matchedItems = [],
+}: FaqLandingPageProps) {
   return (
     <div className="relative isolate overflow-hidden py-page">
       <div
@@ -49,6 +58,26 @@ export function FaqLandingPage({ categories }: FaqLandingPageProps) {
           title={faqCopy.landingTitle}
           description={faqCopy.landingDescription}
         />
+
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0 flex-1">
+            <ContentFilterBar
+              q={q}
+              searchLabel={faqCopy.searchLabel}
+              searchPlaceholder={faqCopy.searchPlaceholder}
+            />
+          </div>
+          <FaqAskDialog />
+        </div>
+
+        {matchedItems.length > 0 ? (
+          <section aria-labelledby="faq-matched-heading" className="space-y-4">
+            <h2 id="faq-matched-heading" className="type-h3 text-foreground">
+              {faqCopy.matchedQuestionsHeading}
+            </h2>
+            <FaqAccordion items={matchedItems} />
+          </section>
+        ) : null}
 
         {categories.length > 0 ? (
           <ul className="grid items-stretch gap-3 sm:grid-cols-2 sm:gap-4">

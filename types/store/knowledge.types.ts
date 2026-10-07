@@ -3,6 +3,7 @@ export type KnowledgeCategory = {
   href: `/knowledge/${string}`;
   title: string;
   description?: string;
+  itemsCount?: number;
   relatedServiceHref?: string;
   relatedServiceLabel?: string;
 };

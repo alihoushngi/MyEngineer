@@ -16,5 +16,8 @@ export const MOCK_SESSION_COOKIE_OPTIONS = {
   httpOnly: true,
   sameSite: "lax" as const,
   path: "/",
-  secure: process.env.NODE_ENV === "production",
+  // AUTH_COOKIE_SECURE=false lets a plain-HTTP test server keep its session.
+  secure: process.env.AUTH_COOKIE_SECURE
+    ? process.env.AUTH_COOKIE_SECURE === "true"
+    : process.env.NODE_ENV === "production",
 };

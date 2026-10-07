@@ -1,6 +1,14 @@
 "use client";
 
-import { SlidersHorizontalIcon, UsersIcon, XIcon } from "lucide-react";
+import { useState } from "react";
+import {
+  ChevronDownIcon,
+  SlidersHorizontalIcon,
+  UsersIcon,
+  XIcon,
+} from "lucide-react";
+
+import { CitySelectorDialog } from "@/components/common/citySelectorDialog/citySelectorDialog";
 
 import { ExpertCard } from "@/components/store/expert/expertCard/expertCard";
 import { Pagination } from "@/components/common/pagination/pagination";
@@ -38,6 +46,7 @@ export function HomeMarketplace({
   serviceCategories,
 }: HomeMarketplaceProps) {
   const marketplace = useHomeMarketplace(experts, serviceCategories);
+  const [cityDialogOpen, setCityDialogOpen] = useState(false);
 
   return (
     <section
@@ -309,24 +318,45 @@ export function HomeMarketplace({
               "
             />
 
-            <Select
-              value={marketplace.city}
-              onValueChange={marketplace.changeCity}
+            <Button
+              type="button"
+              variant="outline"
+              aria-label="فیلتر شهر"
+              aria-haspopup="dialog"
+              className="h-12 min-w-0 justify-between gap-2 rounded-xl bg-surface"
+              onClick={() => {
+                setCityDialogOpen(true);
+              }}
             >
-              <SelectTrigger aria-label="فیلتر شهر">
-                <SelectValue placeholder="همه شهرها" />
-              </SelectTrigger>
+              <span className="truncate">
+                {marketplace.selectedCities.length === 0
+                  ? "همه شهرها"
+                  : marketplace.selectedCities.length === 1
+                    ? marketplace.selectedCities[0]
+                    : `${marketplace.selectedCities[0]} و ${formatFaNumber(marketplace.selectedCities.length - 1)} شهر دیگر`}
+              </span>
+              <ChevronDownIcon
+                aria-hidden="true"
+                className="size-4 shrink-0 text-foreground-muted"
+              />
+            </Button>
 
-              <SelectContent>
-                <SelectItem value="all">همه شهرها</SelectItem>
-
-                {cities.map((item) => (
-                  <SelectItem key={item.id} value={item.name}>
-                    {item.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <CitySelectorDialog
+              id="home-marketplace-city-selector"
+              open={cityDialogOpen}
+              onOpenChange={setCityDialogOpen}
+              initialCities={cities
+                .filter((item) => marketplace.selectedCities.includes(item.name))
+                .map((item) => ({
+                  id: item.id,
+                  name: item.name,
+                  provinceId: item.provinceId,
+                  provinceName: "",
+                }))}
+              onSelected={(selected) => {
+                marketplace.changeCities(selected.map((item) => item.name));
+              }}
+            />
 
             <Select
               value={marketplace.expertise}

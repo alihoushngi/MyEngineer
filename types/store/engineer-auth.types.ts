@@ -29,6 +29,10 @@ export type ServiceMutationFailure = {
   message: string;
   status: number;
   code: "unavailable" | "unauthorized" | "validation" | "server";
+  /** Per-field validation messages from the API, keyed by field name. */
+  fieldErrors?: Readonly<Record<string, string>>;
 };
 
-export type ServiceMutationResult = { ok: true } | ServiceMutationFailure;
+export type ServiceMutationResult =
+  | { ok: true; message?: string }
+  | ServiceMutationFailure;

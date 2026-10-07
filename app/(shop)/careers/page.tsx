@@ -10,8 +10,10 @@ export const metadata: Metadata = {
     canonical: storePaths.careers,
   },
 };
-
 export default async function CareersRoutePage() {
-  const careers = await listCareers().catch(() => []);
-  return <CareersPage careers={careers} />;
+  const result = await listCareers()
+    .then((careers) => ({ careers, failed: false }))
+    .catch(() => ({ careers: [], failed: true }));
+
+  return <CareersPage careers={result.careers} loadFailed={result.failed} />;
 }

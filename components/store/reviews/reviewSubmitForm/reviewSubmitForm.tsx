@@ -9,6 +9,8 @@ import {
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { ReviewAnonymousCheckbox } from "@/components/store/reviews/reviewAnonymousCheckbox/reviewAnonymousCheckbox";
+import { ReviewTagPicker } from "@/components/store/reviews/reviewTagPicker/reviewTagPicker";
 import { ReviewRatingInput } from "@/components/store/reviews/reviewRatingInput/reviewRatingInput";
 import {
   Alert,
@@ -51,6 +53,8 @@ export function ReviewSubmitForm({
 
   const [rating, setRating] = useState(0);
   const [body, setBody] = useState("");
+  const [tagIds, setTagIds] = useState<readonly number[]>([]);
+  const [isAnonymous, setIsAnonymous] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const trimmed = body.trim();
@@ -76,6 +80,8 @@ export function ReviewSubmitForm({
         requestId,
         rating,
         body: trimmed,
+        tagIds,
+        isAnonymous,
       });
 
       onSuccess?.(reviewId);
@@ -169,6 +175,18 @@ export function ReviewSubmitForm({
           <FieldError>{reviewsCopy.commentMinError}</FieldError>
         ) : null}
       </Field>
+
+      <ReviewTagPicker
+        selectedIds={tagIds}
+        onChange={setTagIds}
+        disabled={mutation.isPending}
+      />
+
+      <ReviewAnonymousCheckbox
+        checked={isAnonymous}
+        onChange={setIsAnonymous}
+        disabled={mutation.isPending}
+      />
 
       <Button
         type="submit"

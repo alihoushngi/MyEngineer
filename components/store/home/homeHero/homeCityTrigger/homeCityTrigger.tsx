@@ -10,7 +10,8 @@ import { Button } from "@/components/ui/button/button";
 import { homeHeroCopy } from "@/config/home.config/home.config";
 import {
   type PreferredCity,
-  readPreferredCityFromDocumentCookie,
+  formatPreferredCitiesLabel,
+  readPreferredCitiesFromDocumentCookie,
 } from "@/lib/city/preferred-city/preferred-city";
 import { buildSearchHref } from "@/lib/search/search-params/search-params";
 import { cn } from "@/lib/utils/cn/cn";
@@ -22,13 +23,15 @@ type HomeCityTriggerProps = {
 export function HomeCityTrigger({ className }: HomeCityTriggerProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const [selected, setSelected] = useState<PreferredCity | null>(null);
+  const [selected, setSelected] = useState<readonly PreferredCity[]>([]);
 
   useEffect(() => {
-    setSelected(readPreferredCityFromDocumentCookie());
+    // Cookie is only readable in the browser, so hydrate after mount.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setSelected(readPreferredCitiesFromDocumentCookie());
   }, []);
 
-  const label = selected?.name ?? homeHeroCopy.cityLabel;
+  const label = formatPreferredCitiesLabel(selected, homeHeroCopy.cityLabel);
 
   return (
     <>
@@ -88,10 +91,12 @@ export function HomeCityTrigger({ className }: HomeCityTriggerProps) {
         open={open}
         onOpenChange={setOpen}
         title={homeHeroCopy.cityLabel}
-        description="استان و شهر را انتخاب کنید تا متخصصان همان شهر نمایش داده شوند."
-        onSelected={(city) => {
-          setSelected(city);
-          router.push(buildSearchHref({ cities: [city.name] }));
+        description="یک یا چند شهر را انتخاب کنید تا متخصصان همان شهرها نمایش داده شوند."
+        onSelected={(cities) => {
+          setSelected(cities);
+          if (cities.length > 0) {
+            router.push(buildSearchHref({ cities: cities.map((city) => city.name) }));
+          }
           router.refresh();
         }}
       />

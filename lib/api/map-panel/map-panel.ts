@@ -1,3 +1,9 @@
+import {
+  mapReviewReply,
+  mapReviewTags,
+  type BackendReviewReply,
+  type BackendReviewTags,
+} from "@/lib/reviews/review-tags/review-tags";
 import { mapProfessionalCard } from "@/lib/api/map-backend/map-backend";
 import { resolveMediaUrl } from "@/lib/api/resolve-media-url/resolve-media-url";
 import { userAccountPaths } from "@/config/user-account.config/user-account.config";
@@ -127,6 +133,10 @@ export type BackendServiceReview = {
   date_label?: string;
   created_at_ms?: number;
   highlights?: readonly string[];
+  tags?: BackendReviewTags | null;
+  reply?: BackendReviewReply | null;
+  author?: string | null;
+  is_anonymous?: boolean;
   reply_text?: string | null;
 };
 
@@ -278,20 +288,26 @@ export function mapBackendNotification(
 
 export function mapBackendServiceReview(review: BackendServiceReview): ServiceReview {
   const expertId = String(review.expert_id ?? 0);
+  const highlights = mapReviewTags(review.tags ?? review.highlights);
+  const reply = mapReviewReply(review.reply, review.reply_text);
 
   return {
     id: String(review.id),
     expertId,
     expertName: review.expert_name?.trim() || "متخصص",
     authorCustomerId: String(review.author_customer_id ?? 0),
-    authorDisplayName: review.author_display_name?.trim() || "کاربر",
+    authorDisplayName:
+      review.author?.trim() || review.author_display_name?.trim() || "کاربر",
     relatedRequestId: String(review.related_request_id ?? 0),
     relatedServiceLabel: review.related_service_label?.trim() || "خدمت",
     rating: review.rating ?? 0,
     text: review.text?.trim() ?? "",
     dateLabel: review.date_label ?? "",
     createdAtMs: review.created_at_ms ?? 0,
-    replyText: review.reply_text ?? undefined,
+    highlights: highlights.length > 0 ? highlights : undefined,
+    replyText: reply.text,
+    replyAuthorName: reply.authorName,
+    replyDateLabel: reply.dateLabel,
   };
 }
 

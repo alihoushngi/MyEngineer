@@ -1,5 +1,6 @@
 import {
   type ApiEnvelope,
+  type ApiPaginationMeta,
   unwrapApiData,
 } from "@/lib/api/api-envelope/api-envelope";
 import { httpGet } from "@/lib/api/http-client/http-client";
@@ -88,4 +89,70 @@ export async function getArticleBySlug(slug: string): Promise<Article | null> {
   } catch {
     return null;
   }
+}
+
+export type ArticlesPageResult = {
+  articles: readonly ArticleCardData[];
+  total: number;
+  page: number;
+  pageCount: number;
+  failed: boolean;
+};
+
+/** Server-side search/sort/pagination (GET /blogs?q=&sort=&category=&page=). */
+export async function listArticlesPage(options: {
+  q?: string;
+  sort?: string;
+  category?: string;
+  page?: number;
+  perPage?: number;
+}): Promise<ArticlesPageResult> {
+  const page = options.page ?? 1;
+  const empty: ArticlesPageResult = {
+    articles: [],
+    total: 0,
+    page,
+    pageCount: 1,
+    failed: false,
+  };
+
+  if (!env.apiBaseUrl) {
+    return empty;
+  }
+
+  try {
+    const envelope = await httpGet<
+      ApiEnvelope<BackendBlog[], ApiPaginationMeta>
+    >("/blogs", {
+      query: {
+        q: options.q || undefined,
+        sort: options.sort,
+        category: options.category,
+        page,
+        per_page: options.perPage ?? 9,
+      },
+      next: { revalidate: 60 },
+    });
+    const articles = unwrapApiData(envelope).map(mapBlogCard);
+
+    return {
+      articles,
+      total: envelope.meta?.total ?? articles.length,
+      page: envelope.meta?.current_page ?? page,
+      pageCount: Math.max(1, envelope.meta?.last_page ?? 1),
+      failed: false,
+    };
+  } catch {
+    return { ...empty, failed: true };
+  }
+}
+
+export async function listPopularArticles(
+  limit = 4,
+): Promise<readonly ArticleCardData[]> {
+  const result = await listArticlesPage({
+    sort: "popular",
+    perPage: limit,
+  });
+  return result.articles;
 }

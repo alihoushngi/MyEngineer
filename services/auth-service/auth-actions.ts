@@ -252,7 +252,9 @@ export async function selectRoleAction(input: {
 export async function requestOtpAction(input: {
   mobile: string;
   purpose: "account_activation" | "login" | "password_reset";
-}): Promise<{ ok: true; resendAfter: number } | ServiceMutationFailure> {
+}): Promise<
+  { ok: true; resendAfter: number; debugCode?: string } | ServiceMutationFailure
+> {
   if (!env.apiBaseUrl) {
     return mutationUnavailable("سرویس پیامک پیکربندی نشده است.");
   }
@@ -262,7 +264,12 @@ export async function requestOtpAction(input: {
       mobile: input.mobile.trim(),
       purpose: input.purpose,
     });
-    return { ok: true, resendAfter: data.resend_after ?? 120 };
+    return {
+      ok: true,
+      resendAfter: data.resend_after ?? 120,
+      // Only present while the backend runs with OTP_EXPOSE_CODE (test servers).
+      ...(data.debug_code ? { debugCode: data.debug_code } : {}),
+    };
   } catch (error) {
     return toFailure(error, "ارسال کد ناموفق بود.");
   }

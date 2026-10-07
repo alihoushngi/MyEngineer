@@ -2,7 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
+import { useQuery } from "@tanstack/react-query";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { CircleAlertIcon, RefreshCcwIcon } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert/alert";
@@ -26,8 +27,19 @@ import { registrationCopy } from "@/config/registration.config/registration.conf
 import { toUserErrorMessage } from "@/lib/errors/to-user-error-message/to-user-error-message";
 import { useApiMutation } from "@/hooks/use-api-mutation/use-api-mutation";
 import { useRegistrationWizard } from "@/providers/registration-wizard-provider/registration-wizard-provider";
+import { getNearbyCities } from "@/services/city-service/city-service";
 import { saveServiceArea } from "@/services/registration-service/registration-service";
+import { cn } from "@/lib/utils/cn/cn";
 import { useProvinceCities } from "@/hooks/use-province-cities/use-province-cities";
+
+function nearbyChipClass(active: boolean): string {
+  return cn(
+    "inline-flex min-h-9 items-center rounded-xl border px-3 type-caption font-medium outline-none transition-all duration-200 ease-in-out focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60",
+    active
+      ? "border-primary bg-primary text-primary-foreground"
+      : "border-border-subtle bg-surface text-foreground-muted hover:border-primary/30 hover:bg-primary-subtle hover:text-primary",
+  );
+}
 
 export function ServiceAreaStep() {
   const router = useRouter();
@@ -63,6 +75,17 @@ export function ServiceAreaStep() {
         : ([] as string[]),
     },
   });
+
+  const selectedCityId = useWatch({ control, name: "cityId" });
+  const nearbyQuery = useQuery({
+    queryKey: ["registration", "nearby-cities", selectedCityId],
+    queryFn: () => getNearbyCities(selectedCityId),
+    enabled: Boolean(selectedCityId),
+    retry: false,
+  });
+  const nearbyCities = (nearbyQuery.data ?? []).filter(
+    (city) => city.id !== selectedCityId,
+  );
 
   async function onSubmit(formData: ServiceAreaStepData) {
     setApiError(null);
@@ -143,6 +166,7 @@ export function ServiceAreaStep() {
                       setSelectedProvince(value);
                       // Clear city when province changes
                       setValue("cityId", "");
+                      setValue("nearbyCityIds", []);
                     }}
                     disabled={isLoadingProvinces || isSubmitting}
                   >
@@ -205,7 +229,10 @@ export function ServiceAreaStep() {
                 render={({ field }) => (
                   <Select
                     value={field.value}
-                    onValueChange={field.onChange}
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                      setValue("nearbyCityIds", []);
+                    }}
                     disabled={
                       !selectedProvinceId ||
                       isLoadingCities ||
@@ -256,18 +283,99 @@ export function ServiceAreaStep() {
           <Empty title={registrationCopy.cityEmptyMessage} />
         ) : null}
 
-        {/* Nearby cities — API CONTRACT REQUIRED
-            Implementation note: the nearby city list requires an API response
-            scoped to the selected city/province (BUSINESS DECISION REQUIRED for radius).
-            The field is rendered as disabled/note until the service is available. */}
+        {/* Nearby cities — GET /cities/{id}/nearby, multi-select chips. */}
         <Field>
           <FieldLabel>{registrationCopy.nearbyCitiesLabel}</FieldLabel>
-          <Alert variant="info">
-            <CircleAlertIcon />
-            <AlertDescription>
-              {registrationCopy.nearbyCitiesApiNote}
-            </AlertDescription>
-          </Alert>
+          {!selectedCityId ? (
+            <Alert variant="info">
+              <CircleAlertIcon />
+              <AlertDescription>
+                {registrationCopy.nearbyCitiesApiNote}
+              </AlertDescription>
+            </Alert>
+          ) : nearbyQuery.isPending ? (
+            <p className="type-body-sm text-foreground-muted">
+              {registrationCopy.nearbyCitiesLoading}
+            </p>
+          ) : nearbyQuery.isError ? (
+            <div className="flex min-h-12 items-center gap-3 rounded-md border border-border px-4 py-2">
+              <p className="type-body-sm text-danger">
+                {registrationCopy.nearbyCitiesError}
+              </p>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  void nearbyQuery.refetch();
+                }}
+              >
+                <RefreshCcwIcon className="size-4" />
+                {registrationCopy.retryLabel}
+              </Button>
+            </div>
+          ) : nearbyCities.length === 0 ? (
+            <p className="type-body-sm text-foreground-muted">
+              {registrationCopy.nearbyCitiesEmpty}
+            </p>
+          ) : (
+            <Controller
+              control={control}
+              name="nearbyCityIds"
+              render={({ field }) => {
+                const selected = new Set(field.value ?? []);
+                const allSelected = nearbyCities.every((city) =>
+                  selected.has(city.id),
+                );
+
+                return (
+                  <div
+                    role="group"
+                    aria-label={registrationCopy.nearbyCitiesLabel}
+                    className="flex flex-wrap gap-2"
+                  >
+                    <button
+                      type="button"
+                      aria-pressed={allSelected}
+                      disabled={isSubmitting}
+                      className={nearbyChipClass(allSelected)}
+                      onClick={() => {
+                        field.onChange(
+                          allSelected ? [] : nearbyCities.map((city) => city.id),
+                        );
+                      }}
+                    >
+                      {registrationCopy.nearbyCitiesAllLabel}
+                    </button>
+                    {nearbyCities.map((city) => {
+                      const active = selected.has(city.id);
+
+                      return (
+                        <button
+                          key={city.id}
+                          type="button"
+                          aria-pressed={active}
+                          disabled={isSubmitting}
+                          className={nearbyChipClass(active)}
+                          onClick={() => {
+                            field.onChange(
+                              active
+                                ? (field.value ?? []).filter(
+                                    (id) => id !== city.id,
+                                  )
+                                : [...(field.value ?? []), city.id],
+                            );
+                          }}
+                        >
+                          {city.name}
+                        </button>
+                      );
+                    })}
+                  </div>
+                );
+              }}
+            />
+          )}
         </Field>
 
         {apiError ? (

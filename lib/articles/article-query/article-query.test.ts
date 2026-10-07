@@ -3,6 +3,9 @@ import test from "node:test";
 import {
   ALL_ARTICLE_CATEGORY,
   buildArticleHubHref,
+  buildArticleHubQuery,
+  parseArticleSearchParam,
+  parseArticleSortParam,
   filterArticlesByCategory,
   parseArticleCategoryParam,
 } from "./article-query.ts";
@@ -60,4 +63,16 @@ test("buildArticleHubHref omits all-category and page 1", () => {
     buildArticleHubHref("/articles", ALL_ARTICLE_CATEGORY, 2),
     "/articles?page=2",
   );
+});
+
+test("article search and sort params are normalised", () => {
+  assert.equal(parseArticleSortParam("popular"), "popular");
+  assert.equal(parseArticleSortParam("weird"), "newest");
+  assert.equal(parseArticleSearchParam("  سازه "), "سازه");
+  assert.equal(parseArticleSearchParam(undefined), "");
+  assert.equal(
+    buildArticleHubQuery({ category: "all", q: "a b", sort: "popular", page: 2 }),
+    "q=a+b&sort=popular&page=2",
+  );
+  assert.equal(buildArticleHubQuery({ sort: "newest" }), "");
 });

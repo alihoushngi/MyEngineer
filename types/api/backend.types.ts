@@ -1,3 +1,8 @@
+import {
+  type BackendReviewReply,
+  type BackendReviewTags,
+} from "@/lib/reviews/review-tags/review-tags";
+
 export type BackendProvince = {
   id: number;
   name: string;
@@ -38,6 +43,10 @@ export type BackendTestimonial = {
   title?: string | null;
   description?: string | null;
   image?: string | null;
+  comment?: string | null;
+  author?: string | null;
+  job_title?: string | null;
+  photo?: string | null;
 };
 
 export type BackendBrand = {
@@ -69,6 +78,8 @@ export type BackendBlog = {
   description?: string | null;
   image?: string | null;
   views?: number | string | null;
+  view_count?: number | string | null;
+  author_name?: string | null;
   status?: string | null;
   category?: BackendBlogCategory | null;
   tags?: readonly { id: number; name: string; slug?: string }[] | null;
@@ -91,6 +102,7 @@ export type BackendKnowledgeCategory = {
   slug: string;
   image?: string | null;
   description?: string | null;
+  items_count?: number | null;
 };
 
 export type BackendKnowledge = {
@@ -151,6 +163,11 @@ export type BackendProfessionalComment = {
   rating?: number | null;
   user?: { name?: string | null; full_name?: string | null } | null;
   created_at?: string | null;
+  created_at_label?: string | null;
+  author?: string | null;
+  is_anonymous?: boolean;
+  tags?: BackendReviewTags | null;
+  reply?: BackendReviewReply | null;
 };
 
 export type BackendProfessionalDetail = Omit<

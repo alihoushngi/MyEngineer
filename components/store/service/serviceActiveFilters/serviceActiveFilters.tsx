@@ -8,12 +8,11 @@ import { serviceFilterCopy } from "@/config/service-filters.config/service-filte
 
 import {
   type ActiveFilterChip,
-  type FilterKey,
-} from "@/lib/service/filter-experts/filter-experts";
+} from "@/lib/service/service-query/service-query";
 
 type ServiceActiveFiltersProps = {
   chips: readonly ActiveFilterChip[];
-  onClear: (key: FilterKey) => void;
+  onClear: (chip: ActiveFilterChip) => void;
   onReset: () => void;
 };
 
@@ -30,13 +29,13 @@ export function ServiceActiveFilters({
     <div className="flex flex-col gap-3 rounded-2xl border border-border-subtle bg-surface-subtle p-3 sm:flex-row sm:items-center sm:justify-between">
       <ul className="flex min-w-0 flex-wrap gap-2">
         {chips.map((chip) => (
-          <li key={chip.key}>
+          <li key={chip.id}>
             <button
               type="button"
               className="group inline-flex min-h-9 max-w-full items-center gap-2 rounded-xl border border-primary/15 bg-primary-subtle px-3 type-caption font-medium text-primary outline-none transition-all duration-200 ease-in-out hover:border-primary/25 hover:bg-primary hover:text-primary-foreground focus-visible:ring-2 focus-visible:ring-ring"
               aria-label={`حذف فیلتر ${chip.label}`}
               onClick={() => {
-                onClear(chip.key);
+                onClear(chip);
               }}
             >
               <span className="min-w-0 truncate">{chip.label}</span>

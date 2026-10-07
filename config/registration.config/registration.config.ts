@@ -31,7 +31,7 @@ export const TOTAL_REGISTRATION_STEPS = 9;
 /** Cooldown seconds between OTP resend requests. SOURCE: legacy step2 timer = 120s */
 export const OTP_RESEND_COOLDOWN_SECONDS = 120;
 
-export const OTP_LENGTH = 5;
+export { OTP_LENGTH } from "@/lib/validation/otp-length/otp-length";
 
 export const registrationCopy = {
   // Wizard chrome
@@ -84,7 +84,11 @@ export const registrationCopy = {
   provinceLoadingMessage: "در حال بارگذاری استان‌ها...",
   provinceErrorMessage: "بارگذاری استان‌ها ناموفق بود.",
   nearbyCitiesApiNote:
-    "انتخاب شهرهای مجاور پس از اتصال سرویس در این مرحله فعال می‌شود.",
+    "ابتدا شهر اصلی خود را انتخاب کنید تا شهرهای مجاور نمایش داده شوند.",
+  nearbyCitiesLoading: "در حال بارگذاری شهرهای مجاور...",
+  nearbyCitiesEmpty: "شهر مجاوری برای این شهر یافت نشد.",
+  nearbyCitiesError: "بارگذاری شهرهای مجاور ناموفق بود.",
+  nearbyCitiesAllLabel: "همه",
   // Step 4
   step4Title: "تخصص‌ها",
   step4Description:

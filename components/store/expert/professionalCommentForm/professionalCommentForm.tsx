@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
+import { ReviewAnonymousCheckbox } from "@/components/store/reviews/reviewAnonymousCheckbox/reviewAnonymousCheckbox";
+import { ReviewTagPicker } from "@/components/store/reviews/reviewTagPicker/reviewTagPicker";
 import { Button } from "@/components/ui/button/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field/field";
 import { Input } from "@/components/ui/input/input";
@@ -17,6 +19,7 @@ import {
 } from "@/components/ui/select/select";
 
 import { storePaths } from "@/config/navigation.config/navigation.config";
+import { reviewsCopy } from "@/config/reviews.config/reviews.config";
 import { submitProfessionalCommentAction } from "@/services/expert-service/expert-actions";
 
 type ProfessionalCommentFormProps = {
@@ -35,6 +38,8 @@ export function ProfessionalCommentForm({
   const [title, setTitle] = useState("");
   const [comment, setComment] = useState("");
   const [rate, setRate] = useState("5");
+  const [tagIds, setTagIds] = useState<readonly number[]>([]);
+  const [isAnonymous, setIsAnonymous] = useState(false);
 
   if (!isAuthenticated) {
     return (
@@ -60,6 +65,8 @@ export function ProfessionalCommentForm({
         title,
         comment,
         rate: Number(rate),
+        tagIds,
+        isAnonymous,
       });
 
       if (!result.ok) {
@@ -67,10 +74,12 @@ export function ProfessionalCommentForm({
         return;
       }
 
-      setSuccess("دیدگاه شما ثبت شد و پس از تأیید نمایش داده می‌شود.");
+      setSuccess(result.message ?? reviewsCopy.submitSuccess);
       setTitle("");
       setComment("");
       setRate("5");
+      setTagIds([]);
+      setIsAnonymous(false);
       router.refresh();
     });
   }
@@ -124,6 +133,18 @@ export function ProfessionalCommentForm({
           disabled={pending}
         />
       </Field>
+
+      <ReviewTagPicker
+        selectedIds={tagIds}
+        onChange={setTagIds}
+        disabled={pending}
+      />
+
+      <ReviewAnonymousCheckbox
+        checked={isAnonymous}
+        onChange={setIsAnonymous}
+        disabled={pending}
+      />
 
       {error ? <FieldError>{error}</FieldError> : null}
       {success ? (

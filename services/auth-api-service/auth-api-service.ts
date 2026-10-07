@@ -100,10 +100,9 @@ export async function apiRequestOtp(input: {
   mobile: string;
   purpose: "account_activation" | "login" | "password_reset";
 }) {
-  const envelope = await httpPost<ApiEnvelope<{ resend_after: number }>>(
-    "/auth/otp",
-    { body: input },
-  );
+  const envelope = await httpPost<
+    ApiEnvelope<{ resend_after: number; debug_code?: string }>
+  >("/auth/otp", { body: input });
   return unwrapApiData(envelope);
 }
 

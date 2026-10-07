@@ -3,7 +3,10 @@ import {
   unwrapApiData,
 } from "@/lib/api/api-envelope/api-envelope";
 import { httpGet } from "@/lib/api/http-client/http-client";
-import { buildKnowledgeCategories } from "@/lib/api/map-backend/map-backend";
+import {
+  buildKnowledgeCategories,
+  mapKnowledgeCategory,
+} from "@/lib/api/map-backend/map-backend";
 import { env } from "@/lib/env/env";
 import {
   type BackendKnowledge,
@@ -63,4 +66,56 @@ export async function getKnowledgeCategory(
 ): Promise<KnowledgeCategoryDetail | null> {
   const categories = await listKnowledgeCategories();
   return categories.find((category) => category.slug === slug) ?? null;
+}
+
+/**
+ * Landing-page categories with item counts, filtered on the server by
+ * `q` (GET /knowledges?q=) and/or a category slug.
+ */
+export async function listKnowledgeLanding(options: {
+  q?: string;
+  category?: string;
+}): Promise<readonly KnowledgeCategory[]> {
+  if (!env.apiBaseUrl) {
+    return [];
+  }
+
+  const envelope = await getEnvelope<BackendKnowledgeCategory[]>(
+    "/knowledge-categories",
+  );
+  let categories = unwrapApiData(envelope);
+
+  if (options.category) {
+    categories = categories.filter(
+      (category) => category.slug === options.category,
+    );
+  }
+
+  const q = options.q?.trim();
+  if (q) {
+    const matches = await getEnvelope<BackendKnowledge[]>("/knowledges", {
+      q,
+      per_page: 100,
+    })
+      .then(unwrapApiData)
+      .catch((): BackendKnowledge[] => []);
+    const matchedIds = new Set(
+      matches.map((item) => item.category?.id).filter(Boolean),
+    );
+
+    categories = categories.filter(
+      (category) => matchedIds.has(category.id) || category.name.includes(q),
+    );
+  }
+
+  return categories.map((category) => {
+    const detail = mapKnowledgeCategory(category);
+    return {
+      slug: detail.slug,
+      href: detail.href,
+      title: detail.title,
+      description: detail.description,
+      itemsCount: detail.itemsCount,
+    };
+  });
 }

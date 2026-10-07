@@ -7,6 +7,10 @@ import {
 
 import { Card } from "@/components/ui/card/card";
 
+import {
+  faqCategoryIcons,
+  normalizeFaqIconKey,
+} from "@/lib/faq/faq-category-icon/faq-category-icon";
 import { cn } from "@/lib/utils/cn/cn";
 
 import { type FaqCategory } from "@/types/store/faq.types";
@@ -20,6 +24,9 @@ export function FaqCategoryCard({
   category,
   tone = "bg-primary-subtle",
 }: FaqCategoryCardProps) {
+  const Icon =
+    faqCategoryIcons[normalizeFaqIconKey(category.icon)] ?? CircleHelpIcon;
+
   return (
     <Link
       href={category.href}
@@ -38,10 +45,7 @@ export function FaqCategoryCard({
               tone,
             )}
           >
-            <CircleHelpIcon
-              aria-hidden="true"
-              className="size-5 stroke-[1.8]"
-            />
+            <Icon aria-hidden="true" className="size-5 stroke-[1.8]" />
           </span>
 
           <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-surface-muted text-foreground-muted transition-all duration-200 ease-in-out group-hover:-translate-x-1 group-hover:bg-primary group-hover:text-primary-foreground motion-reduce:transform-none">

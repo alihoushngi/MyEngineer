@@ -14,7 +14,15 @@ import {
   SelectValue,
 } from "@/components/ui/select/select";
 
+import {
+  resumeUploadRule,
+  validateUpload,
+} from "@/lib/uploads/validate-upload/validate-upload";
 import { useProvinceCities } from "@/hooks/use-province-cities/use-province-cities";
+import {
+  validateCareerApply,
+  type CareerApplyFieldErrors,
+} from "@/lib/validation/career-apply/career-apply";
 import { applyCareerAction } from "@/services/content-service/content-actions";
 
 type CareerApplyFormProps = {
@@ -29,6 +37,7 @@ export function CareerApplyForm({
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<CareerApplyFieldErrors>({});
   const [gender, setGender] = useState("");
   const [cityId, setCityId] = useState("");
 
@@ -57,6 +66,27 @@ export function CareerApplyForm({
     formData.set("provinceId", selectedProvinceId);
     formData.set("cityId", cityId);
 
+    const resume = formData.get("resume");
+    const errors = validateCareerApply({
+      name: String(formData.get("name") ?? ""),
+      family: String(formData.get("family") ?? ""),
+      email: String(formData.get("email") ?? ""),
+      mobile: String(formData.get("mobile") ?? ""),
+      age: String(formData.get("age") ?? ""),
+      gender,
+      provinceId: selectedProvinceId,
+      cityId,
+      resumeError:
+        resume instanceof File && resume.size > 0
+          ? validateUpload(resume, resumeUploadRule)
+          : null,
+    });
+    setFieldErrors(errors);
+
+    if (Object.keys(errors).length > 0) {
+      return;
+    }
+
     startTransition(async () => {
       const result = await applyCareerAction(formData);
       if (!result.ok) {
@@ -84,29 +114,40 @@ export function CareerApplyForm({
         برای «{careerTitle}» فرم زیر را تکمیل کنید.
       </p>
 
-      <form onSubmit={onSubmit} className="mt-6 flex flex-col gap-4">
+      <form
+        onSubmit={onSubmit}
+        noValidate
+        className="mt-6 flex flex-col gap-4"
+      >
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field>
+          <Field invalid={Boolean(fieldErrors.name)}>
             <FieldLabel htmlFor="career-name" required>
               نام
             </FieldLabel>
-            <Input id="career-name" name="name" required disabled={pending} />
+            <Input
+              id="career-name"
+              name="name"
+              aria-invalid={Boolean(fieldErrors.name)}
+              disabled={pending}
+            />
+            <FieldError>{fieldErrors.name}</FieldError>
           </Field>
-          <Field>
+          <Field invalid={Boolean(fieldErrors.family)}>
             <FieldLabel htmlFor="career-family" required>
               نام خانوادگی
             </FieldLabel>
             <Input
               id="career-family"
               name="family"
-              required
+              aria-invalid={Boolean(fieldErrors.family)}
               disabled={pending}
             />
+            <FieldError>{fieldErrors.family}</FieldError>
           </Field>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field>
+          <Field invalid={Boolean(fieldErrors.email)}>
             <FieldLabel htmlFor="career-email" required>
               ایمیل
             </FieldLabel>
@@ -114,30 +155,32 @@ export function CareerApplyForm({
               id="career-email"
               name="email"
               type="email"
-              required
+              aria-invalid={Boolean(fieldErrors.email)}
               disabled={pending}
               dir="ltr"
               className="ltr-data"
             />
+            <FieldError>{fieldErrors.email}</FieldError>
           </Field>
-          <Field>
+          <Field invalid={Boolean(fieldErrors.mobile)}>
             <FieldLabel htmlFor="career-mobile" required>
               موبایل
             </FieldLabel>
             <Input
               id="career-mobile"
               name="mobile"
-              required
+              aria-invalid={Boolean(fieldErrors.mobile)}
               disabled={pending}
               placeholder="09xxxxxxxxx"
               dir="ltr"
               className="ltr-data"
             />
+            <FieldError>{fieldErrors.mobile}</FieldError>
           </Field>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field>
+          <Field invalid={Boolean(fieldErrors.age)}>
             <FieldLabel htmlFor="career-age" required>
               سن
             </FieldLabel>
@@ -147,11 +190,12 @@ export function CareerApplyForm({
               type="number"
               min={18}
               max={80}
-              required
+              aria-invalid={Boolean(fieldErrors.age)}
               disabled={pending}
             />
+            <FieldError>{fieldErrors.age}</FieldError>
           </Field>
-          <Field>
+          <Field invalid={Boolean(fieldErrors.gender)}>
             <FieldLabel htmlFor="career-gender" required>
               جنسیت
             </FieldLabel>
@@ -168,10 +212,11 @@ export function CareerApplyForm({
                 <SelectItem value="female">زن</SelectItem>
               </SelectContent>
             </Select>
+            <FieldError>{fieldErrors.gender}</FieldError>
           </Field>
         </div>
 
-        <Field invalid={Boolean(provinceError)}>
+        <Field invalid={Boolean(provinceError) || Boolean(fieldErrors.provinceId)}>
           <FieldLabel htmlFor="career-province" required>
             استان
           </FieldLabel>
@@ -213,9 +258,10 @@ export function CareerApplyForm({
               </SelectContent>
             </Select>
           )}
+          <FieldError>{fieldErrors.provinceId}</FieldError>
         </Field>
 
-        <Field invalid={Boolean(cityError)}>
+        <Field invalid={Boolean(cityError) || Boolean(fieldErrors.cityId)}>
           <FieldLabel htmlFor="career-city" required>
             شهر
           </FieldLabel>
@@ -263,17 +309,20 @@ export function CareerApplyForm({
               </SelectContent>
             </Select>
           )}
+          <FieldError>{fieldErrors.cityId}</FieldError>
         </Field>
 
-        <Field>
+        <Field invalid={Boolean(fieldErrors.resumeError)}>
           <FieldLabel htmlFor="career-resume">رزومه (اختیاری)</FieldLabel>
           <Input
             id="career-resume"
             name="resume"
             type="file"
             accept=".pdf,.doc,.docx,application/pdf"
+            aria-invalid={Boolean(fieldErrors.resumeError)}
             disabled={pending}
           />
+          <FieldError>{fieldErrors.resumeError}</FieldError>
         </Field>
 
         {error ? <FieldError>{error}</FieldError> : null}

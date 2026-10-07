@@ -26,7 +26,16 @@ export function useHomeMarketplace(
     searchParams.get("services"),
     serviceSlugSet,
   );
-  const city = searchParams.get("cities") || "all";
+  const cityParam = searchParams.get("cities") ?? "";
+  const selectedCities = useMemo(
+    () =>
+      cityParam
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean),
+    [cityParam],
+  );
+  const city = selectedCities.length > 0 ? selectedCities.join(",") : "all";
   const expertise = searchParams.get("expertise") || "all";
   const page = parsePageParam(searchParams.get("page"));
 
@@ -42,12 +51,14 @@ export function useHomeMarketplace(
           services.length === 0 ||
           !expert.serviceSlugs?.length ||
           services.some((slug) => expert.serviceSlugs?.includes(slug));
-        const cityMatch = city === "all" || expert.city === city;
+        const cityMatch =
+          selectedCities.length === 0 ||
+          (expert.city !== undefined && selectedCities.includes(expert.city));
         const expertiseMatch =
           expertise === "all" || expert.specialties?.includes(expertise);
         return serviceMatch && cityMatch && expertiseMatch;
       }),
-    [city, expertise, experts, services],
+    [selectedCities, expertise, experts, services],
   );
 
   const pagination = paginateItems(filteredExperts, page);
@@ -91,6 +102,15 @@ export function useHomeMarketplace(
     replaceState({ services: nextServices, city, expertise, page: 1 });
   }
 
+  function changeCities(names: readonly string[]) {
+    replaceState({
+      services,
+      city: names.length > 0 ? names.join(",") : "all",
+      expertise,
+      page: 1,
+    });
+  }
+
   function changeCity(value: string) {
     replaceState({ services, city: value, expertise, page: 1 });
   }
@@ -115,6 +135,8 @@ export function useHomeMarketplace(
     query,
     toggleService,
     changeCity,
+    changeCities,
+    selectedCities,
     changeExpertise,
     reset,
   };

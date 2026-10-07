@@ -2,7 +2,9 @@ import {
   type ApiEnvelope,
   unwrapApiData,
 } from "@/lib/api/api-envelope/api-envelope";
+import { authHeaders } from "@/lib/api/auth-headers/auth-headers";
 import { httpGet, httpPost } from "@/lib/api/http-client/http-client";
+import { readAccessToken } from "@/lib/auth/access-token-cookie/access-token-cookie";
 import { resolveMediaUrl } from "@/lib/api/resolve-media-url/resolve-media-url";
 import { stripHtml } from "@/lib/api/strip-html/strip-html";
 import { env } from "@/lib/env/env";
@@ -121,14 +123,29 @@ export async function listBrands(): Promise<readonly BrandCard[]> {
   }));
 }
 
-export async function listDownloadableForms(): Promise<
-  readonly DownloadableFormItem[]
-> {
+export type FormListFilters = {
+  q?: string;
+  categoryId?: string;
+  provinceId?: string;
+};
+
+export type FormCategoryOption = { id: string; name: string };
+
+export async function listDownloadableForms(
+  filters: FormListFilters = {},
+): Promise<readonly DownloadableFormItem[]> {
   if (!env.apiBaseUrl) {
     return [];
   }
 
-  const envelope = await getPublic<BackendForm[]>("/forms");
+  const envelope = await httpGet<ApiEnvelope<BackendForm[]>>("/forms", {
+    query: {
+      q: filters.q || undefined,
+      category_id: filters.categoryId || undefined,
+      province_id: filters.provinceId || undefined,
+    },
+    next: { revalidate: PUBLIC_REVALIDATE_SECONDS },
+  });
   const base = env.apiBaseUrl.replace(/\/$/, "");
 
   return unwrapApiData(envelope).map((form) => ({
@@ -233,4 +250,55 @@ function formatSalary(value: string): string {
     return value;
   }
   return `${new Intl.NumberFormat("fa-IR").format(numeric)} تومان`;
+}
+
+/**
+ * Form categories for the forms filter. The contract does not define a
+ * dedicated endpoint yet, so this is fail-soft: an empty list hides the select.
+ */
+export async function listFormCategories(): Promise<
+  readonly FormCategoryOption[]
+> {
+  if (!env.apiBaseUrl) {
+    return [];
+  }
+
+  try {
+    const envelope = await getPublic<
+      { id: number; name?: string | null; title?: string | null }[]
+    >("/form-categories");
+    return unwrapApiData(envelope)
+      .map((item) => ({
+        id: String(item.id),
+        name: (item.name ?? item.title ?? "").trim(),
+      }))
+      .filter((item) => item.name !== "");
+  } catch {
+    return [];
+  }
+}
+
+export type TestimonialInput = {
+  jobTitle: string;
+  comment: string;
+  name?: string;
+  photoUploadId?: string;
+};
+
+/** POST /testimonials (auth). Returns the API success message. */
+export async function postTestimonial(
+  input: TestimonialInput,
+): Promise<string | undefined> {
+  const token = await readAccessToken();
+  const envelope = await httpPost<ApiEnvelope<unknown>>("/testimonials", {
+    headers: authHeaders(token),
+    body: {
+      job_title: input.jobTitle,
+      comment: input.comment,
+      name: input.name || undefined,
+      photo_upload_id: input.photoUploadId || undefined,
+    },
+  });
+
+  return envelope.message ?? undefined;
 }

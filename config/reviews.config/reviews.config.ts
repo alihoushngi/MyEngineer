@@ -22,6 +22,19 @@ export const reviewsCopy = {
   mutationErrorFallback: "ثبت نظر انجام نشد. دوباره تلاش کنید.",
   detailDescription: "متن کامل نظر ثبت‌شده برای متخصص.",
   reviewNotFoundTitle: "نظر پیدا نشد",
+  tagsLabel: "ویژگی‌های این تجربه",
+  positiveTagsTab: "نظرات مثبت",
+  negativeTagsTab: "نظرات منفی",
+  anonymousLabel: "ارسال نظر بعنوان ناشناس",
+  submitSuccess: "نظر شما ثبت شد و پس از تأیید نمایش داده می‌شود.",
+  replyHeading: "پاسخ متخصص",
+  replyFormLabel: "متن پاسخ",
+  replyFormHint: "پاسخ شما زیر همین نظر برای کاربران نمایش داده می‌شود.",
+  replySubmit: "ارسال پاسخ",
+  replySubmitting: "در حال ارسال…",
+  replySuccess: "پاسخ شما ثبت شد.",
+  replyMinError: "پاسخ باید حداقل ۵ نویسه باشد.",
+  replyErrorFallback: "ثبت پاسخ انجام نشد. دوباره تلاش کنید.",
 } as const;
 
 export const REVIEW_COMMENT_MIN_LENGTH = 10;

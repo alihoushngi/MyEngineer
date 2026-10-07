@@ -17,6 +17,7 @@ const PURPOSES: readonly UploadPurpose[] = [
   "license",
   "portfolio_image",
   "certificate",
+  "testimonial",
 ];
 
 function isUploadPurpose(value: string): value is UploadPurpose {

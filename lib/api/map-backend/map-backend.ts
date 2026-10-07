@@ -1,3 +1,7 @@
+import {
+  mapReviewReply,
+  mapReviewTags,
+} from "@/lib/reviews/review-tags/review-tags";
 import { storePaths } from "@/config/navigation.config/navigation.config";
 import { type ServiceCategory } from "@/config/services.config/services.config";
 import { resolveMediaUrl } from "@/lib/api/resolve-media-url/resolve-media-url";
@@ -145,9 +149,11 @@ export function mapSliderToHeroSlide(
 export function mapTestimonial(item: BackendTestimonial) {
   return {
     id: String(item.id),
-    quote: stripHtml(item.description) || item.title || "",
-    author: item.name?.trim() || "کاربر",
-    role: item.title?.trim() || undefined,
+    quote:
+      stripHtml(item.comment) || stripHtml(item.description) || item.title || "",
+    author: item.author?.trim() || item.name?.trim() || "کاربر",
+    role: item.job_title?.trim() || item.title?.trim() || undefined,
+    photoSrc: resolveMediaUrl(item.photo ?? item.image),
   };
 }
 
@@ -266,6 +272,8 @@ export function mapBlogCard(blog: BackendBlog): ArticleCardData {
     title: blog.title,
     excerpt: stripHtml(blog.description) || undefined,
     coverSrc: resolveMediaUrl(blog.image),
+    author: blog.author_name?.trim() || undefined,
+    viewCount: toNumber(blog.view_count ?? blog.views),
     publishedAt: blog.created_at ?? undefined,
     categorySlug,
     categoryLabel: blog.category?.name,
@@ -277,7 +285,6 @@ export function mapBlogDetail(blog: BackendBlog): Article {
   return {
     ...mapBlogCard(blog),
     body: blog.description ?? undefined,
-    viewCount: toNumber(blog.views),
   };
 }
 
@@ -352,6 +359,7 @@ export function mapKnowledgeCategory(
     href: `/knowledge/${category.slug}`,
     title: category.name,
     description: category.description ?? undefined,
+    itemsCount: category.items_count ?? (tips.length > 0 ? tips.length : undefined),
     tips,
   };
 }
@@ -523,15 +531,24 @@ function mapComment(
     return null;
   }
 
+  const highlights = mapReviewTags(comment.tags);
+  const reply = mapReviewReply(comment.reply);
+
   return {
     id: String(comment.id),
-    authorName:
-      comment.user?.full_name?.trim() ||
-      comment.user?.name?.trim() ||
-      "کاربر",
+    authorName: comment.is_anonymous
+      ? comment.author?.trim() || "کاربر ناشناس"
+      : comment.author?.trim() ||
+        comment.user?.full_name?.trim() ||
+        comment.user?.name?.trim() ||
+        "کاربر",
     text: body,
     rating: comment.rating ?? undefined,
-    dateLabel: comment.created_at ?? undefined,
+    dateLabel: comment.created_at_label ?? comment.created_at ?? undefined,
+    highlights: highlights.length > 0 ? highlights : undefined,
+    replyText: reply.text,
+    replyAuthorName: reply.authorName,
+    replyDateLabel: reply.dateLabel,
   };
 }
 

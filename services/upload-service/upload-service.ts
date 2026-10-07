@@ -11,7 +11,8 @@ export type UploadPurpose =
   | "degree"
   | "license"
   | "portfolio_image"
-  | "certificate";
+  | "certificate"
+  | "testimonial";
 
 export type UploadFileInput = {
   purpose: UploadPurpose;

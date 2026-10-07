@@ -336,3 +336,19 @@ export async function updateEngineerCredential(
   );
   return mapBackendEngineerCredential(unwrapApiData(envelope));
 }
+
+/** POST /engineer/reviews/{review}/reply. Returns the API success message. */
+export async function replyToEngineerReviewApi(
+  reviewId: string,
+  body: string,
+): Promise<string | undefined> {
+  const envelope = await httpPost<ApiEnvelope<unknown>>(
+    `/engineer/reviews/${encodeURIComponent(reviewId)}/reply`,
+    {
+      headers: await authorizedHeaders(),
+      body: { body },
+    },
+  );
+
+  return envelope.message ?? undefined;
+}

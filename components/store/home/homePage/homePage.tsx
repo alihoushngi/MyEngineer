@@ -15,13 +15,24 @@ import { shouldRenderHomeSection } from "@/config/feature-flags.config/feature-f
 import { homeHeroSlides } from "@/lib/home/hero-slides/hero-slides";
 import { type ExtendedHomeCatalogData } from "@/services/catalog-service/catalog-service";
 
-type HomePageProps = { catalog: ExtendedHomeCatalogData };
+type HomePageProps = {
+  catalog: ExtendedHomeCatalogData;
+  isAuthenticated?: boolean;
+  userName?: string;
+};
 
-export function HomePage({ catalog }: HomePageProps) {
+export function HomePage({
+  catalog,
+  isAuthenticated = false,
+  userName,
+}: HomePageProps) {
+  const heroSlides =
+    catalog.heroSlides.length > 0 ? catalog.heroSlides : homeHeroSlides;
+
   return (
     <>
       {shouldRenderHomeSection("hero") ? (
-        <HomeHero slides={homeHeroSlides} />
+        <HomeHero slides={heroSlides} />
       ) : null}
       {shouldRenderHomeSection("serviceCategories") ? (
         <ServiceCategories categories={catalog.serviceCategories} />
@@ -45,7 +56,11 @@ export function HomePage({ catalog }: HomePageProps) {
       {shouldRenderHomeSection("whyMohandesMan") ? <WhyMohandesMan /> : null}
       {shouldRenderHomeSection("joinCta") ? <JoinCtaSection /> : null}
       {shouldRenderHomeSection("testimonials") ? (
-        <HomeTestimonials items={catalog.testimonials} />
+        <HomeTestimonials
+          items={catalog.testimonials}
+          isAuthenticated={isAuthenticated}
+          userName={userName}
+        />
       ) : null}
       {shouldRenderHomeSection("knowledgeTips") ? (
         <HomeKnowledgeTips tips={catalog.knowledgeTips} />

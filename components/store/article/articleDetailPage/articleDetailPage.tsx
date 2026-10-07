@@ -24,6 +24,7 @@ import {
   parseArticleBody,
   tocFromArticleBlocks,
 } from "@/lib/articles/parse-article-body/parse-article-body";
+import { buildArticleMeta } from "@/lib/articles/article-meta/article-meta";
 
 import {
   type Article,
@@ -45,9 +46,7 @@ export function ArticleDetailPage({
   related,
   comments,
 }: ArticleDetailPageProps) {
-  const meta = [article.author, article.publishedAt]
-    .filter(Boolean)
-    .join(" · ");
+  const meta = buildArticleMeta(article);
   const faqs = article.faqs ?? [];
   const blocks = parseArticleBody(article.body ?? "");
   const toc = tocFromArticleBlocks(blocks);

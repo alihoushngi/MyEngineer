@@ -3,6 +3,9 @@ import { BookOpenIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 
 import { Card } from "@/components/ui/card/card";
 
+import { knowledgeCopy } from "@/config/knowledge.config/knowledge.config";
+
+import { formatFaNumber } from "@/lib/format/format-fa-number/format-fa-number";
 import { cn } from "@/lib/utils/cn/cn";
 
 import { type KnowledgeCategory } from "@/types/store/knowledge.types";
@@ -54,6 +57,12 @@ export function KnowledgeCategoryCard({
           {category.description ? (
             <p className="mt-2 type-body-sm leading-relaxed text-foreground-muted">
               {category.description}
+            </p>
+          ) : null}
+
+          {typeof category.itemsCount === "number" ? (
+            <p className="mt-3 type-caption font-medium text-primary">
+              {knowledgeCopy.itemsCount(formatFaNumber(category.itemsCount))}
             </p>
           ) : null}
         </div>
