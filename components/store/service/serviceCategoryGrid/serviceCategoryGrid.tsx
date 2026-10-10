@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowLeftIcon } from "lucide-react";
-import Image from "next/image";
+import Image, { getImageProps } from "next/image";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 
@@ -17,6 +17,7 @@ type ServiceCategoryGridProps = {
   categories?: readonly ServiceCategory[];
   onServiceSelect?: () => void;
   hideDescription?: boolean;
+  mobileArtworkBySlug?: Readonly<Record<string, string>>;
 };
 
 const accentClasses = [
@@ -41,6 +42,7 @@ export function ServiceCategoryGrid({
   categories: categoriesProp,
   onServiceSelect,
   hideDescription = false,
+  mobileArtworkBySlug,
 }: ServiceCategoryGridProps) {
   const categoriesQuery = useQuery({
     queryKey: ["lookup", "service-categories"],
@@ -72,6 +74,16 @@ export function ServiceCategoryGrid({
           service.imageSrc ??
           fallbackImages[index % fallbackImages.length] ??
           "/images/services/surveying.png";
+        const mobileArtwork = mobileArtworkBySlug?.[service.slug];
+        const cardImage = (
+          <Image
+            src={image}
+            alt=""
+            fill
+            sizes="112px"
+            className="object-contain"
+          />
+        );
 
         return (
           <li key={service.slug} className="min-w-0">
@@ -100,13 +112,26 @@ export function ServiceCategoryGrid({
                   />
 
                   <span className="relative size-[90%] transition-all duration-200 ease-in-out group-hover:-translate-y-1 group-hover:scale-105 motion-reduce:transform-none">
-                    <Image
-                      src={image}
-                      alt=""
-                      fill
-                      sizes="112px"
-                      className="object-contain"
-                    />
+                    {mobileArtwork ? (
+                      <picture className="relative block size-full">
+                        <source
+                          media="(max-width: 767px)"
+                          srcSet={
+                            getImageProps({
+                              src: mobileArtwork,
+                              alt: "",
+                              width: 112,
+                              height: 112,
+                              sizes: "72px",
+                            }).props.srcSet ?? mobileArtwork
+                          }
+                          sizes="72px"
+                        />
+                        {cardImage}
+                      </picture>
+                    ) : (
+                      cardImage
+                    )}
                   </span>
                 </span>
 

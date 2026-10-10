@@ -55,6 +55,7 @@ export function FaqCategoryPage({
 
         {pagination.total > 0 ? (
           <div className="flex flex-col gap-6">
+            <h2 className="sr-only">پرسش‌ها و پاسخ‌های {category.title}</h2>
             <FaqAccordion items={items} />
 
             <Pagination
@@ -118,7 +119,7 @@ export function FaqCategoryPage({
             <ul className="grid items-stretch gap-3 sm:grid-cols-2">
               {related.map((item) => (
                 <li key={item.slug} className="h-full">
-                  <FaqCategoryCard category={item} />
+                  <FaqCategoryCard category={item} headingLevel={3} />
                 </li>
               ))}
             </ul>

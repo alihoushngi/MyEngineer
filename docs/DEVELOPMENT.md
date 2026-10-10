@@ -399,24 +399,17 @@ Each lib module gets its own kebab-case folder. Do not put files directly in `li
 - Prefer logical CSS (`ms`, `me`, `ps`, `pe`, `start`, `end`) over `left` / `right`.
 - Body text uses local Kalameh (FaNum) through `--font-kalameh`.
 
-## Implementation Notes / Business Decision Required
+## Current integration and alignment notes
 
-Registration wizard (Tasks 08–10):
+- **API adapters:** live API base includes `/api/v1`. Existing public catalog/content, authentication/registration, uploads, user/engineer workspaces, reviews, notifications, messaging and support adapters are documented in [API-CONTRACTS.md](API-CONTRACTS.md). Do not treat older Phase-1 plans as proof an endpoint is absent.
+- **Server API origin:** optional `API_INTERNAL_BASE_URL` overrides the public API base for server calls, useful inside Docker. The media base still derives from the public origin. API failures remain real errors; do not add silent fixture fallbacks.
+- **Mock modes:** public catalog fixtures require explicit `NEXT_PUBLIC_USE_MOCK_DATA=true` with no configured live API. All four mock auth config flags are currently false. Explicit development overrides cannot enable mock auth in production. See [MOCK-AUTH.md](MOCK-AUTH.md).
+- **HTTP errors:** shared `ApiError` and Persian user-error mapping classify request failures. Preserve input validation, loading, pending, retry and role/session boundaries.
+- **Forms:** `/forms` is implemented with real catalog filters and downloads. The original `Design/knowledge/forms.html` is a stub and does not define new categories or calculators.
+- **Public services:** `/services/[slug]` uses the live service tree, actual URL filters and pagination; unknown slugs return not-found. Home experts come from `/home` and related professional endpoints. No invented specialists fill an empty API response.
+- **Content:** articles, FAQ, knowledge, careers and about/legal retain their existing API/static data sources. Unknown entities return not-found. Preserve approved legal text and avoid fake statistics.
+- **SEO:** staging currently has noindex metadata, robots disallow `/`, and global noindex HTTP headers. Optional server-only `SITE_URL` supplies the public origin for sitemap generation; it is separate from the API base. Production indexing is intentionally not enabled by the alignment.
+- **Protected UI:** Header, Footer, Login, Registration, OTP and recovery UI, global CSS, font loading and shared protected dependencies remain unchanged. Kalameh FaNum weights 400–700 are retained.
+- **Reference safety:** `Design/` is read-only and excluded from Git, ESLint, Prettier and Docker context. Never run whole-reference formatting or import legacy fonts/Bootstrap/scripts.
 
-- **API CONTRACT REQUIRED.** OTP, catalogs, persistence, uploads, and final submit have no documented endpoints. Service functions throw a typed `ApiError` (`code: "unavailable"`) and the UI shows an integration error instead of fake success. Domain services still must not invent URLs or response shapes.
-- **HTTP errors.** `lib/api/http-client` classifies network, timeout, abort, validation, unauthorized, forbidden, not found, and server failures as `ApiError`. `toUserErrorMessage` maps those codes to Persian copy and never surfaces env var names, status-line dumps, or English stack text.
-- **Refresh recovery.** Committed wizard state is in-memory only. Missing prerequisites redirect to the first valid step. Do not persist national ID, OTP, or files in `localStorage` or the URL.
-- **Step 5 location fields.** Omitted until product decides whether they duplicate Step 3, represent birth place, or stay.
-- **Step 7 ترافیک / شهرسازی.** Discipline options exist in source; qualification options do not. The UI shows an info state and does not invent qualifications.
-- **Step 9 min/max images.** Not defined in source. Images are optional on the client; `accept_rules` is required.
-- **Completion destination.** `/expert-registration/complete` is the in-wizard success screen. Home is offered as a canonical exit. Pending-review vs login vs profile is still **BUSINESS DECISION REQUIRED**.
-- **Articles / FAQ / knowledge.** Live list and detail endpoints are used when `NEXT_PUBLIC_API_BASE_URL` is set. Unknown category/article slugs still call `notFound()`. Do not copy legacy demo UTM cards or invent taxonomies.
-- **Engineering forms (`/engineering-forms`).** Reserved in IA and still **NEEDS CONFIRMATION**. Legacy `knowledge/forms.html` is a stub with no files or metadata. The route is not implemented. Do not invent categories, downloads, or calculators.
-- **Legal / about copy.** `/about`, `/terms`, and `/privacy-policy` use employer text from the legacy about-us HTML. Do not invent statistics, certifications, or extra legal clauses.
-- **Privacy contact.** Source support email is incomplete (`@info-mohandeseman`) and is shown as-is. A complete address is a **legal/business requirement**. Phone and Rasht office address are from the same source.
-- **Legal-implied product surfaces.** Terms/privacy mention accounts, passwords, optional platform fees / «پرداخت امن», complaint intake, account deletion, user panel edit, and cookies. Those product surfaces remain **BUSINESS DECISION REQUIRED** and are not built from this copy.
-- **Service listing.** `/services/[slug]` loads the live service tree. Unknown slugs call `notFound()`. Home marketplace experts come from `GET /home` (and related professional endpoints). Do not invent specialists to hide an empty API response.
-- **Public metadata.** Titles, descriptions, and canonicals use existing copy. The root title template appends the site name. Search and expert-registration are `noindex`. `app/robots.ts` disallows `/expert-registration` and `/dev`. Do not invent a production origin or sitemap until the public site URL is known.
-- **Fonts.** Kalameh (FaNum) is loaded locally at weights 400–700, matching the type scale. Do not load Vazirmatn or Google Fonts.
-
-Docker usage is documented in [DOCKER.md](DOCKER.md).
+See [documentation index](README.md), [implementation report](implementation-report.md) and [testing record](testing-and-qa.md). Docker usage is documented in [DOCKER.md](DOCKER.md).

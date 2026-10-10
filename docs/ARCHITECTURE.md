@@ -4,13 +4,13 @@ Rulebook for the Mohandes Man frontend. Follow these rules in human and AI-assis
 
 ## Purpose
 
-This frontend is a Next.js App Router application. The first phase establishes structure, not product features. Architecture exists to keep routes thin, server rendering the default, and domain UI isolated from primitives.
+This frontend is a Next.js App Router application. The storefront, public content routes, private customer/engineer workspaces, and API adapters are implemented. Architecture exists to keep routes thin, server rendering the default, and domain UI isolated from primitives.
 
 Product routes, layouts, and domain component maps are specified in:
 
-- [INFORMATION-ARCHITECTURE.md](INFORMATION-ARCHITECTURE.md)
-- [COMPONENT-ARCHITECTURE.md](COMPONENT-ARCHITECTURE.md)
-- [STATE-MATRIX.md](STATE-MATRIX.md)
+- [INFORMATION-ARCHITECTURE.md](history/INFORMATION-ARCHITECTURE.md)
+- [COMPONENT-ARCHITECTURE.md](history/COMPONENT-ARCHITECTURE.md)
+- [STATE-MATRIX.md](history/STATE-MATRIX.md)
 
 ## No `src/` directory
 
@@ -72,7 +72,7 @@ Route groups:
 - `(engineer)` — private specialist workspace at `/engineer`
 - `(account)` — private customer workspace at `/account`
 
-Route names are kebab-case. Dynamic segments use `[id]` for opaque identity (experts). Public SEO resources use `[slug]` or `[category]` (services, articles, FAQ, knowledge). See [INFORMATION-ARCHITECTURE.md](INFORMATION-ARCHITECTURE.md).
+Route names are kebab-case. Dynamic segments use `[id]` for opaque identity (experts). Public SEO resources use `[slug]` or `[category]` (services, articles, FAQ, knowledge). See [INFORMATION-ARCHITECTURE.md](history/INFORMATION-ARCHITECTURE.md).
 
 ### `components/ui/`
 
@@ -199,11 +199,11 @@ lib/cn.ts
 
 Use `@/*` for project-root imports. Prefer the alias over deep relative paths.
 
-Next.js `agentRules` is disabled. Project rules live in `.cursor/rules/project-architecture.mdc`.
+Next.js `agentRules` is disabled. Project rules live in `.cursor/rules/project-ARCHITECTURE.mdc`.
 
 ## Environment and API boundaries
 
-- Read `NEXT_PUBLIC_API_BASE_URL` from the environment.
+- Read API configuration through `lib/env/env.ts`. `NEXT_PUBLIC_API_BASE_URL` includes `/api/v1`; optional server-only `API_INTERNAL_BASE_URL` takes precedence for server calls. Media URLs derive from the public origin or `NEXT_PUBLIC_MEDIA_BASE_URL`. Live API configuration disables public mock data.
 - Do not hardcode production or test API origins.
 - Use native fetch through `lib/api/http-client/http-client.ts`.
 - Do not add Axios.
@@ -213,11 +213,11 @@ Next.js `agentRules` is disabled. Project rules live in `.cursor/rules/project-a
 
 ## API strategy
 
-Services own domain API operations. They call the HTTP client. They do not invent endpoints until a later task defines them.
+Services own domain API operations and call the shared HTTP client. Existing live contracts are documented in [API-CONTRACTS.md](API-CONTRACTS.md); do not invent endpoints or silently substitute fixtures after live API errors.
 
 The HTTP client:
 
-- reads the origin from `NEXT_PUBLIC_API_BASE_URL`
+- reads the normalized API base including `/api/v1` through the environment module
 - supports GET, POST, PUT, PATCH, DELETE
 - accepts headers, JSON bodies, query parameters, and `AbortSignal`
 - throws `ApiError` for non-OK responses
@@ -250,7 +250,7 @@ The application is Persian and RTL.
 
 ## Styling
 
-- Tailwind CSS only for application styling.
+- Tailwind utilities are the default. Page-scoped CSS modules may isolate client-reference mobile styling or desktop ordering without changing protected shared styles; avoid new global CSS.
 - Use `cn()` from `lib/utils/cn/cn.ts` for conditional classes.
 - Global tokens live in `css/globals.css`.
 - Visual language, semantic tokens, and UI primitives are documented in [DESIGN-SYSTEM.md](DESIGN-SYSTEM.md). Domain components compose those primitives; they do not duplicate them.
@@ -268,3 +268,9 @@ Do not install new dependencies without a clear need. Do not introduce a UI fram
 ## Changing this architecture
 
 Do not change folder structure, naming conventions, or these rules unless a task explicitly instructs the change.
+
+## Alignment boundaries
+
+The 2026-10-10 alignment changes page composition and isolated domain presentation. Header, Footer, Login, Registration, OTP and password-recovery UI, global CSS and font loading remain unchanged. Shared dependencies preserve protected default rendering; the service category grid adds an opt-in homepage mobile-artwork branch while its default image/DOM path remains unchanged. Preserve feature flags, URL filters, native API adapters, session guards, TanStack Query, forms and validation. [Page documentation](README.md#page-documentation) describes final section ordering.
+
+The local `Design/` source is read-only, ignored by Git, formatting, lint and Docker context; never import its Bootstrap, fonts or scripts. The site currently has deliberate staging noindex restrictions. Optional server-only `SITE_URL` supplies public sitemap URLs when configured; it is distinct from the backend API URL.

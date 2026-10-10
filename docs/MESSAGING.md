@@ -1,5 +1,10 @@
 # Messaging
 
+Existing live adapters are `services/messaging-service/messaging-api.ts` and
+`messaging-actions.ts`; configured API reads/mutations use these before local
+overlays. The cookie and synthetic login sequence below apply only to explicit
+development mock mode.
+
 Shared customer ↔ engineer conversations. Both panels render opposite views
 of the **same** `Conversation` and `Message` records. Do not maintain a second
 chat catalog per panel.
@@ -115,7 +120,7 @@ in one browser. Do not persist real production message bodies in
 `localStorage` or other unsafe browser storage.
 
 When mock user auth is on, send / mark-read / start succeed against this
-overlay. When mock auth is off, mutations return unavailable. No Socket.IO,
+overlay. Without an API and with mock auth off, mutations return unavailable. No Socket.IO,
 WebSocket, Supabase realtime, or Firebase.
 
 Reviews and notifications are separate shared domains. See
@@ -124,11 +129,11 @@ They must not be mixed with article comments.
 
 Mandatory mock path:
 
-1. Customer login (`09121112233` / OTP `654321` or password `user1234`)
+1. Customer login (`09121112233` / OTP `65432` or password `user1234`)
 2. `/experts/amirhossein-rostami` → «پیام به مهندس»
 3. Existing thread `conv-utm-niavaran` opens (no duplicate)
 4. Send «سلام»
-5. Engineer login (`09115447316` / OTP `123456` or password `admin1234`)
+5. Engineer login (`09115447316` / OTP `12345` or password `admin1234`)
 6. `/engineer/messages` → same conversation
 7. Same body appears as a customer (`senderRole: "user"`) message
 8. Engineer replies
@@ -138,7 +143,7 @@ Mandatory mock path:
 
 ## API contracts
 
-Do **not** invent endpoint paths in the frontend.
+Live `/conversations` and message adapters are integrated; do **not** invent endpoint paths in the frontend.
 
 Workspace reads today:
 
@@ -154,7 +159,7 @@ Integration-ready mutations in
 - `markConversationRead(conversationId)`
 - `startOrOpenConversation(expertId)`
 
-Backend must define:
+Existing live adapter responsibilities (see [API-CONTRACTS.md](API-CONTRACTS.md)):
 
 - `listConversations` for the authenticated party
 - `getConversation(id)` including messages (cursor/older-page, not numbered

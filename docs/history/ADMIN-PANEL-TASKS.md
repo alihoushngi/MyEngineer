@@ -1,5 +1,8 @@
 # Mohandes Man Admin — Full Build Tasks (Vite + React + TypeScript + Tailwind)
 
+> Historical planning snapshot, preserved for decision context. This is not the current implementation or an instruction for active work. See the [current architecture](../ARCHITECTURE.md), [design reference audit](../design-reference-audit.md), and [documentation index](../README.md). The local client source is `Design/`; earlier absolute paths and product-scope exclusions below describe a previous phase. Header, Footer, Login, and Registration are excluded from this alignment.
+> This plan concerns a separate future Vite admin application; it does not describe the Next.js storefront.
+
 > **Product:** Staff admin / ops console for Mohandes Man (مهندس من)  
 > **Stack:** **React + Vite + TypeScript + Tailwind CSS** (standalone SPA — NOT the Next.js storefront)  
 > **Prompt language:** English (give each AI Prompt block to an agent)  
@@ -21,13 +24,13 @@
 
 ### Priority
 
-| Priority | Meaning |
-| --- | --- |
-| **P0** | Blocks everything |
-| **P1** | Unlocks real backend value |
-| **P2** | High ops value |
-| **P3** | Polish / density / shared UX |
-| **P4** | Future scaffolds only |
+| Priority | Meaning                      |
+| -------- | ---------------------------- |
+| **P0**   | Blocks everything            |
+| **P1**   | Unlocks real backend value   |
+| **P2**   | High ops value               |
+| **P3**   | Polish / density / shared UX |
+| **P4**   | Future scaffolds only        |
 
 ---
 
@@ -50,29 +53,29 @@ Persian professional-services marketplace identity:
 
 Use CSS variables in `src/styles/tokens.css`. Prefer OKLCH copies from storefront `:root` when possible; hex below is for design reviews.
 
-| Token | Approx hex | Admin usage |
-| --- | --- | --- |
-| `--primary` | `#01B597` | Primary buttons, active sidebar item, links, focus ring |
-| `--primary-hover` | `#009A7F` | Hover |
-| `--primary-active` | `#007E68` | Pressed |
-| `--primary-subtle` | `#D9F8EF` | Selected rows, soft chips |
-| `--primary-deep` | `#172C38` | Top bar, login brand panel, footer strip |
-| `--primary-deep-foreground` | `#FCFCFD` | Text/icons on navy |
-| `--secondary` | `#66A1BE` | Secondary buttons, info accents |
-| `--secondary-subtle` | `#E2F1FA` | Soft info bands |
-| `--accent` | `#B15400` | Rare emphasis (export CTA optional, alerts highlight) |
-| `--accent-subtle` | `#FFEED1` | Soft warning-adjacent surfaces |
-| `--background` | `#FFFFFF` | Page canvas |
-| `--background-subtle` | `#F1F9F7` | App body behind cards / content band |
-| `--foreground` | `#1B2325` | Body text |
-| `--foreground-muted` | `#596264` | Meta, helpers |
-| `--surface` | `#FFFFFF` | Cards, panels, inputs |
-| `--surface-muted` | `#F5F4F1` | Empty states, zebra optional |
-| `--border` | cool low-contrast gray-teal | Separators |
-| `--success` | `#266741` | Published / active |
-| `--warning` | `#A76200` | Pending / draft |
-| `--danger` | `#A43B38` | Destructive / banned / errors |
-| `--ring` | `var(--primary)` | `focus-visible` |
+| Token                       | Approx hex                  | Admin usage                                             |
+| --------------------------- | --------------------------- | ------------------------------------------------------- |
+| `--primary`                 | `#01B597`                   | Primary buttons, active sidebar item, links, focus ring |
+| `--primary-hover`           | `#009A7F`                   | Hover                                                   |
+| `--primary-active`          | `#007E68`                   | Pressed                                                 |
+| `--primary-subtle`          | `#D9F8EF`                   | Selected rows, soft chips                               |
+| `--primary-deep`            | `#172C38`                   | Top bar, login brand panel, footer strip                |
+| `--primary-deep-foreground` | `#FCFCFD`                   | Text/icons on navy                                      |
+| `--secondary`               | `#66A1BE`                   | Secondary buttons, info accents                         |
+| `--secondary-subtle`        | `#E2F1FA`                   | Soft info bands                                         |
+| `--accent`                  | `#B15400`                   | Rare emphasis (export CTA optional, alerts highlight)   |
+| `--accent-subtle`           | `#FFEED1`                   | Soft warning-adjacent surfaces                          |
+| `--background`              | `#FFFFFF`                   | Page canvas                                             |
+| `--background-subtle`       | `#F1F9F7`                   | App body behind cards / content band                    |
+| `--foreground`              | `#1B2325`                   | Body text                                               |
+| `--foreground-muted`        | `#596264`                   | Meta, helpers                                           |
+| `--surface`                 | `#FFFFFF`                   | Cards, panels, inputs                                   |
+| `--surface-muted`           | `#F5F4F1`                   | Empty states, zebra optional                            |
+| `--border`                  | cool low-contrast gray-teal | Separators                                              |
+| `--success`                 | `#266741`                   | Published / active                                      |
+| `--warning`                 | `#A76200`                   | Pending / draft                                         |
+| `--danger`                  | `#A43B38`                   | Destructive / banned / errors                           |
+| `--ring`                    | `var(--primary)`            | `focus-visible`                                         |
 
 ### Visual rules for admin
 
@@ -98,24 +101,24 @@ DON'T
 
 ### Design dials (locked)
 
-| Dial | Value | Meaning |
-| --- | --- | --- |
-| Variance | 3/10 | Centered, minimal, consistent |
-| Motion | 3/10 | Subtle feedback only |
-| Density | 8/10 | Dashboard-dense lists/forms |
+| Dial     | Value | Meaning                       |
+| -------- | ----- | ----------------------------- |
+| Variance | 3/10  | Centered, minimal, consistent |
+| Motion   | 3/10  | Subtle feedback only          |
+| Density  | 8/10  | Dashboard-dense lists/forms   |
 
 ### Perf / a11y assumptions
 
-| Assumption | Value |
-| --- | --- |
-| Primary device | Desktop fiber (staff), mobile usable |
-| LCP target | ≤ 2000ms login + shell |
-| INP | ≤ 200ms |
-| CLS | ≤ 0.1 |
-| SEO | Auth-walled SPA — `noindex` in `index.html` |
-| Bundle budget | ≤ 200KB gzip initial; ≤ 80KB gzip per lazy route |
-| WCAG | AA |
-| A11y owner | Frontend lead on this admin repo |
+| Assumption     | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Primary device | Desktop fiber (staff), mobile usable             |
+| LCP target     | ≤ 2000ms login + shell                           |
+| INP            | ≤ 200ms                                          |
+| CLS            | ≤ 0.1                                            |
+| SEO            | Auth-walled SPA — `noindex` in `index.html`      |
+| Bundle budget  | ≤ 200KB gzip initial; ≤ 80KB gzip per lazy route |
+| WCAG           | AA                                               |
+| A11y owner     | Frontend lead on this admin repo                 |
 
 ---
 
@@ -159,6 +162,7 @@ API base: VITE_API_BASE_URL (never hardcode)
 ## Phase 0 — Product & repo bootstrap
 
 ### TASK 0.1 — Product brief + IA + route map
+
 **Priority:** P0 · **Estimate:** M
 
 #### AI Prompt
@@ -195,6 +199,7 @@ Do not write application code.
 ---
 
 ### TASK 0.2 — Scaffold Vite + React + TS + Tailwind
+
 **Priority:** P0 · **Depends on:** 0.1 · **Estimate:** M
 
 #### AI Prompt
@@ -239,6 +244,7 @@ ACCEPTANCE
 ---
 
 ### TASK 0.3 — Brand tokens, Kalameh font, Tailwind semantic theme
+
 **Priority:** P0 · **Depends on:** 0.2 · **Estimate:** M
 
 #### AI Prompt
@@ -272,6 +278,7 @@ ACCEPTANCE
 ## Phase 1 — App shell & design system primitives
 
 ### TASK 1.1 — UI primitive kit
+
 **Priority:** P0 · **Depends on:** 0.3 · **Estimate:** L
 
 #### AI Prompt
@@ -298,6 +305,7 @@ OUT: no feature screens yet.
 ---
 
 ### TASK 1.2 — App providers, router, query client
+
 **Priority:** P0 · **Depends on:** 0.2 · **Estimate:** M
 
 #### AI Prompt
@@ -323,6 +331,7 @@ ACCEPTANCE
 ---
 
 ### TASK 1.3 — Admin layout chrome (professional design)
+
 **Priority:** P0 · **Depends on:** 1.1, 1.2, 0.3 · **Estimate:** L
 
 #### AI Prompt
@@ -355,6 +364,7 @@ Include a placeholder Outlet dashboard page.
 ## Phase 2 — Auth & HTTP
 
 ### TASK 2.1 — API client (envelope + Bearer + binary)
+
 **Priority:** P0 · **Depends on:** 1.2 · **Estimate:** M
 
 #### AI Prompt
@@ -378,6 +388,7 @@ NO Axios.
 ---
 
 ### TASK 2.2 — Auth domain (login, role, me, logout, guards)
+
 **Priority:** P0 · **Depends on:** 2.1 · **Estimate:** L
 
 #### AI Prompt
@@ -407,6 +418,7 @@ TESTS
 ---
 
 ### TASK 2.3 — Login page (branded)
+
 **Priority:** P0 · **Depends on:** 2.2, 0.3 · **Estimate:** M
 
 #### AI Prompt
@@ -434,6 +446,7 @@ ACCEPTANCE
 ---
 
 ### TASK 2.4 — Sessions settings page
+
 **Priority:** P2 · **Depends on:** 2.2, 1.3 · **Estimate:** S
 
 #### AI Prompt
@@ -450,6 +463,7 @@ Persian copy, confirm dialogs, empty/loading/error states.
 ## Phase 3 — Shared admin patterns
 
 ### TASK 3.1 — DataTable + FilterBar + PageHeader + ConfirmDialog
+
 **Priority:** P1 · **Depends on:** 1.1, 1.3 · **Estimate:** L
 
 #### AI Prompt
@@ -478,6 +492,7 @@ Add Story-less demo usage on a hidden `/dev/patterns` route (optional, remove be
 ---
 
 ### TASK 3.2 — Form kit standards
+
 **Priority:** P1 · **Depends on:** 1.1 · **Estimate:** M
 
 #### AI Prompt
@@ -499,6 +514,7 @@ Build one example schema test.
 ## Phase 4 — Dashboard
 
 ### TASK 4.1 — Overview dashboard
+
 **Priority:** P1 · **Depends on:** 1.3, 2.2 · **Estimate:** M
 
 #### AI Prompt
@@ -523,6 +539,7 @@ DESIGN
 ## Phase 5 — Professionals (API ready)
 
 ### TASK 5.1 — Professionals service
+
 **Priority:** P1 · **Depends on:** 2.1 · **Estimate:** M
 
 #### AI Prompt
@@ -539,6 +556,7 @@ Strict types + mappers + Vitest for query serialization.
 ---
 
 ### TASK 5.2 — Professionals directory UI + export
+
 **Priority:** P1 · **Depends on:** 5.1, 3.1 · **Estimate:** L
 
 #### AI Prompt
@@ -565,6 +583,7 @@ DESIGN
 ## Phase 6 — Content CMS (API ready)
 
 ### TASK 6.1 — Blog + category services
+
 **Priority:** P1 · **Depends on:** 2.1 · **Estimate:** M
 
 #### AI Prompt
@@ -579,6 +598,7 @@ XSS rule: never dangerouslySetInnerHTML unsanitized; if preview needed, sanitize
 ---
 
 ### TASK 6.2 — Blog categories CRUD UI
+
 **Priority:** P1 · **Depends on:** 6.1, 3.1, 3.2 · **Estimate:** M
 
 #### AI Prompt
@@ -592,6 +612,7 @@ Persian forms, RBAC staff-only, full query states.
 ---
 
 ### TASK 6.3 — Blog posts CMS UI
+
 **Priority:** P1 · **Depends on:** 6.1, 6.2 · **Estimate:** L
 
 #### AI Prompt
@@ -618,6 +639,7 @@ DESIGN
 ## Phase 7 — Tickets & Careers
 
 ### TASK 7.1 — Tickets service + inbox/thread UI
+
 **Priority:** P2 · **Depends on:** 2.1, 3.1 · **Estimate:** L
 
 #### AI Prompt
@@ -639,6 +661,7 @@ Mobile conversation pattern; Lucide icons; tokenized bubbles (staff vs user) wit
 ---
 
 ### TASK 7.2 — Careers admin
+
 **Priority:** P2 · **Depends on:** 2.1, 3.1, 3.2 · **Estimate:** L
 
 #### AI Prompt
@@ -656,6 +679,7 @@ Full states + Persian copy + confirm destructive actions.
 ## Phase 8 — API-gated scaffolds (future)
 
 ### TASK 8.1 — Placeholder modules
+
 **Priority:** P4 · **Depends on:** 1.3 · **Estimate:** M
 
 #### AI Prompt
@@ -680,6 +704,7 @@ Do not fake mutations.
 ## Phase 9 — Hardening, QA, release
 
 ### TASK 9.1 — Security hardening
+
 **Priority:** P1 · **Depends on:** Phases 2–7 · **Estimate:** M
 
 #### AI Prompt
@@ -704,6 +729,7 @@ Implement fixes, not only notes.
 ---
 
 ### TASK 9.2 — Automated tests + Manual QA
+
 **Priority:** P2 · **Depends on:** 5.2, 6.3, 7.1 · **Estimate:** M
 
 #### AI Prompt
@@ -719,6 +745,7 @@ GOAL
 ---
 
 ### TASK 9.3 — Performance pass
+
 **Priority:** P3 · **Depends on:** 1.3 · **Estimate:** S
 
 #### AI Prompt
@@ -735,6 +762,7 @@ GOAL
 ---
 
 ### TASK 9.4 — Visual polish & design QA (final)
+
 **Priority:** P1 · **Depends on:** all feature phases · **Estimate:** M
 
 #### AI Prompt
@@ -759,6 +787,7 @@ DELIVER
 ---
 
 ### TASK 9.5 — Production build & deploy docs
+
 **Priority:** P2 · **Depends on:** 9.1–9.4 · **Estimate:** S
 
 #### AI Prompt
@@ -775,14 +804,14 @@ GOAL
 
 ## Suggested sprints (RICE-aware)
 
-| Sprint | Tasks | Outcome |
-| --- | --- | --- |
-| **S0** | 0.1 → 0.3 | Branded Vite foundation |
-| **S1** | 1.1 → 1.3, 2.1 → 2.3 | Shell + auth login |
-| **S2** | 3.1 → 3.2, 4.1, 5.1 → 5.2 | Patterns + professionals |
-| **S3** | 6.1 → 6.3 | Blog CMS |
-| **S4** | 7.1 → 7.2, 2.4 | Tickets + careers + sessions |
-| **S5** | 8.1, 9.1 → 9.5 | Scaffolds + harden + ship |
+| Sprint | Tasks                     | Outcome                      |
+| ------ | ------------------------- | ---------------------------- |
+| **S0** | 0.1 → 0.3                 | Branded Vite foundation      |
+| **S1** | 1.1 → 1.3, 2.1 → 2.3      | Shell + auth login           |
+| **S2** | 3.1 → 3.2, 4.1, 5.1 → 5.2 | Patterns + professionals     |
+| **S3** | 6.1 → 6.3                 | Blog CMS                     |
+| **S4** | 7.1 → 7.2, 2.4            | Tickets + careers + sessions |
+| **S5** | 8.1, 9.1 → 9.5            | Scaffolds + harden + ship    |
 
 ---
 
@@ -802,45 +831,45 @@ After coding: run pnpm typecheck && pnpm lint && relevant pnpm test; report resu
 
 ## Tracking checklist
 
-| ID | Task | P | Status |
-| --- | --- | --- | --- |
-| 0.1 | Product + IA docs | P0 | ☐ |
-| 0.2 | Vite/React/TS/Tailwind scaffold | P0 | ☐ |
-| 0.3 | Brand tokens + Kalameh + theme | P0 | ☐ |
-| 1.1 | UI primitives | P0 | ☐ |
-| 1.2 | Router + Query + providers | P0 | ☐ |
-| 1.3 | Admin shell chrome | P0 | ☐ |
-| 2.1 | HTTP client | P0 | ☐ |
-| 2.2 | Auth domain + guards | P0 | ☐ |
-| 2.3 | Branded login page | P0 | ☐ |
-| 2.4 | Sessions settings | P2 | ☐ |
-| 3.1 | DataTable/Filter/Header patterns | P1 | ☐ |
-| 3.2 | Form kit standards | P1 | ☐ |
-| 4.1 | Dashboard | P1 | ☐ |
-| 5.1 | Professionals service | P1 | ☐ |
-| 5.2 | Professionals UI + export | P1 | ☐ |
-| 6.1 | Blog services | P1 | ☐ |
-| 6.2 | Blog categories UI | P1 | ☐ |
-| 6.3 | Blog CMS UI | P1 | ☐ |
-| 7.1 | Tickets console | P2 | ☐ |
-| 7.2 | Careers admin | P2 | ☐ |
-| 8.1 | API-gated scaffolds | P4 | ☐ |
-| 9.1 | Security hardening | P1 | ☐ |
-| 9.2 | Tests + QA doc | P2 | ☐ |
-| 9.3 | Performance pass | P3 | ☐ |
-| 9.4 | Final visual/design QA | P1 | ☐ |
-| 9.5 | Build + deploy docs | P2 | ☐ |
+| ID  | Task                             | P   | Status |
+| --- | -------------------------------- | --- | ------ |
+| 0.1 | Product + IA docs                | P0  | ☐      |
+| 0.2 | Vite/React/TS/Tailwind scaffold  | P0  | ☐      |
+| 0.3 | Brand tokens + Kalameh + theme   | P0  | ☐      |
+| 1.1 | UI primitives                    | P0  | ☐      |
+| 1.2 | Router + Query + providers       | P0  | ☐      |
+| 1.3 | Admin shell chrome               | P0  | ☐      |
+| 2.1 | HTTP client                      | P0  | ☐      |
+| 2.2 | Auth domain + guards             | P0  | ☐      |
+| 2.3 | Branded login page               | P0  | ☐      |
+| 2.4 | Sessions settings                | P2  | ☐      |
+| 3.1 | DataTable/Filter/Header patterns | P1  | ☐      |
+| 3.2 | Form kit standards               | P1  | ☐      |
+| 4.1 | Dashboard                        | P1  | ☐      |
+| 5.1 | Professionals service            | P1  | ☐      |
+| 5.2 | Professionals UI + export        | P1  | ☐      |
+| 6.1 | Blog services                    | P1  | ☐      |
+| 6.2 | Blog categories UI               | P1  | ☐      |
+| 6.3 | Blog CMS UI                      | P1  | ☐      |
+| 7.1 | Tickets console                  | P2  | ☐      |
+| 7.2 | Careers admin                    | P2  | ☐      |
+| 8.1 | API-gated scaffolds              | P4  | ☐      |
+| 9.1 | Security hardening               | P1  | ☐      |
+| 9.2 | Tests + QA doc                   | P2  | ☐      |
+| 9.3 | Performance pass                 | P3  | ☐      |
+| 9.4 | Final visual/design QA           | P1  | ☐      |
+| 9.5 | Build + deploy docs              | P2  | ☐      |
 
 ---
 
 ## Relationship to the Next.js storefront
 
-| Concern | Storefront (`MyEnginner`) | Admin (this task set) |
-| --- | --- | --- |
-| Stack | Next.js App Router | **Vite + React SPA** |
-| Audience | Guests, customers, engineers | Staff (`admin` / `assistant`) |
-| Brand | Mohandes Man tokens | **Same tokens** (ported) |
-| API | Public + mock panels | Sanctum staff endpoints |
-| Coupling | — | Share OpenAPI contracts + fonts/tokens only |
+| Concern  | Storefront (`MyEnginner`)    | Admin (this task set)                       |
+| -------- | ---------------------------- | ------------------------------------------- |
+| Stack    | Next.js App Router           | **Vite + React SPA**                        |
+| Audience | Guests, customers, engineers | Staff (`admin` / `assistant`)               |
+| Brand    | Mohandes Man tokens          | **Same tokens** (ported)                    |
+| API      | Public + mock panels         | Sanctum staff endpoints                     |
+| Coupling | —                            | Share OpenAPI contracts + fonts/tokens only |
 
 Do **not** implement `/admin` inside the Next.js app unless product explicitly changes this decision.

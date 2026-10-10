@@ -1,7 +1,9 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeftIcon } from "lucide-react";
 
 import { StoreBreadcrumb } from "@/components/common/storeBreadcrumb/storeBreadcrumb";
+import { ArticleCategoryFilter } from "@/components/store/article/articleCategoryFilter/articleCategoryFilter";
 import { ArticleBody } from "@/components/store/article/articleBody/articleBody";
 import { ArticleComments } from "@/components/store/article/articleComments/articleComments";
 import { ArticleSidebar } from "@/components/store/article/articleSidebar/articleSidebar";
@@ -99,12 +101,14 @@ export function ArticleDetailPage({
             </header>
 
             {article.coverSrc ? (
-              <div className="mt-8 overflow-hidden rounded-3xl border border-border-subtle bg-surface shadow-sm">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+              <div className="relative mt-8 aspect-video overflow-hidden rounded-3xl border border-border-subtle bg-surface shadow-sm">
+                <Image
                   src={article.coverSrc}
-                  alt=""
-                  className="aspect-video w-full object-cover"
+                  alt={article.title}
+                  fill
+                  priority
+                  sizes="(min-width: 1024px) 48rem, 100vw"
+                  className="object-cover"
                 />
               </div>
             ) : null}
@@ -172,6 +176,17 @@ export function ArticleDetailPage({
             ) : null}
           </article>
         </div>
+
+        {categories.length > 0 ? (
+          <div className="lg:hidden">
+            <ArticleCategoryFilter
+              categories={categories}
+              activeSlug={article.categorySlug ?? "all"}
+              q=""
+              sort="newest"
+            />
+          </div>
+        ) : null}
 
         <RelatedArticles
           items={related}

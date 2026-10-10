@@ -9,3 +9,4 @@ pnpm-workspace.yaml
 *.tsbuildinfo
 next-env.d.ts
 PastDesign/**
+Design/**

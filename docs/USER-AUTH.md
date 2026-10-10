@@ -1,8 +1,8 @@
 # User Authentication
 
 Customer (normal user) authentication for Mohandes Man. This is **not**
-Engineer authentication. The two account types do not share panels, routes,
-permissions, or session cookies.
+Engineer authentication. The two account types keep distinct panels, routes and permission guards.
+Live auth uses the existing token/role boundary; development mock cookies remain role-specific.
 
 Visual identity follows [DESIGN-SYSTEM.md](DESIGN-SYSTEM.md). Folder rules
 follow [ARCHITECTURE.md](ARCHITECTURE.md). Engineer auth remains documented in
@@ -52,9 +52,9 @@ role: "user" | "engineer";
 
 Server readers:
 
-- `getUserSession()` — customer mock session, or `null`
-- `getEngineerSession()` — engineer mock session, or `null`
-- `getUserAccess()` — integration-ready account guard states
+- `getUserSession()` — current customer session (live or explicit mock), or `null`
+- `getEngineerSession()` — current engineer session (live or explicit mock), or `null`
+- `getUserAccess()` — live API access when configured, otherwise explicit mock/unavailable guard states
 - `getEngineerAccess()` — engineer workspace guard; a user session is `forbidden`
 
 Do not hide the other role only in navigation. Guards decide access.
@@ -71,7 +71,7 @@ Do not hide the other role only in navigation. Guards decide access.
 | `unauthenticated`  | No session                             | Redirect to `/login?next=` when mock user auth is on |
 | `expired`          | Cookie present but invalid / mocks off | Re-login                                             |
 | `unavailable`      | No user-auth API and mocks off         | Unavailable                                          |
-| `error`            | Future API failure                     | Error + retry copy                                   |
+| `error`            | API failure                            | Error + retry copy                                   |
 
 Private customer fields render only when `kind === "authenticated"`.
 
@@ -100,14 +100,14 @@ NEXT_PUBLIC_ENABLE_MOCK_USER_LOGIN=true
 | Field        | Value         |
 | ------------ | ------------- |
 | Phone        | `09121112233` |
-| OTP          | `654321`      |
+| OTP          | `65432`       |
 | Password     | `user1234`    |
 | Display name | `سارا مشتری`  |
 
 These values are **different** from engineer mock credentials.
 The UI never hardcodes them.
 
-Login only accepts this test user. Registration OTP is the same 6-digit mock
+Login only accepts this test user. Registration OTP is the same 5-digit mock
 code; any other valid Iranian mobile (except the engineer test phone) can
 complete mock registration and receive a session immediately.
 
@@ -120,7 +120,7 @@ Development-only httpOnly cookies:
 - `mm_mock_user_session=active`
 - `mm_mock_user_profile` (display name, masked phone, source — never password or OTP)
 
-Compatible with the future real-auth boundary: UI and guards read
+Compatible with the live-auth boundary: UI and guards read
 `getUserSession()` / `getUserAccess()`, not cookie names.
 
 Allows `/account/*`. Does not allow `/engineer/*`.
@@ -177,18 +177,17 @@ account payloads.
 
 ---
 
-## Backend contracts required
+## Live integration
 
-Do not invent endpoints in the frontend. Real auth needs:
+The live auth API is already integrated through `services/auth-api-service/`
+and `services/auth-service/`, with customer access at
+`services/user-auth-service/user-access-service.ts`. Configured API access
+is checked before private content renders; missing or wrong-role access is
+not granted by catalog fixtures. Password recovery is implemented in the
+protected authentication family. This alignment does not alter any of these
+forms, session handling, API calls or redirect rules.
 
-1. Customer OTP request / verify and password login
-2. Lightweight customer registration (mobile, OTP, display name, password)
-3. Session cookie or token boundary with `role: "user"`
-4. Current-user profile read for `/account`
-5. Logout / session revoke
-6. Explicit 401 vs 403 vs 409 when an engineer token hits customer routes (and the reverse)
-7. Auth-required mutations: start conversation, save expert, create request, submit review
-
-Password reset is **not** implemented until a contract exists.
-
-Social login is **not** in this product surface.
+All mock auth config flags default to false, with explicit development-only
+overrides. The shared OTP length is five digits. See [MOCK-AUTH.md](MOCK-AUTH.md)
+and [API-CONTRACTS.md](API-CONTRACTS.md) for current adapters and synthetic
+local test values. Social login is not a product surface.

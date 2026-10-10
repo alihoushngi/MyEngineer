@@ -5,6 +5,11 @@ and not a customer account. Visual identity follows
 [DESIGN-SYSTEM.md](DESIGN-SYSTEM.md). Architecture follows
 [ARCHITECTURE.md](ARCHITECTURE.md).
 
+Current live integration uses `services/engineer-service/engineer-panel-api.ts`,
+`engineer-access-service.ts` and existing mutation actions. The mock fixture
+notes below describe explicit local-development behavior. Engineer review
+reply and support are implemented through their existing adapters.
+
 Public product language remains **متخصص / expert**. The URL family is
 `/engineer` because this task defined that canonical route.
 
@@ -27,6 +32,9 @@ Public product language remains **متخصص / expert**. The URL family is
 | `/engineer/reviews`       | Review list                      |
 | `/engineer/reviews/[id]`  | Review detail                    |
 | `/engineer/notifications` | Notification center              |
+| `/engineer/support`       | Support ticket list              |
+| `/engineer/support/new`   | Create support ticket            |
+| `/engineer/support/[id]`  | Ticket thread                    |
 | `/engineer/settings`      | Account display, logout boundary |
 
 Layouts live under `app/(engineer)/engineer/`. The group does not appear in
@@ -37,23 +45,16 @@ no-store`. They are not in the sitemap.
 
 ## Access model
 
-Frontend states, not invented server session:
+Configured API access uses `getLiveEngineerAccess()` and returns the current
+workspace only for permitted engineer states. Without an API, session/mock
+access may return `active`, `pending_review`, `forbidden`, `unauthenticated`,
+`visual_review` or `unavailable`. Public display fixtures are disabled by live
+API configuration and do not become customer authentication.
 
-| State                         | When                                  | UI                                           |
-| ----------------------------- | ------------------------------------- | -------------------------------------------- |
-| A. Unauthenticated            | Future API `401`                      | Unauthorized, no private lists               |
-| B. Registration in progress   | Future account status                 | Panel + continue-registration banner         |
-| C. Submitted / pending review | Future account status                 | Panel + pending banner                       |
-| D. Active                     | Future account status                 | Full workspace                               |
-| Visual review                 | `NEXT_PUBLIC_USE_MOCK_DATA` (default) | Full workspace + honest design-review banner |
-| Unavailable                   | Mock off, no account API              | Unauthorized / API unavailable               |
-
-**API CONTRACT REQUIRED:** current engineer session, registration outcome, and
-whether an incomplete wizard may enter the panel.
-
-Display mock data is **not** authentication. Profile, portfolio, and request
-mutations still fail locally. Mock messaging overlay sends are the shared
-exception documented in [MESSAGING.md](MESSAGING.md).
+All mock auth flags are false by default. Explicit catalog fixtures may support
+visual review with a clear banner when no API is configured. Existing session
+and role guards remain authoritative. Authentication and registration UI are
+protected and unchanged by this alignment.
 
 ---
 
@@ -83,7 +84,7 @@ Credential files are represented as `hasDocument` only.
 
 No revenue, conversion, or analytics cards.
 
-### Profile completion derivation
+### Profile completion derivation (development fixtures)
 
 Nine product areas from registration/public profile:
 
@@ -143,16 +144,16 @@ is hidden on the thread so the composer stays reachable. See
 
 ### Portfolio / credentials
 
-Local file selection is not upload success. Remove/add mutations throw until
-an API exists. Sensitive documents are not exposed as public URLs.
+Local file selection is not upload success. Existing live portfolio and credential mutations use their API adapters;
+local selection alone does not establish upload success. Sensitive documents are not exposed as public URLs.
 
 ### Reviews
 
 Read-only list at `/engineer/reviews`. Each item links to
 `/engineer/reviews/[id]`. Unknown ids use the panel `not-found` page.
 Customer-authored reviews use the same `ServiceReview` entity as
-`/account/reviews` and `/experts/[id]`. Engineer reply is not implemented;
-existing `replyText` may render if the data source supplies it.
+`/account/reviews` and `/experts/[id]`. Live engineer replies use `submitReviewReplyAction` and
+`replyToEngineerReviewApi`; displayed reply text remains supplied by the data source.
 
 Desktop sidebar: the panel shell is a two-column grid with a
 `minmax(100dvh, auto)` row. The sidebar surface fills that row (viewport
@@ -192,24 +193,14 @@ switch so the same browser can inspect both views. Visual testing only.
 
 ---
 
-## API contracts required
+## Live API boundaries
 
-Do not invent paths. Backend must define:
-
-- current engineer account / session
-- engineer profile read + update
-- specialties / software update
-- service-area update
-- requests list + detail + real status model
-- request actions if product allows them
-- conversations, messages, send message, mark-read
-- portfolio create/update/delete and upload
-- credential read/update/upload and verification states
-- reviews for the authenticated engineer (same entity as customer reviews)
-- notifications + read state (recipient-scoped)
-- settings and sign-out
-- registration-to-panel access rules
-- review eligibility if engineers should see pending/unpublished items
+Current adapters cover engineer workspace/profile, specialties, areas,
+requests, portfolio, credentials, reviews and replies, notifications,
+settings and support. Shared messaging uses the same conversation domain as
+customer accounts. Real endpoint/response contracts are documented in
+[API-CONTRACTS.md](API-CONTRACTS.md); preserve recipient/role permissions and
+do not invent paths or expand workflow rules.
 
 ---
 
@@ -221,7 +212,6 @@ Do not invent paths. Backend must define:
 - Can engineers delete or deactivate accounts?
 - Are portfolio items sortable?
 - What happens after verification rejection?
-- Can engineers reply to reviews?
 - Nearby-city radius / max count?
 - Post-registration destination (home vs panel vs pending review)?
 

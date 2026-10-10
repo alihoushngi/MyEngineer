@@ -6,6 +6,13 @@ import { storePaths } from "@/config/navigation.config/navigation.config";
 export const metadata: Metadata = {
   title: termsCopy.breadcrumb,
   description: termsCopy.metadataDescription,
+  openGraph: {
+    title: termsCopy.title,
+    description: termsCopy.metadataDescription,
+    type: "website",
+    locale: "fa_IR",
+    siteName: "مهندس من",
+  },
   alternates: {
     canonical: storePaths.terms,
   },

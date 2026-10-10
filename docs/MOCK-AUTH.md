@@ -17,29 +17,29 @@ Source of truth:
 ```ts
 export const mockAuthConfig = {
   mockRegister: {
-    enabled: true,
+    enabled: false,
     otp: "12345",
     delayMs: 300,
     forceError: false,
   },
   mockLogin: {
-    enabled: true,
+    enabled: false,
     phone: "09115447316",
-    otp: "123456",
+    otp: "12345",
     password: "admin1234",
     delayMs: 300,
     forceError: false,
   },
   mockUserRegister: {
-    enabled: true,
-    otp: "654321",
+    enabled: false,
+    otp: "65432",
     delayMs: 300,
     forceError: false,
   },
   mockUserLogin: {
-    enabled: true,
+    enabled: false,
     phone: "09121112233",
-    otp: "654321",
+    otp: "65432",
     password: "user1234",
     displayName: "سارا مشتری",
     delayMs: 300,
@@ -71,15 +71,16 @@ Set either value to `false` to force that mock flow off.
 
 Effective mock mode is:
 
-`canUseMocks() && config.enabled && env !== false`
+`resolveMockFlag(canUseMocks(), config.enabled, envOverride)` (an explicit development override may enable the mock while the config default is false)
 
 `canUseMocks()` is `process.env.NODE_ENV !== "production"`.
 
 Mock credentials are compared only inside server-side adapters. The UI never
 hardcodes the test phone, OTP, or password.
 
-If mock flags are off, unavailable APIs still fail. There is no silent mock
-fallback after a real API error.
+When an API base is configured, existing live authentication and registration
+adapters are available. Missing configuration or request failures remain errors;
+there is no silent mock fallback after a real API error.
 
 ## Test login
 
@@ -88,7 +89,7 @@ Engineer values (development only):
 | Field     | Value         |
 | --------- | ------------- |
 | Phone     | `09115447316` |
-| Login OTP | `123456`      |
+| Login OTP | `12345`       |
 | Password  | `admin1234`   |
 
 Customer values are different. See [USER-AUTH.md](USER-AUTH.md).
@@ -115,7 +116,7 @@ Route: `/engineer/login`
 
 Methods:
 
-- OTP login (6 digits)
+- OTP login (5 digits)
 - Password login
 
 After success: `router.replace("/engineer")`, or a safe internal `?next=`
@@ -146,10 +147,12 @@ returns to `/`.
 
 ## Real API mode
 
-When mocks are off:
+The project now has live login, OTP, role selection, password recovery,
+registration and profile adapters in `services/auth-api-service/`,
+`services/auth-service/`, and `services/registration-service/`. Live workspace
+adapters are available for customers and engineers. See [API-CONTRACTS.md](API-CONTRACTS.md).
 
-- Registration mutations throw the existing unavailable API error.
-- Login UI still renders, but submit fails with the unavailable-auth error.
-- Engineer Panel returns to visual-review display data if `NEXT_PUBLIC_USE_MOCK_DATA` is on, otherwise unavailable.
-
-Do not treat display fixtures as a login session.
+All four mock config flags are false by default; OTP length is the shared
+`OTP_LENGTH = 5`. Catalog fixtures do not grant authentication. This document
+records explicit development mode only, not production credentials or API
+verification. The 2026-10-10 alignment does not change protected auth code.

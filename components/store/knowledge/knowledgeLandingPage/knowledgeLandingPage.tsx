@@ -12,10 +12,13 @@ import { knowledgeCopy } from "@/config/knowledge.config/knowledge.config";
 import { storePaths } from "@/config/navigation.config/navigation.config";
 import { siteConfig } from "@/config/site.config/site.config";
 
-import { type KnowledgeCategory } from "@/types/store/knowledge.types";
+import {
+  type KnowledgeCategory,
+  type KnowledgeTip,
+} from "@/types/store/knowledge.types";
 
 type KnowledgeLandingPageProps = {
-  categories: readonly KnowledgeCategory[];
+  categories: readonly (KnowledgeCategory & { previewTip?: KnowledgeTip })[];
   categoryOptions?: readonly KnowledgeCategory[];
   q?: string;
   category?: string;
@@ -53,28 +56,30 @@ export function KnowledgeLandingPage({
           ]}
         />
 
-        <ContentPageHeader
-          title={knowledgeCopy.landingTitle}
-          description={knowledgeCopy.landingDescription}
-        />
+        <div className="space-y-5 rounded-3xl border border-primary/10 bg-primary-subtle p-5 sm:contents sm:space-y-0">
+          <ContentPageHeader
+            title="پایگاه دانش مهندس من"
+            description={knowledgeCopy.landingDescription}
+          />
 
-        <ContentFilterBar
-          q={q}
-          searchLabel={knowledgeCopy.searchLabel}
-          searchPlaceholder={knowledgeCopy.searchPlaceholder}
-          selects={[
-            {
-              param: "category",
-              label: knowledgeCopy.categorySelectLabel,
-              allLabel: knowledgeCopy.allCategoriesLabel,
-              value: category,
-              options: categoryOptions.map((item) => ({
-                value: item.slug,
-                label: item.title,
-              })),
-            },
-          ]}
-        />
+          <ContentFilterBar
+            q={q}
+            searchLabel={knowledgeCopy.searchLabel}
+            searchPlaceholder={knowledgeCopy.searchPlaceholder}
+            selects={[
+              {
+                param: "category",
+                label: knowledgeCopy.categorySelectLabel,
+                allLabel: knowledgeCopy.allCategoriesLabel,
+                value: category,
+                options: categoryOptions.map((item) => ({
+                  value: item.slug,
+                  label: item.title,
+                })),
+              },
+            ]}
+          />
+        </div>
 
         {categories.length > 0 ? (
           <ul className="grid items-stretch gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
@@ -82,6 +87,7 @@ export function KnowledgeLandingPage({
               <li key={category.slug} className="h-full min-w-0">
                 <KnowledgeCategoryCard
                   category={category}
+                  previewTip={category.previewTip}
                   tone={
                     categoryTones[index % categoryTones.length] ??
                     "bg-category-blue"

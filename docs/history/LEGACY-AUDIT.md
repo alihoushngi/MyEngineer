@@ -1,5 +1,7 @@
 # Legacy Frontend Audit
 
+> Historical planning snapshot, preserved for decision context. This is not the current implementation or an instruction for active work. See the [current architecture](../ARCHITECTURE.md), [design reference audit](../design-reference-audit.md), and [documentation index](../README.md). The local client source is `Design/`; earlier absolute paths and product-scope exclusions below describe a previous phase. Header, Footer, Login, and Registration are excluded from this alignment.
+
 ## Purpose
 
 The employer-provided legacy frontend is used as a:

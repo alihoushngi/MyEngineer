@@ -8,16 +8,21 @@ import { knowledgeCopy } from "@/config/knowledge.config/knowledge.config";
 import { formatFaNumber } from "@/lib/format/format-fa-number/format-fa-number";
 import { cn } from "@/lib/utils/cn/cn";
 
-import { type KnowledgeCategory } from "@/types/store/knowledge.types";
+import {
+  type KnowledgeCategory,
+  type KnowledgeTip,
+} from "@/types/store/knowledge.types";
 
 type KnowledgeCategoryCardProps = {
   category: KnowledgeCategory;
   tone?: string;
+  previewTip?: KnowledgeTip;
 };
 
 export function KnowledgeCategoryCard({
   category,
   tone = "bg-secondary-subtle",
+  previewTip,
 }: KnowledgeCategoryCardProps) {
   return (
     <Link
@@ -60,11 +65,25 @@ export function KnowledgeCategoryCard({
             </p>
           ) : null}
 
+          {previewTip ? (
+            <div className="mt-4 border-t border-border-subtle pt-4">
+              <p className="type-caption font-semibold text-accent">
+                آیا می‌دانستید؟
+              </p>
+              <p className="mt-2 line-clamp-4 type-body-sm leading-loose text-foreground-muted">
+                {previewTip.body || previewTip.title}
+              </p>
+            </div>
+          ) : null}
+
           {typeof category.itemsCount === "number" ? (
             <p className="mt-3 type-caption font-medium text-primary">
               {knowledgeCopy.itemsCount(formatFaNumber(category.itemsCount))}
             </p>
           ) : null}
+          <span className="mt-4 inline-flex min-h-11 items-center type-button text-primary">
+            نکات بیشتر
+          </span>
         </div>
 
         <span

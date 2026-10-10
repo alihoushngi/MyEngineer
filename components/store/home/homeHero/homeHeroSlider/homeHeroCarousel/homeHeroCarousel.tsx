@@ -1,7 +1,8 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import Image from "next/image";
+import { HomeSlideImage } from "@/components/store/home/homeSlideImage/homeSlideImage";
+import { homeHeroSlides } from "@/lib/home/hero-slides/hero-slides";
 
 import { Autoplay, EffectFade } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -29,6 +30,16 @@ function getServerSnapshot() {
   return false;
 }
 
+function subscribeToViewport(onChange: () => void) {
+  const media = window.matchMedia("(min-width: 768px)");
+  media.addEventListener("change", onChange);
+  return () => media.removeEventListener("change", onChange);
+}
+
+function getDesktopSnapshot() {
+  return window.matchMedia("(min-width: 768px)").matches;
+}
+
 type HomeHeroCarouselProps = {
   slides: readonly HomeHeroSlide[];
 };
@@ -40,6 +51,11 @@ export function HomeHeroCarousel({ slides }: HomeHeroCarouselProps) {
     getServerSnapshot,
   );
 
+  const isDesktop = useSyncExternalStore(
+    subscribeToViewport,
+    getDesktopSnapshot,
+    getServerSnapshot,
+  );
   const prefersReducedMotion = usePrefersReducedMotion();
 
   const canAutoplay = shouldEnableHeroAutoplay(
@@ -47,7 +63,7 @@ export function HomeHeroCarousel({ slides }: HomeHeroCarouselProps) {
     slides.length,
   );
 
-  if (!isClient || !canAutoplay || slides.length === 0) {
+  if (!isClient || !isDesktop || !canAutoplay || slides.length === 0) {
     return null;
   }
 
@@ -78,7 +94,7 @@ export function HomeHeroCarousel({ slides }: HomeHeroCarouselProps) {
         keyboard={{ enabled: false }}
         pagination={false}
       >
-        {slides.map((slide) => (
+        {slides.map((slide, index) => (
           <SwiperSlide
             key={slide.id}
             className="
@@ -87,10 +103,16 @@ export function HomeHeroCarousel({ slides }: HomeHeroCarouselProps) {
               overflow-hidden
             "
           >
-            <Image
+            <HomeSlideImage
               src={slide.imageSrc}
+              fallbackSrc={
+                homeHeroSlides[index % homeHeroSlides.length]?.imageSrc ??
+                slide.imageSrc
+              }
               alt=""
               fill
+              loading={index === 0 ? "eager" : "lazy"}
+              fetchPriority={index === 0 ? "high" : "auto"}
               sizes="100vw"
               className="object-cover object-center"
             />

@@ -1,0 +1,41 @@
+/* One copy of every section: DOM follows the client mobile reading order. */
+.sections {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.sections > section + section {
+  border-block-start: 1px solid var(--border-subtle);
+}
+
+@media (min-width: 1024px) {
+  /* Preserve the established desktop information order and sidebar layout. */
+  .sections > [aria-labelledby="expert-about-heading"] {
+    order: 1;
+  }
+  .sections > [aria-labelledby="expert-specialties-heading"] {
+    order: 2;
+  }
+  .sections > [aria-labelledby="expert-professional-heading"] {
+    order: 3;
+  }
+  .sections > [aria-labelledby="expert-experience-heading"] {
+    order: 4;
+  }
+  .sections > [aria-labelledby="expert-certificates-heading"] {
+    order: 5;
+  }
+  .sections > [aria-labelledby="expert-cities-heading"] {
+    order: 6;
+  }
+  .sections > [aria-labelledby="expert-software-heading"] {
+    order: 7;
+  }
+  .sections > [aria-labelledby="expert-portfolio-heading"] {
+    order: 8;
+  }
+  .sections > [aria-labelledby="expert-reviews-heading"] {
+    order: 9;
+  }
+}

@@ -6,6 +6,7 @@ import { HomeHero } from "@/components/store/home/homeHero/homeHero";
 import { HomeKnowledgeTips } from "@/components/store/home/homeKnowledgeTips/homeKnowledgeTips";
 import { HomeMarketplace } from "@/components/store/home/homeMarketplace/homeMarketplace";
 import { HomeNarrative } from "@/components/store/home/homeNarrative/homeNarrative";
+import { HomePromotions } from "@/components/store/home/homePromotions/homePromotions";
 import { HomeTestimonials } from "@/components/store/home/homeTestimonials/homeTestimonials";
 import { JoinCtaSection } from "@/components/store/home/joinCtaSection/joinCtaSection";
 import { PopularServices } from "@/components/store/home/popularServices/popularServices";
@@ -14,6 +15,7 @@ import { WhyMohandesMan } from "@/components/store/home/whyMohandesMan/whyMohand
 import { shouldRenderHomeSection } from "@/config/feature-flags.config/feature-flags.config";
 import { homeHeroSlides } from "@/lib/home/hero-slides/hero-slides";
 import { type ExtendedHomeCatalogData } from "@/services/catalog-service/catalog-service";
+import styles from "./homePage.module.css";
 
 type HomePageProps = {
   catalog: ExtendedHomeCatalogData;
@@ -30,21 +32,15 @@ export function HomePage({
     catalog.heroSlides.length > 0 ? catalog.heroSlides : homeHeroSlides;
 
   return (
-    <>
+    <div className={styles.page}>
       {shouldRenderHomeSection("hero") ? (
         <HomeHero slides={heroSlides} />
       ) : null}
       {shouldRenderHomeSection("serviceCategories") ? (
         <ServiceCategories categories={catalog.serviceCategories} />
       ) : null}
-      {shouldRenderHomeSection("marketplace") ? (
-        <Suspense>
-          <HomeMarketplace
-            experts={catalog.experts}
-            cities={catalog.cities}
-            serviceCategories={catalog.serviceCategories}
-          />
-        </Suspense>
+      {shouldRenderHomeSection("hero") ? (
+        <HomePromotions slides={heroSlides} />
       ) : null}
       {shouldRenderHomeSection("narrative") ? <HomeNarrative /> : null}
       {shouldRenderHomeSection("popularServices") ? (
@@ -55,6 +51,15 @@ export function HomePage({
       ) : null}
       {shouldRenderHomeSection("whyMohandesMan") ? <WhyMohandesMan /> : null}
       {shouldRenderHomeSection("joinCta") ? <JoinCtaSection /> : null}
+      {shouldRenderHomeSection("marketplace") ? (
+        <Suspense>
+          <HomeMarketplace
+            experts={catalog.experts}
+            cities={catalog.cities}
+            serviceCategories={catalog.serviceCategories}
+          />
+        </Suspense>
+      ) : null}
       {shouldRenderHomeSection("testimonials") ? (
         <HomeTestimonials
           items={catalog.testimonials}
@@ -71,6 +76,6 @@ export function HomePage({
       {shouldRenderHomeSection("faqEntry") ? (
         <HomeFaqEntry categories={catalog.faqCategories} />
       ) : null}
-    </>
+    </div>
   );
 }

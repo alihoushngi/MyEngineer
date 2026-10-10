@@ -7,14 +7,6 @@ import {
   listFormCategories,
 } from "@/services/content-service/content-service";
 
-export const metadata: Metadata = {
-  title: "فرم‌های قابل‌دانلود",
-  description: "دانلود فرم‌های فعال مهندس من",
-  alternates: {
-    canonical: storePaths.forms,
-  },
-};
-
 type FormsRouteProps = {
   searchParams: Promise<{
     q?: string | string[];
@@ -25,6 +17,29 @@ type FormsRouteProps = {
 
 function first(value: string | string[] | undefined): string {
   return (Array.isArray(value) ? value[0] : value)?.trim() ?? "";
+}
+
+export async function generateMetadata({
+  searchParams,
+}: FormsRouteProps): Promise<Metadata> {
+  const params = await searchParams;
+  const filtered =
+    first(params.q) !== "" ||
+    first(params.category) !== "" ||
+    first(params.province) !== "";
+  return {
+    title: "فرم‌های نظام مهندسی",
+    description: "دانلود فرم‌های فعال مهندس من برای فرآیندهای اداری و فنی.",
+    alternates: { canonical: storePaths.forms },
+    ...(filtered ? { robots: { index: false, follow: true } } : {}),
+    openGraph: {
+      title: "فرم‌های نظام مهندسی",
+      description: "دانلود فرم‌های فعال مهندس من برای فرآیندهای اداری و فنی.",
+      type: "website",
+      locale: "fa_IR",
+      siteName: "مهندس من",
+    },
+  };
 }
 
 export default async function FormsRoutePage({

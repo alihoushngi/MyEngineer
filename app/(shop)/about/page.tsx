@@ -10,6 +10,13 @@ import {
 export const metadata: Metadata = {
   title: aboutCopy.breadcrumb,
   description: aboutCopy.metadataDescription,
+  openGraph: {
+    title: aboutCopy.title,
+    description: aboutCopy.metadataDescription,
+    type: "website",
+    locale: "fa_IR",
+    siteName: "مهندس من",
+  },
   alternates: {
     canonical: storePaths.about,
   },

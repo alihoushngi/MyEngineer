@@ -1,5 +1,7 @@
 # مستند APIهای آماده‌ی بک‌اند
 
+> Integration reference: the generated schema snapshot is dated 2026-09-15; the manually maintained adapter-status section below describes subsequent integration. Source code and actual responses are authoritative when an older generated table differs. The 2026-10-10 visual alignment preserves existing API/auth behavior.
+
 > منبع: [`https://test.kbdcland.ir/openapi.json`](https://test.kbdcland.ir/openapi.json)  
 > عنوان: **emohandes API — v1** · نسخه: **0.2.0-phase1** · OpenAPI: **3.0.3**  
 > تاریخ تولید از اسکیما: **2026-09-15**
@@ -54,22 +56,22 @@
 
 ### پیاده‌سازی‌شده توسط بک‌اند (قبلاً در این سند «آماده نشده» بود)
 
-| Method | Path | مصرف در فرانت‌اند |
-| --- | --- | --- |
-| GET | `/home` | داده‌ی صفحه‌ی اصلی (متخصصان، شهرها، خدمات پرکاربرد، دسته‌های FAQ، نکته‌های دانش) |
-| GET | `/search`, `/search/suggest` | جستجوی سراسری (`query`, `cities[]`) |
-| GET | `/user/*` | فضای کاربری: workspace، درخواست‌ها، ذخیره‌شده‌ها، اعلان‌ها، `POST /user/reviews` |
-| GET/POST/PUT | `/engineer/*` | پنل مهندس: workspace، پروفایل، نمونه‌کار، مدارک، `POST /engineer/reviews/{review}/reply` |
-| GET/POST | `/conversations`, `/conversations/{id}/messages` | پیام‌رسانی |
-| GET/POST | `/notifications` | اعلان‌ها |
-| GET/POST | `/service-requests` | ثبت و پیگیری درخواست خدمت |
-| POST | `/uploads` | آپلود فایل (`purpose`: avatar، degree، license، portfolio_image، certificate، testimonial) |
-| GET | `/faq-categories`, `/faq-categories/{slug}` | دسته‌های سوالات متداول (کلید `icon` اختیاری) |
-| GET/POST | `/articles/{blog}/comments` | نظرات مقاله |
-| GET | `/cities/{id}/nearby` | شهرهای مجاور (مرحله‌ی «محدوده خدمت» ثبت‌نام) |
-| GET | `/professionals/{id}/card` | کارت خلاصه‌ی متخصص |
-| POST | `/auth/user-registration/*`, `/auth/engineer-registration/*` | ثبت‌نام کاربر و متخصص (OTP و ...) |
-| GET/PUT/POST | `/profile/registration/*` | مراحل ویزارد ثبت‌نام متخصص |
+| Method       | Path                                                         | مصرف در فرانت‌اند                                                                          |
+| ------------ | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
+| GET          | `/home`                                                      | داده‌ی صفحه‌ی اصلی (متخصصان، شهرها، خدمات پرکاربرد، دسته‌های FAQ، نکته‌های دانش)           |
+| GET          | `/search`, `/search/suggest`                                 | جستجوی سراسری (`query`, `cities[]`)                                                        |
+| GET          | `/user/*`                                                    | فضای کاربری: workspace، درخواست‌ها، ذخیره‌شده‌ها، اعلان‌ها، `POST /user/reviews`           |
+| GET/POST/PUT | `/engineer/*`                                                | پنل مهندس: workspace، پروفایل، نمونه‌کار، مدارک، `POST /engineer/reviews/{review}/reply`   |
+| GET/POST     | `/conversations`, `/conversations/{id}/messages`             | پیام‌رسانی                                                                                 |
+| GET/POST     | `/notifications`                                             | اعلان‌ها                                                                                   |
+| GET/POST     | `/service-requests`                                          | ثبت و پیگیری درخواست خدمت                                                                  |
+| POST         | `/uploads`                                                   | آپلود فایل (`purpose`: avatar، degree، license، portfolio_image، certificate، testimonial) |
+| GET          | `/faq-categories`, `/faq-categories/{slug}`                  | دسته‌های سوالات متداول (کلید `icon` اختیاری)                                               |
+| GET/POST     | `/articles/{blog}/comments`                                  | نظرات مقاله                                                                                |
+| GET          | `/cities/{id}/nearby`                                        | شهرهای مجاور (مرحله‌ی «محدوده خدمت» ثبت‌نام)                                               |
+| GET          | `/professionals/{id}/card`                                   | کارت خلاصه‌ی متخصص                                                                         |
+| POST         | `/auth/user-registration/*`, `/auth/engineer-registration/*` | ثبت‌نام کاربر و متخصص (OTP و ...)                                                          |
+| GET/PUT/POST | `/profile/registration/*`                                    | مراحل ویزارد ثبت‌نام متخصص                                                                 |
 
 ### Endpointهای جدید / گسترش‌یافته
 
@@ -111,85 +113,85 @@
 
 ## فهرست سریع Endpointها
 
-| Method | Path | Tag | Summary | Auth |
-| --- | --- | --- | --- | --- |
-| `POST` | `/auth/register` | Auth | ثبت‌نام کاربر جدید | خیر |
-| `POST` | `/auth/login` | Auth | ورود با کد ملی و گذرواژه | خیر |
-| `POST` | `/auth/role` | Auth | انتخاب نقش برای حساب چندنقشی | بله |
-| `POST` | `/auth/otp` | Auth | درخواست کد یک‌بارمصرف پیامکی | خیر |
-| `POST` | `/auth/otp/verify` | Auth | تأیید کد یک‌بارمصرف | خیر |
-| `POST` | `/auth/password` | Auth | ثبت گذرواژه‌ی جدید (تکمیل بازیابی رمز) | بله |
-| `GET` | `/auth/me` | Auth | اطلاعات کاربر واردشده | بله |
-| `POST` | `/auth/logout` | Auth | خروج از دستگاه جاری (ابطال توکن فعلی) | بله |
-| `POST` | `/auth/logout-all` | Auth | خروج از همه‌ی دستگاه‌ها (ابطال همه‌ی توکن‌ها) | بله |
-| `GET` | `/auth/sessions` | Auth | فهرست نشست‌ها (دستگاه‌های واردشده) کاربر جاری | بله |
-| `DELETE` | `/auth/sessions/{token}` | Auth | پایان‌دادن به یک نشست خاص | بله |
-| `GET` | `/health` | System | بررسی سلامت اپلیکیشن و دیتابیس | خیر |
-| `GET` | `/provinces` | Lookup | فهرست استان‌ها | خیر |
-| `GET` | `/provinces/{province}/cities` | Lookup | شهرهای فعال یک استان | خیر |
-| `GET` | `/cities` | Lookup | فهرست شهرهای فعال، با فیلتر اختیاری استان | خیر |
-| `GET` | `/fields` | Lookup | فهرست رشته‌های تحصیلی | خیر |
-| `GET` | `/services` | Lookup | درخت سرویس‌ها (فقط فعال) | خیر |
-| `GET` | `/services/{slug}` | Lookup | یک سرویس به‌همراه زیرسرویس‌ها | خیر |
-| `GET` | `/qualifications` | Lookup | فهرست صلاحیت‌ها/مدارک | خیر |
-| `GET` | `/softwares` | Lookup | فهرست نرم‌افزارهای فعال | خیر |
-| `GET` | `/tags` | Lookup | فهرست تگ‌ها | خیر |
-| `GET` | `/profile` | Profile | مشاهده‌ی پروفایل کاربر جاری | بله |
-| `PUT` | `/profile` | Profile | به‌روزرسانی پروفایل | بله |
-| `PUT` | `/profile/password` | Profile | تغییر گذرواژه (نیازمند گذرواژه‌ی فعلی) | بله |
-| `POST` | `/profile/avatar` | Profile | آپلود/جایگزینی تصویر پروفایل | بله |
-| `GET` | `/profile/educations` | Profile | فهرست مدارک تحصیلی من (فقط نقش مهندس) | بله |
-| `POST` | `/profile/educations` | Profile | ثبت مدرک تحصیلی جدید (در انتظار تأیید) | بله |
-| `PUT` | `/profile/educations/{education}` | Profile | ویرایش مدرک تحصیلی (فقط مالک؛ دوباره در انتظار تأیید می‌رود) | بله |
-| `DELETE` | `/profile/educations/{education}` | Profile | حذف مدرک تحصیلی (فقط مالک) | بله |
-| `GET` | `/profile/certificates` | Profile | فهرست مدارک/گواهی‌های من (فقط نقش مهندس) | بله |
-| `POST` | `/profile/certificates` | Profile | ثبت گواهی جدید (در انتظار تأیید) | بله |
-| `DELETE` | `/profile/certificates/{certificate}` | Profile | حذف گواهی (فقط مالک) | بله |
-| `GET` | `/profile/services` | Profile | سرویس‌های فعلیِ من (فقط نقش مهندس) | بله |
-| `PUT` | `/profile/services` | Profile | جایگزینی کامل فهرست سرویس‌ها (هر سرویس جدید در انتظار تأیید می‌رود) | بله |
-| `GET` | `/profile/cities` | Profile | شهرهای تحت پوشش من (فقط نقش مهندس) | بله |
-| `PUT` | `/profile/cities` | Profile | جایگزینی کامل فهرست شهرهای تحت پوشش | بله |
-| `GET` | `/professionals` | Professionals | جست‌وجو و فیلتر متخصصان (مهندس/مشاور/بیمه فعال) | خیر |
-| `GET` | `/professionals/{professional}` | Professionals | صفحه‌ی جزئیات یک متخصص | خیر |
-| `GET` | `/professionals/{professional}/portfolios` | Professionals | نمونه‌کارهای تأییدشده‌ی یک متخصص | خیر |
-| `GET` | `/professionals/{professional}/comments` | Professionals | دیدگاه‌های تأییدشده‌ی یک متخصص | خیر |
-| `POST` | `/professionals/{professional}/comments` | Professionals | ثبت دیدگاه (نیازمند ورود؛ در انتظار تأیید) | بله |
-| `GET` | `/blogs` | Content | فهرست مقالات منتشرشده | خیر |
-| `POST` | `/blogs` | Content | ثبت مقاله‌ی جدید (فاز ۲؛ فقط ادمین/دستیار؛ به‌صورت پیش‌نویس) | بله |
-| `GET` | `/blogs/{slug}` | Content | جزئیات یک مقاله (بازدید +۱ اگر منتشرشده باشد) | خیر |
-| `PUT` | `/blogs/{blog}` | Content | ویرایش مقاله (فاز ۲؛ فقط ادمین/دستیار) | بله |
-| `DELETE` | `/blogs/{blog}` | Content | حذف مقاله (فاز ۲؛ فقط ادمین/دستیار) | بله |
-| `PUT` | `/blogs/{blog}/publish` | Content | انتشار مقاله (فاز ۲؛ فقط ادمین/دستیار) | بله |
-| `PUT` | `/blogs/{blog}/unpublish` | Content | خارج‌کردن مقاله از انتشار (فاز ۲؛ فقط ادمین/دستیار) | بله |
-| `GET` | `/blog-categories` | Content | فهرست دسته‌های مقالات | خیر |
-| `POST` | `/blog-categories` | Content | ثبت دسته‌بندی جدید (فاز ۲؛ فقط ادمین/دستیار) | بله |
-| `PUT` | `/blog-categories/{blogCategory}` | Content | ویرایش دسته‌بندی (فاز ۲؛ فقط ادمین/دستیار) | بله |
-| `DELETE` | `/blog-categories/{blogCategory}` | Content | حذف دسته‌بندی (فاز ۲؛ فقط ادمین/دستیار) | بله |
-| `GET` | `/knowledges` | Content | فهرست محتوای دانشنامه (منتشرشده) | خیر |
-| `GET` | `/knowledge-categories` | Content | فهرست دسته‌های دانشنامه | خیر |
-| `GET` | `/faqs` | Content | سوالات متداول فعال (اختیاری بر اساس سرویس یا مقاله) | خیر |
-| `GET` | `/forms` | Content | فهرست فرم‌های قابل‌دانلود فعال | خیر |
-| `GET` | `/forms/{slug}/download` | Content | دانلود فایل فرم (شمارنده‌ی دانلود +۱) | خیر |
-| `GET` | `/sliders` | Content | اسلایدرهای فعال صفحه‌ی اصلی | خیر |
-| `GET` | `/teams` | Content | اعضای فعال تیم | خیر |
-| `GET` | `/testimonials` | Content | نظرات مشتریان منتشرشده | خیر |
-| `GET` | `/brands` | Content | برندهای فعال | خیر |
-| `POST` | `/messages` | Content | ارسال پیام از فرم تماس با ما | خیر |
-| `POST` | `/newsletter` | Content | عضویت در خبرنامه | خیر |
-| `GET` | `/careers` | Careers | فهرست آگهی‌های شغلی فعال | خیر |
-| `POST` | `/careers` | Careers | ثبت آگهی شغلی جدید (هر نقش واردشده مجاز است) | بله |
-| `GET` | `/careers/{career}` | Careers | جزئیات یک آگهی شغلی فعال | خیر |
-| `PUT` | `/careers/{career}` | Careers | ویرایش آگهی (فقط سازنده یا ادمین) | بله |
-| `DELETE` | `/careers/{career}` | Careers | حذف آگهی (فقط سازنده یا ادمین) | بله |
-| `GET` | `/careers/{career}/requests` | Careers | فهرست متقاضیان یک آگهی (فقط سازنده یا ادمین) | بله |
-| `POST` | `/careers/{career}/apply` | Careers | درخواست همکاری برای یک آگهی (عمومی؛ بدون نیاز به ورود) | خیر |
-| `GET` | `/tickets/rooms` | Tickets | فهرست تیکت‌های من (ادمین همه را می‌بیند) | بله |
-| `POST` | `/tickets/rooms` | Tickets | ثبت تیکت جدید (همیشه به یکی از ادمین‌ها ارسال می‌شود) | بله |
-| `GET` | `/tickets/rooms/{room}` | Tickets | جزئیات یک تیکت به‌همراه پیام‌ها (فقط طرفین یا ادمین) | بله |
-| `POST` | `/tickets/rooms/{room}/reply` | Tickets | پاسخ در یک تیکت باز (فقط طرفین یا ادمین) | بله |
-| `PUT` | `/tickets/rooms/{room}/close` | Tickets | بستن تیکت (فقط طرفین یا ادمین) | بله |
-| `GET` | `/admin/professionals` | Admin | دایرکتوری متخصصان با شماره موبایل (فاز ۲؛ شامل حساب‌های غیرفعال) | بله |
-| `GET` | `/admin/professionals/export` | Admin | خروجی اکسل از همان فهرست فیلترشده | بله |
+| Method   | Path                                       | Tag           | Summary                                                             | Auth |
+| -------- | ------------------------------------------ | ------------- | ------------------------------------------------------------------- | ---- |
+| `POST`   | `/auth/register`                           | Auth          | ثبت‌نام کاربر جدید                                                  | خیر  |
+| `POST`   | `/auth/login`                              | Auth          | ورود با کد ملی و گذرواژه                                            | خیر  |
+| `POST`   | `/auth/role`                               | Auth          | انتخاب نقش برای حساب چندنقشی                                        | بله  |
+| `POST`   | `/auth/otp`                                | Auth          | درخواست کد یک‌بارمصرف پیامکی                                        | خیر  |
+| `POST`   | `/auth/otp/verify`                         | Auth          | تأیید کد یک‌بارمصرف                                                 | خیر  |
+| `POST`   | `/auth/password`                           | Auth          | ثبت گذرواژه‌ی جدید (تکمیل بازیابی رمز)                              | بله  |
+| `GET`    | `/auth/me`                                 | Auth          | اطلاعات کاربر واردشده                                               | بله  |
+| `POST`   | `/auth/logout`                             | Auth          | خروج از دستگاه جاری (ابطال توکن فعلی)                               | بله  |
+| `POST`   | `/auth/logout-all`                         | Auth          | خروج از همه‌ی دستگاه‌ها (ابطال همه‌ی توکن‌ها)                       | بله  |
+| `GET`    | `/auth/sessions`                           | Auth          | فهرست نشست‌ها (دستگاه‌های واردشده) کاربر جاری                       | بله  |
+| `DELETE` | `/auth/sessions/{token}`                   | Auth          | پایان‌دادن به یک نشست خاص                                           | بله  |
+| `GET`    | `/health`                                  | System        | بررسی سلامت اپلیکیشن و دیتابیس                                      | خیر  |
+| `GET`    | `/provinces`                               | Lookup        | فهرست استان‌ها                                                      | خیر  |
+| `GET`    | `/provinces/{province}/cities`             | Lookup        | شهرهای فعال یک استان                                                | خیر  |
+| `GET`    | `/cities`                                  | Lookup        | فهرست شهرهای فعال، با فیلتر اختیاری استان                           | خیر  |
+| `GET`    | `/fields`                                  | Lookup        | فهرست رشته‌های تحصیلی                                               | خیر  |
+| `GET`    | `/services`                                | Lookup        | درخت سرویس‌ها (فقط فعال)                                            | خیر  |
+| `GET`    | `/services/{slug}`                         | Lookup        | یک سرویس به‌همراه زیرسرویس‌ها                                       | خیر  |
+| `GET`    | `/qualifications`                          | Lookup        | فهرست صلاحیت‌ها/مدارک                                               | خیر  |
+| `GET`    | `/softwares`                               | Lookup        | فهرست نرم‌افزارهای فعال                                             | خیر  |
+| `GET`    | `/tags`                                    | Lookup        | فهرست تگ‌ها                                                         | خیر  |
+| `GET`    | `/profile`                                 | Profile       | مشاهده‌ی پروفایل کاربر جاری                                         | بله  |
+| `PUT`    | `/profile`                                 | Profile       | به‌روزرسانی پروفایل                                                 | بله  |
+| `PUT`    | `/profile/password`                        | Profile       | تغییر گذرواژه (نیازمند گذرواژه‌ی فعلی)                              | بله  |
+| `POST`   | `/profile/avatar`                          | Profile       | آپلود/جایگزینی تصویر پروفایل                                        | بله  |
+| `GET`    | `/profile/educations`                      | Profile       | فهرست مدارک تحصیلی من (فقط نقش مهندس)                               | بله  |
+| `POST`   | `/profile/educations`                      | Profile       | ثبت مدرک تحصیلی جدید (در انتظار تأیید)                              | بله  |
+| `PUT`    | `/profile/educations/{education}`          | Profile       | ویرایش مدرک تحصیلی (فقط مالک؛ دوباره در انتظار تأیید می‌رود)        | بله  |
+| `DELETE` | `/profile/educations/{education}`          | Profile       | حذف مدرک تحصیلی (فقط مالک)                                          | بله  |
+| `GET`    | `/profile/certificates`                    | Profile       | فهرست مدارک/گواهی‌های من (فقط نقش مهندس)                            | بله  |
+| `POST`   | `/profile/certificates`                    | Profile       | ثبت گواهی جدید (در انتظار تأیید)                                    | بله  |
+| `DELETE` | `/profile/certificates/{certificate}`      | Profile       | حذف گواهی (فقط مالک)                                                | بله  |
+| `GET`    | `/profile/services`                        | Profile       | سرویس‌های فعلیِ من (فقط نقش مهندس)                                  | بله  |
+| `PUT`    | `/profile/services`                        | Profile       | جایگزینی کامل فهرست سرویس‌ها (هر سرویس جدید در انتظار تأیید می‌رود) | بله  |
+| `GET`    | `/profile/cities`                          | Profile       | شهرهای تحت پوشش من (فقط نقش مهندس)                                  | بله  |
+| `PUT`    | `/profile/cities`                          | Profile       | جایگزینی کامل فهرست شهرهای تحت پوشش                                 | بله  |
+| `GET`    | `/professionals`                           | Professionals | جست‌وجو و فیلتر متخصصان (مهندس/مشاور/بیمه فعال)                     | خیر  |
+| `GET`    | `/professionals/{professional}`            | Professionals | صفحه‌ی جزئیات یک متخصص                                              | خیر  |
+| `GET`    | `/professionals/{professional}/portfolios` | Professionals | نمونه‌کارهای تأییدشده‌ی یک متخصص                                    | خیر  |
+| `GET`    | `/professionals/{professional}/comments`   | Professionals | دیدگاه‌های تأییدشده‌ی یک متخصص                                      | خیر  |
+| `POST`   | `/professionals/{professional}/comments`   | Professionals | ثبت دیدگاه (نیازمند ورود؛ در انتظار تأیید)                          | بله  |
+| `GET`    | `/blogs`                                   | Content       | فهرست مقالات منتشرشده                                               | خیر  |
+| `POST`   | `/blogs`                                   | Content       | ثبت مقاله‌ی جدید (فاز ۲؛ فقط ادمین/دستیار؛ به‌صورت پیش‌نویس)        | بله  |
+| `GET`    | `/blogs/{slug}`                            | Content       | جزئیات یک مقاله (بازدید +۱ اگر منتشرشده باشد)                       | خیر  |
+| `PUT`    | `/blogs/{blog}`                            | Content       | ویرایش مقاله (فاز ۲؛ فقط ادمین/دستیار)                              | بله  |
+| `DELETE` | `/blogs/{blog}`                            | Content       | حذف مقاله (فاز ۲؛ فقط ادمین/دستیار)                                 | بله  |
+| `PUT`    | `/blogs/{blog}/publish`                    | Content       | انتشار مقاله (فاز ۲؛ فقط ادمین/دستیار)                              | بله  |
+| `PUT`    | `/blogs/{blog}/unpublish`                  | Content       | خارج‌کردن مقاله از انتشار (فاز ۲؛ فقط ادمین/دستیار)                 | بله  |
+| `GET`    | `/blog-categories`                         | Content       | فهرست دسته‌های مقالات                                               | خیر  |
+| `POST`   | `/blog-categories`                         | Content       | ثبت دسته‌بندی جدید (فاز ۲؛ فقط ادمین/دستیار)                        | بله  |
+| `PUT`    | `/blog-categories/{blogCategory}`          | Content       | ویرایش دسته‌بندی (فاز ۲؛ فقط ادمین/دستیار)                          | بله  |
+| `DELETE` | `/blog-categories/{blogCategory}`          | Content       | حذف دسته‌بندی (فاز ۲؛ فقط ادمین/دستیار)                             | بله  |
+| `GET`    | `/knowledges`                              | Content       | فهرست محتوای دانشنامه (منتشرشده)                                    | خیر  |
+| `GET`    | `/knowledge-categories`                    | Content       | فهرست دسته‌های دانشنامه                                             | خیر  |
+| `GET`    | `/faqs`                                    | Content       | سوالات متداول فعال (اختیاری بر اساس سرویس یا مقاله)                 | خیر  |
+| `GET`    | `/forms`                                   | Content       | فهرست فرم‌های قابل‌دانلود فعال                                      | خیر  |
+| `GET`    | `/forms/{slug}/download`                   | Content       | دانلود فایل فرم (شمارنده‌ی دانلود +۱)                               | خیر  |
+| `GET`    | `/sliders`                                 | Content       | اسلایدرهای فعال صفحه‌ی اصلی                                         | خیر  |
+| `GET`    | `/teams`                                   | Content       | اعضای فعال تیم                                                      | خیر  |
+| `GET`    | `/testimonials`                            | Content       | نظرات مشتریان منتشرشده                                              | خیر  |
+| `GET`    | `/brands`                                  | Content       | برندهای فعال                                                        | خیر  |
+| `POST`   | `/messages`                                | Content       | ارسال پیام از فرم تماس با ما                                        | خیر  |
+| `POST`   | `/newsletter`                              | Content       | عضویت در خبرنامه                                                    | خیر  |
+| `GET`    | `/careers`                                 | Careers       | فهرست آگهی‌های شغلی فعال                                            | خیر  |
+| `POST`   | `/careers`                                 | Careers       | ثبت آگهی شغلی جدید (هر نقش واردشده مجاز است)                        | بله  |
+| `GET`    | `/careers/{career}`                        | Careers       | جزئیات یک آگهی شغلی فعال                                            | خیر  |
+| `PUT`    | `/careers/{career}`                        | Careers       | ویرایش آگهی (فقط سازنده یا ادمین)                                   | بله  |
+| `DELETE` | `/careers/{career}`                        | Careers       | حذف آگهی (فقط سازنده یا ادمین)                                      | بله  |
+| `GET`    | `/careers/{career}/requests`               | Careers       | فهرست متقاضیان یک آگهی (فقط سازنده یا ادمین)                        | بله  |
+| `POST`   | `/careers/{career}/apply`                  | Careers       | درخواست همکاری برای یک آگهی (عمومی؛ بدون نیاز به ورود)              | خیر  |
+| `GET`    | `/tickets/rooms`                           | Tickets       | فهرست تیکت‌های من (ادمین همه را می‌بیند)                            | بله  |
+| `POST`   | `/tickets/rooms`                           | Tickets       | ثبت تیکت جدید (همیشه به یکی از ادمین‌ها ارسال می‌شود)               | بله  |
+| `GET`    | `/tickets/rooms/{room}`                    | Tickets       | جزئیات یک تیکت به‌همراه پیام‌ها (فقط طرفین یا ادمین)                | بله  |
+| `POST`   | `/tickets/rooms/{room}/reply`              | Tickets       | پاسخ در یک تیکت باز (فقط طرفین یا ادمین)                            | بله  |
+| `PUT`    | `/tickets/rooms/{room}/close`              | Tickets       | بستن تیکت (فقط طرفین یا ادمین)                                      | بله  |
+| `GET`    | `/admin/professionals`                     | Admin         | دایرکتوری متخصصان با شماره موبایل (فاز ۲؛ شامل حساب‌های غیرفعال)    | بله  |
+| `GET`    | `/admin/professionals/export`              | Admin         | خروجی اکسل از همان فهرست فیلترشده                                   | بله  |
 
 ## Auth
 
@@ -274,6 +276,7 @@
   "meta": {}
 }
 ```
+
 - **422** — خطای اعتبارسنجی ورودی
   - content-type: `application/json`
   - `ErrorEnvelope` · object
@@ -379,6 +382,7 @@
   }
 }
 ```
+
 - **401** — کد ملی یا گذرواژه نادرست
   - content-type: `application/json`
   - `ErrorEnvelope` · object
@@ -481,6 +485,7 @@
   "meta": {}
 }
 ```
+
 - **401** — توکن ارسال نشده یا نامعتبر است
   - content-type: `application/json`
   - `ErrorEnvelope` · object
@@ -545,6 +550,7 @@
   "meta": {}
 }
 ```
+
 - **422** — خطای اعتبارسنجی ورودی
   - content-type: `application/json`
   - `ErrorEnvelope` · object
@@ -659,6 +665,7 @@
   }
 }
 ```
+
 - **422** — کد نادرست یا منقضی‌شده / خطای اعتبارسنجی
   - content-type: `application/json`
   - `ErrorEnvelope` · object
@@ -720,6 +727,7 @@
   "meta": {}
 }
 ```
+
 - **401** — توکن ارسال نشده یا نامعتبر است
   - content-type: `application/json`
   - `ErrorEnvelope` · object
@@ -794,6 +802,7 @@
   "meta": {}
 }
 ```
+
 - **401** — توکن ارسال نشده یا نامعتبر است
   - content-type: `application/json`
   - `ErrorEnvelope` · object
@@ -829,6 +838,7 @@
   "meta": {}
 }
 ```
+
 - **401** — توکن ارسال نشده یا نامعتبر است
   - content-type: `application/json`
   - `ErrorEnvelope` · object
@@ -864,6 +874,7 @@
   "meta": {}
 }
 ```
+
 - **401** — توکن ارسال نشده یا نامعتبر است
   - content-type: `application/json`
   - `ErrorEnvelope` · object
@@ -906,9 +917,7 @@
     {
       "id": 1,
       "device": "string",
-      "abilities": [
-        "string"
-      ],
+      "abilities": ["string"],
       "current": true,
       "last_used_at": "2026-01-01T00:00:00+03:30",
       "created_at": "2026-01-01T00:00:00+03:30"
@@ -917,6 +926,7 @@
   "meta": {}
 }
 ```
+
 - **401** — توکن ارسال نشده یا نامعتبر است
   - content-type: `application/json`
   - `ErrorEnvelope` · object
@@ -937,9 +947,9 @@
 
 **پارامترها:**
 
-| Name | In | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `token` | `path` | بله | `integer` | شناسه‌ی عددی نشست (از خروجی /auth/sessions) |
+| Name    | In     | Required | Type      | Description                                 |
+| ------- | ------ | -------- | --------- | ------------------------------------------- |
+| `token` | `path` | بله      | `integer` | شناسه‌ی عددی نشست (از خروجی /auth/sessions) |
 
 **پاسخ‌ها:**
 
@@ -960,6 +970,7 @@
   "meta": {}
 }
 ```
+
 - **401** — توکن ارسال نشده یا نامعتبر است
   - content-type: `application/json`
   - `ErrorEnvelope` · object
@@ -1015,6 +1026,7 @@
   "meta": {}
 }
 ```
+
 - **503** — اپلیکیشن بالاست ولی دیتابیس در دسترس نیست
   - content-type: `application/json`
   - `SuccessEnvelope` · object
@@ -1085,9 +1097,9 @@
 
 **پارامترها:**
 
-| Name | In | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `province` | `path` | بله | `integer` |  |
+| Name       | In     | Required | Type      | Description |
+| ---------- | ------ | -------- | --------- | ----------- |
+| `province` | `path` | بله      | `integer` |             |
 
 **پاسخ‌ها:**
 
@@ -1126,6 +1138,7 @@
   "meta": {}
 }
 ```
+
 - **404** — موردی با این مشخصات یافت نشد
   - content-type: `application/json`
   - `ErrorEnvelope` · object
@@ -1144,9 +1157,9 @@
 
 **پارامترها:**
 
-| Name | In | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `province_id` | `query` | خیر | `integer` |  |
+| Name          | In      | Required | Type      | Description |
+| ------------- | ------- | -------- | --------- | ----------- |
+| `province_id` | `query` | خیر      | `integer` |             |
 
 **پاسخ‌ها:**
 
@@ -1263,9 +1276,7 @@
       "description": "string",
       "image": "string",
       "parent_id": 1,
-      "children": [
-        "<ServiceNode>"
-      ]
+      "children": ["<ServiceNode>"]
     }
   ],
   "meta": {}
@@ -1282,9 +1293,9 @@
 
 **پارامترها:**
 
-| Name | In | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `slug` | `path` | بله | `string` |  |
+| Name   | In     | Required | Type     | Description |
+| ------ | ------ | -------- | -------- | ----------- |
+| `slug` | `path` | بله      | `string` |             |
 
 **پاسخ‌ها:**
 
@@ -1318,13 +1329,12 @@
     "description": "string",
     "image": "string",
     "parent_id": 1,
-    "children": [
-      "<ServiceNode>"
-    ]
+    "children": ["<ServiceNode>"]
   },
   "meta": {}
 }
 ```
+
 - **404** — موردی با این مشخصات یافت نشد
   - content-type: `application/json`
   - `ErrorEnvelope` · object
@@ -1540,6 +1550,7 @@
   "meta": {}
 }
 ```
+
 - **401** — توکن ارسال نشده یا نامعتبر است
   - content-type: `application/json`
   - `ErrorEnvelope` · object
@@ -1676,6 +1687,7 @@
   "meta": {}
 }
 ```
+
 - **401** — توکن ارسال نشده یا نامعتبر است
   - content-type: `application/json`
   - `ErrorEnvelope` · object
@@ -1739,6 +1751,7 @@
   "meta": {}
 }
 ```
+
 - **401** — توکن ارسال نشده یا نامعتبر است
   - content-type: `application/json`
   - `ErrorEnvelope` · object
@@ -1854,6 +1867,7 @@
   "meta": {}
 }
 ```
+
 - **401** — توکن ارسال نشده یا نامعتبر است
   - content-type: `application/json`
   - `ErrorEnvelope` · object
@@ -1917,6 +1931,7 @@
   "meta": {}
 }
 ```
+
 - **403** — دسترسی مجاز نیست
   - content-type: `application/json`
   - `ErrorEnvelope` · object
@@ -1991,6 +2006,7 @@
   "meta": {}
 }
 ```
+
 - **403** — دسترسی مجاز نیست
   - content-type: `application/json`
   - `ErrorEnvelope` · object
@@ -2016,9 +2032,9 @@
 
 **پارامترها:**
 
-| Name | In | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `education` | `path` | بله | `integer` |  |
+| Name        | In     | Required | Type      | Description |
+| ----------- | ------ | -------- | --------- | ----------- |
+| `education` | `path` | بله      | `integer` |             |
 
 **Body:** content-type=`multipart/form-data` · الزامی=خیر
 
@@ -2078,6 +2094,7 @@
   "meta": {}
 }
 ```
+
 - **403** — دسترسی مجاز نیست
   - content-type: `application/json`
   - `ErrorEnvelope` · object
@@ -2103,9 +2120,9 @@
 
 **پارامترها:**
 
-| Name | In | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `education` | `path` | بله | `integer` |  |
+| Name        | In     | Required | Type      | Description |
+| ----------- | ------ | -------- | --------- | ----------- |
+| `education` | `path` | بله      | `integer` |             |
 
 **پاسخ‌ها:**
 
@@ -2126,6 +2143,7 @@
   "meta": {}
 }
 ```
+
 - **404** — موردی با این مشخصات یافت نشد
   - content-type: `application/json`
   - `ErrorEnvelope` · object
@@ -2242,9 +2260,9 @@
 
 **پارامترها:**
 
-| Name | In | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `certificate` | `path` | بله | `integer` |  |
+| Name          | In     | Required | Type      | Description |
+| ------------- | ------ | -------- | --------- | ----------- |
+| `certificate` | `path` | بله      | `integer` |             |
 
 **پاسخ‌ها:**
 
@@ -2265,6 +2283,7 @@
   "meta": {}
 }
 ```
+
 - **404** — موردی با این مشخصات یافت نشد
   - content-type: `application/json`
   - `ErrorEnvelope` · object
@@ -2314,9 +2333,7 @@
       "description": "string",
       "image": "string",
       "parent_id": 1,
-      "children": [
-        "<ServiceNode>"
-      ]
+      "children": ["<ServiceNode>"]
     }
   ],
   "meta": {}
@@ -2343,9 +2360,7 @@
 
 ```json
 {
-  "service_ids": [
-    1
-  ]
+  "service_ids": [1]
 }
 ```
 
@@ -2382,14 +2397,13 @@
       "description": "string",
       "image": "string",
       "parent_id": 1,
-      "children": [
-        "<ServiceNode>"
-      ]
+      "children": ["<ServiceNode>"]
     }
   ],
   "meta": {}
 }
 ```
+
 - **422** — خطای اعتبارسنجی ورودی
   - content-type: `application/json`
   - `ErrorEnvelope` · object
@@ -2464,9 +2478,7 @@
 
 ```json
 {
-  "city_ids": [
-    1
-  ]
+  "city_ids": [1]
 }
 ```
 
@@ -2522,18 +2534,18 @@
 
 **پارامترها:**
 
-| Name | In | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `role` | `query` | خیر | `string enum=["engineer", "consulter", "insurance"]` |  |
-| `province_id` | `query` | خیر | `integer` |  |
-| `city_ids[]` | `query` | خیر | `array` |  |
-| `service_id` | `query` | خیر | `integer` |  |
-| `field_id` | `query` | خیر | `integer` |  |
-| `qualification_id` | `query` | خیر | `integer` |  |
-| `min_experience` | `query` | خیر | `integer` | حداقل سال سابقه |
-| `has_license` | `query` | خیر | `boolean` | حداقل یک گواهی تأییدشده دارد |
-| `sort` | `query` | خیر | `string enum=["newest", "rating"]` |  |
-| `per_page` | `query` | خیر | `integer` |  |
+| Name               | In      | Required | Type                                                 | Description                  |
+| ------------------ | ------- | -------- | ---------------------------------------------------- | ---------------------------- |
+| `role`             | `query` | خیر      | `string enum=["engineer", "consulter", "insurance"]` |                              |
+| `province_id`      | `query` | خیر      | `integer`                                            |                              |
+| `city_ids[]`       | `query` | خیر      | `array`                                              |                              |
+| `service_id`       | `query` | خیر      | `integer`                                            |                              |
+| `field_id`         | `query` | خیر      | `integer`                                            |                              |
+| `qualification_id` | `query` | خیر      | `integer`                                            |                              |
+| `min_experience`   | `query` | خیر      | `integer`                                            | حداقل سال سابقه              |
+| `has_license`      | `query` | خیر      | `boolean`                                            | حداقل یک گواهی تأییدشده دارد |
+| `sort`             | `query` | خیر      | `string enum=["newest", "rating"]`                   |                              |
+| `per_page`         | `query` | خیر      | `integer`                                            |                              |
 
 **پاسخ‌ها:**
 
@@ -2593,9 +2605,9 @@
 
 **پارامترها:**
 
-| Name | In | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `professional` | `path` | بله | `integer` |  |
+| Name           | In     | Required | Type      | Description |
+| -------------- | ------ | -------- | --------- | ----------- |
+| `professional` | `path` | بله      | `integer` |             |
 
 **پاسخ‌ها:**
 
@@ -2715,9 +2727,7 @@
         "description": "string",
         "image": "string",
         "parent_id": 1,
-        "children": [
-          {}
-        ]
+        "children": [{}]
       }
     ],
     "qualifications": [
@@ -2754,6 +2764,7 @@
   "meta": {}
 }
 ```
+
 - **404** — موردی با این مشخصات یافت نشد
   - content-type: `application/json`
   - `ErrorEnvelope` · object
@@ -2772,9 +2783,9 @@
 
 **پارامترها:**
 
-| Name | In | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `professional` | `path` | بله | `integer` |  |
+| Name           | In     | Required | Type      | Description |
+| -------------- | ------ | -------- | --------- | ----------- |
+| `professional` | `path` | بله      | `integer` |             |
 
 **پاسخ‌ها:**
 
@@ -2816,9 +2827,9 @@
 
 **پارامترها:**
 
-| Name | In | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `professional` | `path` | بله | `integer` |  |
+| Name           | In     | Required | Type      | Description |
+| -------------- | ------ | -------- | --------- | ----------- |
+| `professional` | `path` | بله      | `integer` |             |
 
 **پاسخ‌ها:**
 
@@ -2850,9 +2861,7 @@
       "comment": "string",
       "rate": 1,
       "author": "string",
-      "replies": [
-        "<ProfessionalComment>"
-      ],
+      "replies": ["<ProfessionalComment>"],
       "created_at": "2026-01-01T00:00:00+03:30"
     }
   ],
@@ -2870,9 +2879,9 @@
 
 **پارامترها:**
 
-| Name | In | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `professional` | `path` | بله | `integer` |  |
+| Name           | In     | Required | Type      | Description |
+| -------------- | ------ | -------- | --------- | ----------- |
+| `professional` | `path` | بله      | `integer` |             |
 
 **Body:** content-type=`application/json` · الزامی=بله
 
@@ -2922,14 +2931,13 @@
     "comment": "string",
     "rate": 1,
     "author": "string",
-    "replies": [
-      "<ProfessionalComment>"
-    ],
+    "replies": ["<ProfessionalComment>"],
     "created_at": "2026-01-01T00:00:00+03:30"
   },
   "meta": {}
 }
 ```
+
 - **401** — توکن ارسال نشده یا نامعتبر است
   - content-type: `application/json`
   - `ErrorEnvelope` · object
@@ -2959,10 +2967,10 @@
 
 **پارامترها:**
 
-| Name | In | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `category_id` | `query` | خیر | `integer` |  |
-| `per_page` | `query` | خیر | `integer` |  |
+| Name          | In      | Required | Type      | Description |
+| ------------- | ------- | -------- | --------- | ----------- |
+| `category_id` | `query` | خیر      | `integer` |             |
+| `per_page`    | `query` | خیر      | `integer` |             |
 
 **پاسخ‌ها:**
 
@@ -3047,9 +3055,7 @@
   "blog_category_id": 1,
   "description": "string",
   "image": "<binary>",
-  "tag_ids": [
-    1
-  ]
+  "tag_ids": [1]
 }
 ```
 
@@ -3108,6 +3114,7 @@
   "meta": {}
 }
 ```
+
 - **403** — دسترسی مجاز نیست
   - content-type: `application/json`
   - `ErrorEnvelope` · object
@@ -3135,9 +3142,9 @@
 
 **پارامترها:**
 
-| Name | In | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `slug` | `path` | بله | `string` |  |
+| Name   | In     | Required | Type     | Description |
+| ------ | ------ | -------- | -------- | ----------- |
+| `slug` | `path` | بله      | `string` |             |
 
 **پاسخ‌ها:**
 
@@ -3194,6 +3201,7 @@
   "meta": {}
 }
 ```
+
 - **404** — موردی با این مشخصات یافت نشد
   - content-type: `application/json`
   - `ErrorEnvelope` · object
@@ -3212,9 +3220,9 @@
 
 **پارامترها:**
 
-| Name | In | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `blog` | `path` | بله | `integer` |  |
+| Name   | In     | Required | Type      | Description |
+| ------ | ------ | -------- | --------- | ----------- |
+| `blog` | `path` | بله      | `integer` |             |
 
 **Body:** content-type=`multipart/form-data` · الزامی=بله
 
@@ -3236,9 +3244,7 @@
   "blog_category_id": 1,
   "description": "string",
   "image": "<binary>",
-  "tag_ids": [
-    1
-  ]
+  "tag_ids": [1]
 }
 ```
 
@@ -3297,6 +3303,7 @@
   "meta": {}
 }
 ```
+
 - **403** — دسترسی مجاز نیست
   - content-type: `application/json`
   - `ErrorEnvelope` · object
@@ -3315,9 +3322,9 @@
 
 **پارامترها:**
 
-| Name | In | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `blog` | `path` | بله | `integer` |  |
+| Name   | In     | Required | Type      | Description |
+| ------ | ------ | -------- | --------- | ----------- |
+| `blog` | `path` | بله      | `integer` |             |
 
 **پاسخ‌ها:**
 
@@ -3338,6 +3345,7 @@
   "meta": {}
 }
 ```
+
 - **403** — دسترسی مجاز نیست
   - content-type: `application/json`
   - `ErrorEnvelope` · object
@@ -3356,9 +3364,9 @@
 
 **پارامترها:**
 
-| Name | In | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `blog` | `path` | بله | `integer` |  |
+| Name   | In     | Required | Type      | Description |
+| ------ | ------ | -------- | --------- | ----------- |
+| `blog` | `path` | بله      | `integer` |             |
 
 **پاسخ‌ها:**
 
@@ -3415,6 +3423,7 @@
   "meta": {}
 }
 ```
+
 - **403** — دسترسی مجاز نیست
   - content-type: `application/json`
   - `ErrorEnvelope` · object
@@ -3433,9 +3442,9 @@
 
 **پارامترها:**
 
-| Name | In | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `blog` | `path` | بله | `integer` |  |
+| Name   | In     | Required | Type      | Description |
+| ------ | ------ | -------- | --------- | ----------- |
+| `blog` | `path` | بله      | `integer` |             |
 
 **پاسخ‌ها:**
 
@@ -3492,6 +3501,7 @@
   "meta": {}
 }
 ```
+
 - **403** — دسترسی مجاز نیست
   - content-type: `application/json`
   - `ErrorEnvelope` · object
@@ -3593,6 +3603,7 @@
   "meta": {}
 }
 ```
+
 - **403** — دسترسی مجاز نیست
   - content-type: `application/json`
   - `ErrorEnvelope` · object
@@ -3611,9 +3622,9 @@
 
 **پارامترها:**
 
-| Name | In | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `blogCategory` | `path` | بله | `integer` |  |
+| Name           | In     | Required | Type      | Description |
+| -------------- | ------ | -------- | --------- | ----------- |
+| `blogCategory` | `path` | بله      | `integer` |             |
 
 **Body:** content-type=`application/json` · الزامی=بله
 
@@ -3660,6 +3671,7 @@
   "meta": {}
 }
 ```
+
 - **403** — دسترسی مجاز نیست
   - content-type: `application/json`
   - `ErrorEnvelope` · object
@@ -3678,9 +3690,9 @@
 
 **پارامترها:**
 
-| Name | In | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `blogCategory` | `path` | بله | `integer` |  |
+| Name           | In     | Required | Type      | Description |
+| -------------- | ------ | -------- | --------- | ----------- |
+| `blogCategory` | `path` | بله      | `integer` |             |
 
 **پاسخ‌ها:**
 
@@ -3701,6 +3713,7 @@
   "meta": {}
 }
 ```
+
 - **403** — دسترسی مجاز نیست
   - content-type: `application/json`
   - `ErrorEnvelope` · object
@@ -3719,10 +3732,10 @@
 
 **پارامترها:**
 
-| Name | In | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `category_id` | `query` | خیر | `integer` |  |
-| `per_page` | `query` | خیر | `integer` |  |
+| Name          | In      | Required | Type      | Description |
+| ------------- | ------- | -------- | --------- | ----------- |
+| `category_id` | `query` | خیر      | `integer` |             |
+| `per_page`    | `query` | خیر      | `integer` |             |
 
 **پاسخ‌ها:**
 
@@ -3814,10 +3827,10 @@
 
 **پارامترها:**
 
-| Name | In | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `service_id` | `query` | خیر | `integer` |  |
-| `blog_id` | `query` | خیر | `integer` |  |
+| Name         | In      | Required | Type      | Description |
+| ------------ | ------- | -------- | --------- | ----------- |
+| `service_id` | `query` | خیر      | `integer` |             |
+| `blog_id`    | `query` | خیر      | `integer` |             |
 
 **پاسخ‌ها:**
 
@@ -3867,10 +3880,10 @@
 
 **پارامترها:**
 
-| Name | In | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `category_id` | `query` | خیر | `integer` |  |
-| `province_id` | `query` | خیر | `integer` |  |
+| Name          | In      | Required | Type      | Description |
+| ------------- | ------- | -------- | --------- | ----------- |
+| `category_id` | `query` | خیر      | `integer` |             |
+| `province_id` | `query` | خیر      | `integer` |             |
 
 **پاسخ‌ها:**
 
@@ -3923,9 +3936,9 @@
 
 **پارامترها:**
 
-| Name | In | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `slug` | `path` | بله | `string` |  |
+| Name   | In     | Required | Type     | Description |
+| ------ | ------ | -------- | -------- | ----------- |
+| `slug` | `path` | بله      | `string` |             |
 
 **پاسخ‌ها:**
 
@@ -3937,6 +3950,7 @@
 ```json
 "<binary>"
 ```
+
 - **404** — موردی با این مشخصات یافت نشد
   - content-type: `application/json`
   - `ErrorEnvelope` · object
@@ -4163,6 +4177,7 @@
   "meta": {}
 }
 ```
+
 - **422** — خطای اعتبارسنجی ورودی
   - content-type: `application/json`
   - `ErrorEnvelope` · object
@@ -4220,6 +4235,7 @@
   "meta": {}
 }
 ```
+
 - **422** — این مورد قبلاً ثبت شده است
   - content-type: `application/json`
   - `ErrorEnvelope` · object
@@ -4242,12 +4258,12 @@
 
 **پارامترها:**
 
-| Name | In | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `category_id` | `query` | خیر | `integer` |  |
-| `province_id` | `query` | خیر | `integer` |  |
-| `city_id` | `query` | خیر | `integer` |  |
-| `type` | `query` | خیر | `string enum=["part_time", "full_time", "contract", "permanent"]` |  |
+| Name          | In      | Required | Type                                                              | Description |
+| ------------- | ------- | -------- | ----------------------------------------------------------------- | ----------- |
+| `category_id` | `query` | خیر      | `integer`                                                         |             |
+| `province_id` | `query` | خیر      | `integer`                                                         |             |
+| `city_id`     | `query` | خیر      | `integer`                                                         |             |
+| `type`        | `query` | خیر      | `string enum=["part_time", "full_time", "contract", "permanent"]` |             |
 
 **پاسخ‌ها:**
 
@@ -4440,6 +4456,7 @@
   "meta": {}
 }
 ```
+
 - **401** — توکن ارسال نشده یا نامعتبر است
   - content-type: `application/json`
   - `ErrorEnvelope` · object
@@ -4465,9 +4482,9 @@
 
 **پارامترها:**
 
-| Name | In | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `career` | `path` | بله | `integer` |  |
+| Name     | In     | Required | Type      | Description |
+| -------- | ------ | -------- | --------- | ----------- |
+| `career` | `path` | بله      | `integer` |             |
 
 **پاسخ‌ها:**
 
@@ -4542,6 +4559,7 @@
   "meta": {}
 }
 ```
+
 - **404** — موردی با این مشخصات یافت نشد
   - content-type: `application/json`
   - `ErrorEnvelope` · object
@@ -4560,9 +4578,9 @@
 
 **پارامترها:**
 
-| Name | In | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `career` | `path` | بله | `integer` |  |
+| Name     | In     | Required | Type      | Description |
+| -------- | ------ | -------- | --------- | ----------- |
+| `career` | `path` | بله      | `integer` |             |
 
 **Body:** content-type=`application/json` · الزامی=بله
 
@@ -4670,6 +4688,7 @@
   "meta": {}
 }
 ```
+
 - **403** — دسترسی مجاز نیست
   - content-type: `application/json`
   - `ErrorEnvelope` · object
@@ -4688,9 +4707,9 @@
 
 **پارامترها:**
 
-| Name | In | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `career` | `path` | بله | `integer` |  |
+| Name     | In     | Required | Type      | Description |
+| -------- | ------ | -------- | --------- | ----------- |
+| `career` | `path` | بله      | `integer` |             |
 
 **پاسخ‌ها:**
 
@@ -4711,6 +4730,7 @@
   "meta": {}
 }
 ```
+
 - **403** — دسترسی مجاز نیست
   - content-type: `application/json`
   - `ErrorEnvelope` · object
@@ -4729,9 +4749,9 @@
 
 **پارامترها:**
 
-| Name | In | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `career` | `path` | بله | `integer` |  |
+| Name     | In     | Required | Type      | Description |
+| -------- | ------ | -------- | --------- | ----------- |
+| `career` | `path` | بله      | `integer` |             |
 
 **پاسخ‌ها:**
 
@@ -4776,6 +4796,7 @@
   "meta": {}
 }
 ```
+
 - **403** — دسترسی مجاز نیست
   - content-type: `application/json`
   - `ErrorEnvelope` · object
@@ -4794,9 +4815,9 @@
 
 **پارامترها:**
 
-| Name | In | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `career` | `path` | بله | `integer` |  |
+| Name     | In     | Required | Type      | Description |
+| -------- | ------ | -------- | --------- | ----------- |
+| `career` | `path` | بله      | `integer` |             |
 
 **Body:** content-type=`multipart/form-data` · الزامی=بله
 
@@ -4869,6 +4890,7 @@
   "meta": {}
 }
 ```
+
 - **404** — آگهی فعال نیست
   - content-type: `application/json`
   - `ErrorEnvelope` · object
@@ -4942,6 +4964,7 @@
   "meta": {}
 }
 ```
+
 - **401** — توکن ارسال نشده یا نامعتبر است
   - content-type: `application/json`
   - `ErrorEnvelope` · object
@@ -5015,6 +5038,7 @@
   "meta": {}
 }
 ```
+
 - **401** — توکن ارسال نشده یا نامعتبر است
   - content-type: `application/json`
   - `ErrorEnvelope` · object
@@ -5040,9 +5064,9 @@
 
 **پارامترها:**
 
-| Name | In | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `room` | `path` | بله | `integer` |  |
+| Name   | In     | Required | Type      | Description |
+| ------ | ------ | -------- | --------- | ----------- |
+| `room` | `path` | بله      | `integer` |             |
 
 **پاسخ‌ها:**
 
@@ -5097,6 +5121,7 @@
   "meta": {}
 }
 ```
+
 - **403** — دسترسی مجاز نیست
   - content-type: `application/json`
   - `ErrorEnvelope` · object
@@ -5115,9 +5140,9 @@
 
 **پارامترها:**
 
-| Name | In | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `room` | `path` | بله | `integer` |  |
+| Name   | In     | Required | Type      | Description |
+| ------ | ------ | -------- | --------- | ----------- |
+| `room` | `path` | بله      | `integer` |             |
 
 **Body:** content-type=`multipart/form-data` · الزامی=خیر
 
@@ -5172,6 +5197,7 @@
   "meta": {}
 }
 ```
+
 - **403** — دسترسی مجاز نیست
   - content-type: `application/json`
   - `ErrorEnvelope` · object
@@ -5197,9 +5223,9 @@
 
 **پارامترها:**
 
-| Name | In | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `room` | `path` | بله | `integer` |  |
+| Name   | In     | Required | Type      | Description |
+| ------ | ------ | -------- | --------- | ----------- |
+| `room` | `path` | بله      | `integer` |             |
 
 **پاسخ‌ها:**
 
@@ -5237,6 +5263,7 @@
   "meta": {}
 }
 ```
+
 - **403** — دسترسی مجاز نیست
   - content-type: `application/json`
   - `ErrorEnvelope` · object
@@ -5259,14 +5286,14 @@ endpointهای مخصوص ادمین/دستیار (فاز ۲)
 
 **پارامترها:**
 
-| Name | In | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `role` | `query` | خیر | `string enum=["engineer", "consulter", "insurance"]` |  |
-| `status` | `query` | خیر | `string enum=["active", "inactive", "ban"]` |  |
-| `province_id` | `query` | خیر | `integer` |  |
-| `city_id` | `query` | خیر | `integer` |  |
-| `service_id` | `query` | خیر | `integer` |  |
-| `per_page` | `query` | خیر | `integer` |  |
+| Name          | In      | Required | Type                                                 | Description |
+| ------------- | ------- | -------- | ---------------------------------------------------- | ----------- |
+| `role`        | `query` | خیر      | `string enum=["engineer", "consulter", "insurance"]` |             |
+| `status`      | `query` | خیر      | `string enum=["active", "inactive", "ban"]`          |             |
+| `province_id` | `query` | خیر      | `integer`                                            |             |
+| `city_id`     | `query` | خیر      | `integer`                                            |             |
+| `service_id`  | `query` | خیر      | `integer`                                            |             |
+| `per_page`    | `query` | خیر      | `integer`                                            |             |
 
 **پاسخ‌ها:**
 
@@ -5309,6 +5336,7 @@ endpointهای مخصوص ادمین/دستیار (فاز ۲)
   "meta": {}
 }
 ```
+
 - **403** — دسترسی مجاز نیست
   - content-type: `application/json`
   - `ErrorEnvelope` · object
@@ -5327,13 +5355,13 @@ endpointهای مخصوص ادمین/دستیار (فاز ۲)
 
 **پارامترها:**
 
-| Name | In | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `role` | `query` | خیر | `string enum=["engineer", "consulter", "insurance"]` |  |
-| `status` | `query` | خیر | `string enum=["active", "inactive", "ban"]` |  |
-| `province_id` | `query` | خیر | `integer` |  |
-| `city_id` | `query` | خیر | `integer` |  |
-| `service_id` | `query` | خیر | `integer` |  |
+| Name          | In      | Required | Type                                                 | Description |
+| ------------- | ------- | -------- | ---------------------------------------------------- | ----------- |
+| `role`        | `query` | خیر      | `string enum=["engineer", "consulter", "insurance"]` |             |
+| `status`      | `query` | خیر      | `string enum=["active", "inactive", "ban"]`          |             |
+| `province_id` | `query` | خیر      | `integer`                                            |             |
+| `city_id`     | `query` | خیر      | `integer`                                            |             |
+| `service_id`  | `query` | خیر      | `integer`                                            |             |
 
 **پاسخ‌ها:**
 
@@ -5345,6 +5373,7 @@ endpointهای مخصوص ادمین/دستیار (فاز ۲)
 ```json
 "<binary>"
 ```
+
 - **403** — دسترسی مجاز نیست
   - content-type: `application/json`
   - `ErrorEnvelope` · object

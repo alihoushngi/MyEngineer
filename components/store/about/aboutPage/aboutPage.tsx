@@ -22,10 +22,7 @@ type AboutPageProps = {
   brands?: readonly BrandCard[];
 };
 
-export function AboutPage({
-  teamMembers = [],
-  brands = [],
-}: AboutPageProps) {
+export function AboutPage({ teamMembers = [], brands = [] }: AboutPageProps) {
   return (
     <div className="overflow-hidden pb-section">
       <div className="container-wide py-page">
@@ -63,10 +60,10 @@ export function AboutPage({
             </p>
           </div>
 
-          <div className="relative min-h-72 overflow-hidden lg:min-h-136">
+          <div className="relative min-h-48 overflow-hidden sm:min-h-72 lg:min-h-136">
             <Image
-              src="/images/home/project-engineer.png"
-              alt="مهندس پروژه در محیط ساختمان"
+              src="/images/home/slide 2.png"
+              alt="مهندسان در حال بررسی نقشه‌های پروژه ساختمانی"
               fill
               priority
               sizes="(min-width: 1024px) 55vw, 100vw"
@@ -135,33 +132,41 @@ export function AboutPage({
             </p>
           </div>
 
-          <ol className="grid items-stretch gap-3 sm:grid-cols-3 sm:gap-4">
-            {aboutCopy.howSteps.map((step, index) => (
-              <li
-                key={step.title}
-                className="group relative flex min-h-64 flex-col overflow-hidden rounded-3xl border border-border-subtle bg-surface p-5 shadow-xs transition-all duration-200 ease-in-out hover:-translate-y-1 hover:border-primary/20 hover:shadow-md motion-reduce:transform-none sm:p-6"
-              >
-                <span
-                  aria-hidden="true"
-                  className="pointer-events-none absolute -inset-e-14 -top-14 size-32 rounded-full bg-primary/0 blur-3xl transition-all duration-200 ease-in-out group-hover:scale-125 group-hover:bg-primary/10"
-                />
+          <section aria-labelledby="about-how-heading">
+            <h2 id="about-how-heading" className="type-h2 text-foreground">
+              {aboutCopy.howTitle}
+            </h2>
+            <p className="mt-3 type-body text-foreground-muted">
+              {aboutCopy.howIntro}
+            </p>
+            <ol className="mt-6 grid items-stretch gap-3 sm:grid-cols-3 sm:gap-4">
+              {aboutCopy.howSteps.map((step, index) => (
+                <li
+                  key={step.title}
+                  className="group relative flex min-h-48 flex-col sm:min-h-64 overflow-hidden rounded-3xl border border-border-subtle bg-surface p-5 shadow-xs transition-all duration-200 ease-in-out hover:-translate-y-1 hover:border-primary/20 hover:shadow-md motion-reduce:transform-none sm:p-6"
+                >
+                  <span
+                    aria-hidden="true"
+                    className="pointer-events-none absolute -inset-e-14 -top-14 size-32 rounded-full bg-primary/0 blur-3xl transition-all duration-200 ease-in-out group-hover:scale-125 group-hover:bg-primary/10"
+                  />
 
-                <span className="relative z-10 inline-flex size-11 items-center justify-center rounded-2xl border border-primary/10 bg-primary-subtle type-body-sm font-semibold tabular-nums text-primary shadow-xs">
-                  {formatFaNumber(index + 1).padStart(2, "۰")}
-                </span>
+                  <span className="relative z-10 inline-flex size-11 items-center justify-center rounded-2xl border border-primary/10 bg-primary-subtle type-body-sm font-semibold tabular-nums text-primary shadow-xs">
+                    {formatFaNumber(index + 1).padStart(2, "۰")}
+                  </span>
 
-                <div className="relative z-10 mt-auto pt-8">
-                  <h3 className="type-h4 text-foreground transition-all duration-200 ease-in-out group-hover:text-primary">
-                    {step.title}
-                  </h3>
+                  <div className="relative z-10 mt-auto pt-8">
+                    <h3 className="type-h4 text-foreground transition-all duration-200 ease-in-out group-hover:text-primary">
+                      {step.title}
+                    </h3>
 
-                  <p className="mt-2 type-body-sm leading-relaxed text-foreground-muted">
-                    {step.description}
-                  </p>
-                </div>
-              </li>
-            ))}
-          </ol>
+                    <p className="mt-2 type-body-sm leading-relaxed text-foreground-muted">
+                      {step.description}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </section>
         </div>
       </section>
 

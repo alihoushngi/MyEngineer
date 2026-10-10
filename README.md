@@ -2,21 +2,16 @@
 
 Customer-facing storefront for **Mohandes Man** (مهندس من), rebuilt as a modern Next.js App Router frontend.
 
-This is a **Persian, RTL**, API-driven frontend. Development is organized into phases. Product screens and business features are not implemented yet.
+This is a **Persian, RTL**, API-driven frontend. The public marketplace, editorial content, customer account and engineer workspaces use live API adapters, with explicit development mock modes.
 
-## Current Phase
+## Current implementation
 
-**Phase 0 — Foundation, plus design-system primitives**
-
-- Next.js App Router, TypeScript, Tailwind CSS, ESLint, and Prettier
-- Folder architecture and naming conventions
-- Persian RTL root layout and local Kalameh (FaNum)
-- Native fetch HTTP client and TanStack Query provider
-- Docker production image and Compose
-- Semantic design tokens and reusable UI primitives
-- Native PWA manifest, conservative offline fallback, and iPhone install guide
-
-Later phases will add product routes, domain UI, and API integration. Do not treat empty folders as implemented features.
+Public routes cover home, service discovery, expert profiles, search, articles,
+FAQ, knowledge, downloadable forms, about/legal, contact, careers and PWA guides.
+Private customer and engineer workspaces preserve separate session guards.
+The UI is Persian RTL with local Kalameh, semantic Tailwind tokens and server
+rendering by default. The [documentation index](docs/README.md) records client
+alignment, exclusions, migration decisions and actual validation results.
 
 ## Technology stack
 
@@ -28,7 +23,7 @@ Later phases will add product routes, domain UI, and API integration. Do not tre
 | Styling         | Tailwind CSS                     |
 | Package manager | pnpm only                        |
 | Server state    | TanStack Query                   |
-| Forms           | React Hook Form + Zod            |
+| Forms           | React Hook Form + Yup / Zod      |
 | Icons           | lucide-react                     |
 | HTTP            | native fetch                     |
 | Linting         | ESLint                           |
@@ -75,7 +70,7 @@ docs/           project documentation
 - Pages stay thin and compose components from `components/`.
 - Component folders and files use camelCase; component exports use PascalCase.
 - `hooks/`, `lib/`, `providers/`, `config/`, and `services/` use kebab-case folders and files.
-- Routes use kebab-case. Route groups are `(auth)` and `(shop)`.
+- Routes use kebab-case. Route groups are `(auth)`, `(shop)`, `(account)` and `(engineer)`.
 - Do not place domain screens in `components/ui/`.
 - Do not hardcode API base URLs. Read `NEXT_PUBLIC_API_BASE_URL` from the environment.
 - Use native fetch through `lib/api/http-client`. Do not add Axios.
@@ -98,7 +93,7 @@ Copy `.env.example` to `.env.local` and set:
 NEXT_PUBLIC_API_BASE_URL=
 ```
 
-This value is the API origin only. Do not commit secrets. See [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) for setup commands.
+This base includes `/api/v1`, with no trailing slash. Optional `API_INTERNAL_BASE_URL` is server-only; `SITE_URL` is the separate public site origin used by the sitemap. Do not commit secrets. See [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) for setup commands.
 
 ## Development mock authentication
 
@@ -113,17 +108,7 @@ implementation and browser validation are documented in [docs/PWA.md](docs/PWA.m
 
 ## Documentation
 
-- [Developer guide](docs/DEVELOPMENT.md)
-- [Architecture rulebook](docs/ARCHITECTURE.md)
-- [Design system](docs/DESIGN-SYSTEM.md)
-- [Legacy frontend audit](docs/LEGACY-AUDIT.md)
-- [Product flows](docs/PRODUCT-FLOWS.md)
-- [Phase 1 scope matrix](docs/PHASE-1-SCOPE.md)
-- [Information architecture](docs/INFORMATION-ARCHITECTURE.md)
-- [Component architecture](docs/COMPONENT-ARCHITECTURE.md)
-- [State matrix](docs/STATE-MATRIX.md)
-- [Docker guide](docs/DOCKER.md)
-- [PWA implementation and test guide](docs/PWA.md)
-- [Engineer panel](docs/ENGINEER-PANEL.md)
-- [Mock authentication (development)](docs/MOCK-AUTH.md)
-- Cursor architecture rules: `.cursor/rules/project-architecture.mdc`
+Start with [docs/README.md](docs/README.md). It links the current architecture,
+design system, page guides, QA record, API contracts, operational guides and
+preserved historical decisions. Cursor architecture rules remain in
+`.cursor/rules/project-ARCHITECTURE.mdc`.

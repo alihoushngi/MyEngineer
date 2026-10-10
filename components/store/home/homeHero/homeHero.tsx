@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { HomeSlideImage } from "@/components/store/home/homeSlideImage/homeSlideImage";
 import Link from "next/link";
 import { ArrowDownIcon, CheckCircle2Icon } from "lucide-react";
 
@@ -29,6 +29,7 @@ export function HomeHero({ slides = homeHeroSlides }: HomeHeroProps) {
 
   return (
     <section
+      data-home-part="hero"
       className="
         relative isolate
         min-h-[calc(100svh-4rem)]
@@ -50,12 +51,13 @@ export function HomeHero({ slides = homeHeroSlides }: HomeHeroProps) {
         "
       >
         {firstSlide ? (
-          <Image
+          <HomeSlideImage
             src={firstSlide.imageSrc}
+            fallbackSrc={homeHeroSlides[0]?.imageSrc ?? firstSlide.imageSrc}
             alt=""
             fill
             priority
-            sizes="100vw"
+            sizes="(min-width: 768px) 100vw, 1px"
             className="
               scale-[1.02]
               object-cover
@@ -130,6 +132,7 @@ export function HomeHero({ slides = homeHeroSlides }: HomeHeroProps) {
 
       {/* Content */}
       <div
+        data-home-part="hero-content"
         className="
           container-wide
           relative z-10
@@ -191,6 +194,7 @@ export function HomeHero({ slides = homeHeroSlides }: HomeHeroProps) {
             </p>
 
             <p
+              data-home-part="hero-supporting"
               className="
                 mx-auto
                 hidden
@@ -208,6 +212,7 @@ export function HomeHero({ slides = homeHeroSlides }: HomeHeroProps) {
 
           {/* Search glass surface */}
           <div
+            data-home-part="hero-search"
             className="
               relative
               mt-7
@@ -295,6 +300,7 @@ export function HomeHero({ slides = homeHeroSlides }: HomeHeroProps) {
 
           {isPageEnabled("expertRegistration") ? (
             <div
+              data-home-part="hero-join"
               className="
                 mt-5
                 flex w-full
@@ -353,6 +359,7 @@ export function HomeHero({ slides = homeHeroSlides }: HomeHeroProps) {
 
           {/* Benefits */}
           <div
+            data-home-part="hero-benefits"
             className="
               mt-6
               flex

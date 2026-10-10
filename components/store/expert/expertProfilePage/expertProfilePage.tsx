@@ -1,4 +1,5 @@
 import { InfoIcon } from "lucide-react";
+import styles from "./expertProfilePage.module.css";
 import { StoreBreadcrumb } from "@/components/common/storeBreadcrumb/storeBreadcrumb";
 import { ExpertAbout } from "@/components/store/expert/expertAbout/expertAbout";
 import { ExpertCertificates } from "@/components/store/expert/expertCertificates/expertCertificates";
@@ -92,17 +93,10 @@ export function ExpertProfilePage({
       />
 
       <div className="container-app grid items-start gap-10 py-page lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-14">
-        <div className="min-w-0 divide-y divide-border-subtle">
+        <div className={styles.sections}>
           {hasText(expert.about) ? <ExpertAbout about={expert.about} /> : null}
           {hasItems(expert.specialties) ? (
             <ExpertSpecialties specialties={expert.specialties} />
-          ) : null}
-          <ExpertProfessionalInfo expert={expert} />
-          {hasText(expert.history) ? (
-            <ExpertExperience history={expert.history} />
-          ) : null}
-          {hasItems(expert.certificates) ? (
-            <ExpertCertificates certificates={expert.certificates} />
           ) : null}
           {hasItems(expert.serviceCities) ? (
             <ExpertTagSection
@@ -117,6 +111,13 @@ export function ExpertProfilePage({
               titleId="expert-software-heading"
               items={expert.software}
             />
+          ) : null}
+          <ExpertProfessionalInfo expert={expert} />
+          {hasText(expert.history) ? (
+            <ExpertExperience history={expert.history} />
+          ) : null}
+          {hasItems(expert.certificates) ? (
+            <ExpertCertificates certificates={expert.certificates} />
           ) : null}
           {hasItems(expert.portfolio) ? (
             <ExpertPortfolio items={expert.portfolio} />

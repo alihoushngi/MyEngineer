@@ -1,5 +1,7 @@
 # Information Architecture
 
+> Historical planning snapshot, preserved for decision context. This is not the current implementation or an instruction for active work. See the [current architecture](../ARCHITECTURE.md), [design reference audit](../design-reference-audit.md), and [documentation index](../README.md). The local client source is `Design/`; earlier absolute paths and product-scope exclusions below describe a previous phase. Header, Footer, Login, and Registration are excluded from this alignment.
+
 Implementation blueprint for the Mohandes Man storefront. This document turns
 [LEGACY-AUDIT.md](LEGACY-AUDIT.md), [PRODUCT-FLOWS.md](PRODUCT-FLOWS.md), and
 [PHASE-1-SCOPE.md](PHASE-1-SCOPE.md) into a route, layout, and page-composition
@@ -11,8 +13,8 @@ Related:
 
 - [COMPONENT-ARCHITECTURE.md](COMPONENT-ARCHITECTURE.md) — components, server/client, reuse
 - [STATE-MATRIX.md](STATE-MATRIX.md) — loading / empty / error / validation states
-- [ARCHITECTURE.md](ARCHITECTURE.md) — folder and coding rules
-- [DESIGN-SYSTEM.md](DESIGN-SYSTEM.md) — visual and accessibility primitives
+- [ARCHITECTURE.md](../ARCHITECTURE.md) — folder and coding rules
+- [DESIGN-SYSTEM.md](../DESIGN-SYSTEM.md) — visual and accessibility primitives
 
 Classification used below matches Task 01:
 
@@ -610,7 +612,7 @@ Do not invent endpoints, payloads, or ranking.
 
 ## 12. API integration boundaries (route level)
 
-Follow [ARCHITECTURE.md](ARCHITECTURE.md): `services/` own domain calls,
+Follow [ARCHITECTURE.md](../ARCHITECTURE.md): `services/` own domain calls,
 `lib/api/` is HTTP, `hooks/` wrap client server-state, `providers/query-provider`
 stays generic.
 
@@ -663,7 +665,7 @@ into an unusable content well. Profile sticky CTA is **only** on
 ## 14. Accessibility architecture (IA level)
 
 Component-level rules live in [COMPONENT-ARCHITECTURE.md](COMPONENT-ARCHITECTURE.md)
-and [DESIGN-SYSTEM.md](DESIGN-SYSTEM.md). Route-level requirements:
+and [DESIGN-SYSTEM.md](../DESIGN-SYSTEM.md). Route-level requirements:
 
 - One `h1` per page (service title, expert name, article title, “ثبت‌نام متخصص”, etc.).
 - Skip link as the first focusable control in the shop layout.
@@ -728,15 +730,15 @@ Slices 7–10 require APIs. Slice 11 requires a content-source decision.
 
 ## 17. Conflicts with previous documentation
 
-| Source                                                                  | Conflict                                  | Resolution in this blueprint                                                          |
-| ----------------------------------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------- |
-| [DEVELOPMENT.md](DEVELOPMENT.md) examples `/sign-in`, `/engineers/[id]` | Foundation placeholders                   | Product routes are `/expert-registration` and `/experts/[id]`. No customer sign-in    |
-| [ARCHITECTURE.md](ARCHITECTURE.md) example `engineerCard`               | Product language is expert                | Domain folder is `components/store/expert/`. Rulebook example should say `expertCard` |
-| [ARCHITECTURE.md](ARCHITECTURE.md) “dynamic segments use `[id]`”        | SEO resources need slugs                  | `[id]` for experts; `[slug]` / `[category]` for public content                        |
-| Task 18 “legal last” vs Task 01 slice 1                                 | Legal is static                           | Implement legal/about with chrome (step 4 above)                                      |
-| Task 01 candidate `ContentCard` in common                               | Article vs knowledge vs FAQ shapes differ | Do not create a generic content card (see component doc)                              |
-| Task 01 `CitySelector` listed under common                              | It is a product concept with API          | Lives under `components/store/city/`                                                  |
-| Search as overlay-only in flows vs need for results                     | Legacy never had a results URL            | Add `/search` as UX completion                                                        |
+| Source                                                                     | Conflict                                  | Resolution in this blueprint                                                          |
+| -------------------------------------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------- |
+| [DEVELOPMENT.md](../DEVELOPMENT.md) examples `/sign-in`, `/engineers/[id]` | Foundation placeholders                   | Product routes are `/expert-registration` and `/experts/[id]`. No customer sign-in    |
+| [ARCHITECTURE.md](../ARCHITECTURE.md) example `engineerCard`               | Product language is expert                | Domain folder is `components/store/expert/`. Rulebook example should say `expertCard` |
+| [ARCHITECTURE.md](../ARCHITECTURE.md) “dynamic segments use `[id]`”        | SEO resources need slugs                  | `[id]` for experts; `[slug]` / `[category]` for public content                        |
+| Task 18 “legal last” vs Task 01 slice 1                                    | Legal is static                           | Implement legal/about with chrome (step 4 above)                                      |
+| Task 01 candidate `ContentCard` in common                                  | Article vs knowledge vs FAQ shapes differ | Do not create a generic content card (see component doc)                              |
+| Task 01 `CitySelector` listed under common                                 | It is a product concept with API          | Lives under `components/store/city/`                                                  |
+| Search as overlay-only in flows vs need for results                        | Legacy never had a results URL            | Add `/search` as UX completion                                                        |
 
 ---
 

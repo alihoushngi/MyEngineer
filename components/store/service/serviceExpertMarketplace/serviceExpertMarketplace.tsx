@@ -1,5 +1,8 @@
 "use client";
 
+import { type ReactNode } from "react";
+import Link from "next/link";
+
 import {
   AlertCircleIcon,
   ChevronDownIcon,
@@ -24,6 +27,8 @@ import { useServiceFilters } from "@/hooks/use-service-filters/use-service-filte
 import { formatPreferredCitiesLabel } from "@/lib/city/preferred-city/preferred-city";
 import { formatFaNumber } from "@/lib/format/format-fa-number/format-fa-number";
 import {
+  ALL_FILTER,
+  serializeServiceFilterParams,
   type FilterOption,
   type ServiceFilterValues,
 } from "@/lib/service/service-query/service-query";
@@ -44,6 +49,15 @@ type ServiceExpertMarketplaceProps = {
   skills: readonly FilterOption[];
   disciplines: readonly FilterOption[];
   hasPreferredFallback: boolean;
+  alignment?: {
+    scope: ReactNode;
+    suggested: ReactNode;
+    request: ReactNode;
+    process: ReactNode;
+    faq: ReactNode;
+    scopeFirst: boolean;
+    showCategoryNavigation: boolean;
+  };
 };
 
 export function ServiceExpertMarketplace({
@@ -58,6 +72,7 @@ export function ServiceExpertMarketplace({
   skills,
   disciplines,
   hasPreferredFallback,
+  alignment,
 }: ServiceExpertMarketplaceProps) {
   const discovery = useServiceFilters({
     filters,
@@ -72,7 +87,30 @@ export function ServiceExpertMarketplace({
     serviceFilterCopy.allCitiesLabel,
   );
 
-  return (
+  const mobileControls = (
+    <div className="sticky top-[calc(4.25rem+env(safe-area-inset-top))] z-30 flex items-center gap-2 border-y border-border-subtle bg-surface/95 px-4 py-3 shadow-xs backdrop-blur-xl md:hidden">
+      <CityButton
+        label={cityLabel}
+        className="flex-1"
+        onClick={() => discovery.setCityDialogOpen(true)}
+      />
+      <Button
+        variant="outline"
+        size="sm"
+        className="min-h-11 shrink-0"
+        aria-haspopup="dialog"
+        icon={<SlidersHorizontalIcon aria-hidden="true" />}
+        onClick={discovery.openOverlay}
+      >
+        {serviceFilterCopy.filtersLabel}
+      </Button>
+      <span className="ms-auto inline-flex min-w-8 items-center justify-center rounded-lg bg-primary-subtle px-2 py-1 type-caption font-semibold text-primary">
+        {formatFaNumber(total)}
+      </span>
+    </div>
+  );
+
+  const results = (
     <section
       aria-labelledby="service-experts-heading"
       aria-busy={discovery.isPending}
@@ -119,29 +157,7 @@ export function ServiceExpertMarketplace({
         </div>
       </div>
 
-      <div className="sticky top-[calc(4.25rem+env(safe-area-inset-top))] z-30 -mx-4 flex items-center gap-2 border-y border-border-subtle bg-surface/95 px-4 py-3 shadow-xs backdrop-blur-xl md:hidden">
-        <CityButton
-          label={cityLabel}
-          className="flex-1"
-          onClick={() => {
-            discovery.setCityDialogOpen(true);
-          }}
-        />
-
-        <Button
-          variant="outline"
-          size="sm"
-          className="shrink-0"
-          icon={<SlidersHorizontalIcon aria-hidden="true" />}
-          onClick={discovery.openOverlay}
-        >
-          {serviceFilterCopy.filtersLabel}
-        </Button>
-
-        <span className="ms-auto inline-flex min-w-8 items-center justify-center rounded-lg bg-primary-subtle px-2 py-1 type-caption font-semibold text-primary">
-          {formatFaNumber(total)}
-        </span>
-      </div>
+      {!alignment ? <div className="-mx-4">{mobileControls}</div> : null}
 
       <ServiceActiveFilters
         chips={discovery.activeChips}
@@ -232,6 +248,98 @@ export function ServiceExpertMarketplace({
         onSelected={discovery.changeCities}
       />
     </section>
+  );
+
+  if (!alignment) {
+    return results;
+  }
+
+  const categoryLinks = [
+    { id: ALL_FILTER, label: serviceFilterCopy.allOptionLabel },
+    ...skills,
+  ];
+
+  return (
+    <div className="flex min-w-0 flex-col" data-service-reference={slug}>
+      {alignment.showCategoryNavigation && skills.length > 0 ? (
+        <nav
+          aria-label={serviceFilterCopy.skillLabel}
+          className="order-0 min-w-0 border-b border-border-subtle bg-background-subtle lg:hidden"
+        >
+          <ul className="container-app flex gap-2 overflow-x-auto py-3">
+            {categoryLinks.map((item) => {
+              const params = serializeServiceFilterParams(
+                { ...filters, skill: item.id },
+                1,
+                { explicitCities: hasPreferredFallback },
+              );
+              const query = params.toString();
+
+              return (
+                <li key={item.id} className="shrink-0">
+                  <Link
+                    href={
+                      query
+                        ? `${discovery.pathname}?${query}`
+                        : discovery.pathname
+                    }
+                    scroll={false}
+                    aria-current={
+                      filters.skill === item.id ? "page" : undefined
+                    }
+                    className={cn(
+                      "inline-flex min-h-11 items-center rounded-xl border border-border-subtle bg-surface px-4 type-body-sm text-foreground outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring",
+                      filters.skill === item.id &&
+                        "border-primary/30 bg-primary-subtle font-semibold text-primary",
+                    )}
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+      ) : null}
+
+      <div
+        className={cn(
+          "lg:hidden",
+          alignment.scopeFirst ? "order-2" : "order-1",
+        )}
+      >
+        {mobileControls}
+      </div>
+      <div
+        className={cn(
+          "lg:order-1",
+          alignment.scopeFirst ? "order-1" : "order-2",
+        )}
+      >
+        {alignment.scope}
+      </div>
+      <div
+        className={cn(
+          "order-3 bg-background-subtle pb-6 pt-6 lg:order-3 lg:pb-10",
+          !alignment.suggested && "lg:pt-section",
+          alignment.suggested && "lg:pt-0",
+        )}
+      >
+        <div className="container-app flex justify-end">
+          {alignment.request}
+        </div>
+      </div>
+      <div className="order-4 bg-background-subtle pb-section lg:order-4">
+        <div className="container-app">{results}</div>
+      </div>
+      <div className="order-5 lg:order-6">{alignment.faq}</div>
+      {alignment.suggested ? (
+        <div className="order-6 bg-background-subtle py-8 lg:order-2 lg:pb-10 lg:pt-section">
+          <div className="container-app">{alignment.suggested}</div>
+        </div>
+      ) : null}
+      <div className="order-7 lg:order-5">{alignment.process}</div>
+    </div>
   );
 }
 

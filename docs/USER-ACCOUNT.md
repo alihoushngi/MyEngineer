@@ -6,6 +6,11 @@ panel and not a generic SaaS dashboard. Visual identity follows
 [ARCHITECTURE.md](ARCHITECTURE.md). Authentication remains in
 [USER-AUTH.md](USER-AUTH.md).
 
+Current live integration uses `services/user-account-service/user-panel-api.ts`
+and `services/profile-service/profile-service.ts` when an API base is configured.
+The detailed overlay-cookie notes below apply only to explicit development mode.
+No account or auth implementation is changed by the design alignment.
+
 Normal-user account data is private. There is no public `/users/[id]` profile.
 
 ---
@@ -29,6 +34,9 @@ not used.
 | `/account/reviews`        | Reviews the user wrote                       |
 | `/account/reviews/[id]`   | Review detail (full text, related request)   |
 | `/account/notifications`  | Notification list                            |
+| `/account/support`        | Support ticket list                          |
+| `/account/support/new`    | Create support ticket                        |
+| `/account/support/[id]`   | Ticket thread                                |
 | `/account/settings`       | Session display and logout                   |
 
 Pages are private: `noindex`, `X-Robots-Tag`, `Cache-Control: private,
@@ -185,7 +193,7 @@ Route: `/account/saved`. Cards reuse public `ExpertCard`. Each card also has:
 - پیام به مهندس (open existing thread, or `/account/messages/start?expertId=`)
 
 Saving from `/experts/[id]` uses «ذخیره مهندس» with a selected state. Guests
-are sent to `/login?next=` (customer login, never `/engineer/login`). Save
+are sent to `/login?next=` (customer login, never `/engineer/login`). In development mock mode, save
 state uses one overlay cookie (`mm_mock_user_saved`) across expert profile,
 search, service results, home discovery, and `/account/saved`. `ExpertCard`
 does not expose Save; the profile is the interaction surface.
@@ -255,19 +263,15 @@ Installed (standalone) sessions still use the network for these routes.
 
 ---
 
-## Backend contracts required
+## Live API boundaries
 
-Do not invent endpoints in the frontend. A real customer workspace needs:
+The existing user-panel adapter covers workspace/profile, requests, saved
+specialists, reviews and notifications. Messaging uses the shared live
+conversation adapter, and support uses ticket-room services. Mutations are
+recipient/role scoped and retain pending/error/retry handling. Actual endpoint
+contracts are in [API-CONTRACTS.md](API-CONTRACTS.md); do not invent paths.
 
-1. Normal-user session (login / register / current user / logout)
-2. Current-user profile read (name, masked mobile, avatar, city)
-3. List/detail for the user’s requests (shared entity with engineer requests)
-4. Create request (service, city, description, selected engineer)
-5. Saved-expert list and save/unsave using the public Expert entity
-6. List/detail/send/mark-read for conversations (see [MESSAGING.md](MESSAGING.md))
-7. User reviews list/detail and review submit
-8. Review eligibility for a customer + engineer + request
-9. Notifications list and mark-read (recipient-scoped; never mixed)
-10. Explicit 401 vs 403 when an engineer token hits `/account/*`
-
-Do not invent endpoint URLs in this frontend.
+Cookie persistence and closed-request review eligibility described above are
+explicit mock rules. Production eligibility/status semantics follow the
+backend response and existing service adapters; catalog fixtures do not
+replace private live data. This alignment preserves all workspace behavior.

@@ -70,18 +70,23 @@ function ArticleBlock({ block }: { block: ArticleBodyBlock }) {
   }
 
   if (block.type === "list") {
+    const List = block.ordered ? "ol" : "ul";
     return (
-      <ul className="space-y-3 rounded-2xl bg-surface-subtle px-5 py-4 type-body leading-loose text-foreground-muted">
+      <List
+        className={`space-y-3 rounded-2xl bg-surface-subtle px-5 py-4 type-body leading-loose text-foreground-muted ${block.ordered ? "list-inside list-decimal" : ""}`}
+      >
         {block.items.map((item, itemIndex) => (
           <li key={`${itemIndex}-${item}`} className="relative ps-5">
-            <span
-              aria-hidden="true"
-              className="absolute inset-s-0 top-[0.75em] size-1.5 rounded-full bg-primary"
-            />
+            {!block.ordered ? (
+              <span
+                aria-hidden="true"
+                className="absolute inset-s-0 top-[0.75em] size-1.5 rounded-full bg-primary"
+              />
+            ) : null}
             {item}
           </li>
         ))}
-      </ul>
+      </List>
     );
   }
 

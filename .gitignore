@@ -11,3 +11,6 @@ coverage/
 !**/.env.*.example
 .DS_Store
 data/*.mmdb
+
+# Client-provided reference source; keep local and never commit.
+/Design/

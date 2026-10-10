@@ -24,9 +24,9 @@ export function ServiceSuggestedExperts({
           <BadgeCheckIcon aria-hidden="true" className="size-4" />
         </span>
 
-        <h3 className="type-h3 text-foreground">
+        <h2 className="type-h3 text-foreground">
           {serviceFilterCopy.suggestedTitle}
-        </h3>
+        </h2>
       </div>
 
       <ul className="grid auto-rows-fr gap-4 md:grid-cols-3">

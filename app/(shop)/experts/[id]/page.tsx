@@ -38,6 +38,16 @@ export async function generateMetadata({
     alternates: {
       canonical: toExpertSharePath(id),
     },
+    openGraph: {
+      title: expert.name,
+      description: expert.shortIntroduction ?? expert.profession,
+      type: "profile",
+      locale: "fa_IR",
+      siteName: "مهندس من",
+      ...(expert.avatarSrc
+        ? { images: [{ url: expert.avatarSrc, alt: expert.name }] }
+        : {}),
+    },
   };
 }
 

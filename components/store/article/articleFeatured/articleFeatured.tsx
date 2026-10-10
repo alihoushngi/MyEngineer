@@ -5,14 +5,23 @@ import { ArrowLeftIcon, NewspaperIcon } from "lucide-react";
 import { articlesCopy } from "@/config/articles.config/articles.config";
 
 import { buildArticleMeta } from "@/lib/articles/article-meta/article-meta";
+import { buildArticleExcerpt } from "@/lib/articles/parse-article-body/parse-article-body";
 import { type ArticleCardData } from "@/types/store/article.types";
 
 type ArticleFeaturedProps = {
   article: ArticleCardData;
+  headingLevel?: 2 | 3;
+  priority?: boolean;
 };
 
-export function ArticleFeatured({ article }: ArticleFeaturedProps) {
+export function ArticleFeatured({
+  article,
+  headingLevel = 2,
+  priority = true,
+}: ArticleFeaturedProps) {
+  const Heading = headingLevel === 3 ? "h3" : "h2";
   const meta = buildArticleMeta(article);
+  const excerpt = article.excerpt ? buildArticleExcerpt(article.excerpt) : "";
 
   return (
     <Link
@@ -30,7 +39,7 @@ export function ArticleFeatured({ article }: ArticleFeaturedProps) {
             src={article.coverSrc}
             alt={`تصویر مقاله ${article.title}`}
             fill
-            priority
+            priority={priority}
             sizes="(min-width: 1024px) 55vw, 100vw"
             className="object-cover transition-all duration-200 ease-in-out group-hover:scale-[1.03] motion-reduce:transform-none"
           />
@@ -57,13 +66,13 @@ export function ArticleFeatured({ article }: ArticleFeaturedProps) {
             : articlesCopy.featuredLabel}
         </p>
 
-        <h2 className="mt-5 type-h1 text-primary-deep-foreground">
+        <Heading className="mt-5 type-h1 text-primary-deep-foreground">
           {article.title}
-        </h2>
+        </Heading>
 
-        {article.excerpt ? (
+        {excerpt ? (
           <p className="mt-4 type-body leading-relaxed text-primary-deep-foreground/65">
-            {article.excerpt}
+            {excerpt}
           </p>
         ) : null}
 

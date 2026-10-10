@@ -3,7 +3,9 @@ import { notFound } from "next/navigation";
 import { ServiceDiscoveryPage } from "@/components/store/service/serviceDiscoveryPage/serviceDiscoveryPage";
 import { readPreferredCitiesFromRequest } from "@/lib/city/preferred-city-server/preferred-city-server";
 import {
+  ALL_FILTER,
   buildProfessionalsQuery,
+  hasActiveServiceFilters,
   parseServiceFilterParams,
 } from "@/lib/service/service-query/service-query";
 import { listBackendFields } from "@/services/lookup-service/lookup-service";
@@ -23,19 +25,38 @@ type ServicePageProps = {
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: ServicePageProps): Promise<Metadata> {
-  const { slug } = await params;
+  const [{ slug }, rawSearchParams] = await Promise.all([params, searchParams]);
   const service = await getServiceCategoryBySlug(decodeURIComponent(slug));
 
   if (!service) {
     return notFoundMetadata;
   }
 
+  const query = parseServiceFilterParams(rawSearchParams);
+  const isFilteredPage =
+    query.page > 1 ||
+    hasActiveServiceFilters(query.filters) ||
+    query.filters.sort !== ALL_FILTER;
+
   return {
     title: service.label,
     description: service.description,
     alternates: {
       canonical: service.href,
+    },
+    ...(isFilteredPage ? { robots: { index: false, follow: true } } : {}),
+    openGraph: {
+      title: service.label,
+      description: service.description,
+      url: service.href,
+      type: "website",
+      locale: "fa_IR",
+      siteName: "مهندس من",
+      ...(service.imageSrc
+        ? { images: [{ url: service.imageSrc, alt: service.label }] }
+        : {}),
     },
   };
 }

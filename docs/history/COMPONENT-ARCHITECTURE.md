@@ -1,12 +1,14 @@
 # Component Architecture
 
+> Historical planning snapshot, preserved for decision context. This is not the current implementation or an instruction for active work. See the [current architecture](../ARCHITECTURE.md), [design reference audit](../design-reference-audit.md), and [documentation index](../README.md). The local client source is `Design/`; earlier absolute paths and product-scope exclusions below describe a previous phase. Header, Footer, Login, and Registration are excluded from this alignment.
+
 Domain, layout, and common component blueprint for the Mohandes Man storefront.
 Routes and layouts are specified in [INFORMATION-ARCHITECTURE.md](INFORMATION-ARCHITECTURE.md).
 States are specified in [STATE-MATRIX.md](STATE-MATRIX.md).
 
 This document does **not** authorize implementation in this task.
 
-Follow [ARCHITECTURE.md](ARCHITECTURE.md):
+Follow [ARCHITECTURE.md](../ARCHITECTURE.md):
 
 - No `src/`, no barrel `index.ts`
 - `components/ui/` primitives only — already shipped in TASK 00.5
@@ -736,7 +738,7 @@ consumer exists.
 
 ## 16. Design-system usage
 
-Visual source of truth is [DESIGN-SYSTEM.md](DESIGN-SYSTEM.md) and
+Visual source of truth is [DESIGN-SYSTEM.md](../DESIGN-SYSTEM.md) and
 `css/globals.css`.
 
 - Semantic utilities only (`bg-primary`, `text-muted-foreground`, `border-border`).

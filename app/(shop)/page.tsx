@@ -14,6 +14,13 @@ export const metadata: Metadata = {
   alternates: {
     canonical: storePaths.home,
   },
+  openGraph: {
+    title: siteConfig.name,
+    description: homeHeroCopy.description,
+    url: storePaths.home,
+    type: "website",
+    locale: "fa_IR",
+  },
 };
 
 export default async function ShopHomePage() {

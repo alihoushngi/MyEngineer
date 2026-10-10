@@ -14,7 +14,27 @@ type ServiceCategoriesProps = {
   categories: readonly ServiceCategory[];
 };
 
+// The mobile client illustrations are already bundled with the application.
+// Desktop and other consumers keep the API artwork.
+const mobileArtworkBySlug = {
+  "نقشه-برداری": "/images/services/surveying.png",
+  "استادکار-ساختمان": "/images/services/contractor.png",
+  "ترسیم-نقشه": "/images/services/engineeringservice.png",
+  "طراحی-داخلی-طراحی-نما": "/images/services/designer.png",
+  "اخذ-پروانه-ساخت-اخد-پایان-کار": "/images/services/license.png",
+  "خدمات-اداری": "/images/services/adminastrative.png",
+} as const;
+
 export function ServiceCategories({ categories }: ServiceCategoriesProps) {
+  const clientOrder = Object.keys(mobileArtworkBySlug);
+  const orderedCategories = [...categories].sort((a, b) => {
+    const aIndex = clientOrder.indexOf(a.slug);
+    const bIndex = clientOrder.indexOf(b.slug);
+    return (
+      (aIndex < 0 ? clientOrder.length : aIndex) -
+      (bIndex < 0 ? clientOrder.length : bIndex)
+    );
+  });
   return (
     <section
       id="service-categories"
@@ -154,7 +174,10 @@ export function ServiceCategories({ categories }: ServiceCategoriesProps) {
               rounded-4xl
             "
           >
-            <ServiceCategoryGrid categories={categories} />
+            <ServiceCategoryGrid
+              categories={orderedCategories}
+              mobileArtworkBySlug={mobileArtworkBySlug}
+            />
           </div>
         </div>
       </div>

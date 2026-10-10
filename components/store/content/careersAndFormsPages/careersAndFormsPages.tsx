@@ -159,18 +159,22 @@ export function FormsPage({
       </div>
 
       <section className="container-app">
-        <h1 className="type-h1 text-foreground">فرم‌های قابل‌دانلود</h1>
-        <p className="mt-3 max-w-2xl type-body text-foreground-muted">
-          فرم‌های فعال برای دانلود و استفاده در فرآیندهای اداری و فنی.
-        </p>
+        <div className="rounded-3xl border border-primary/10 bg-primary-subtle p-5 sm:contents">
+          <h1 className="type-h1 text-foreground">
+            مرجع تخصصی فرم‌های نظام مهندسی کشور
+          </h1>
+          <p className="mt-3 max-w-2xl type-body text-foreground-muted">
+            فرم‌های فعال برای دانلود و استفاده در فرآیندهای اداری و فنی.
+          </p>
 
-        <div className="mt-8">
-          <ContentFilterBar
-            q={q}
-            searchLabel="جستجو در فرم‌ها"
-            searchPlaceholder="جستجو در فرم‌ها..."
-            selects={selects}
-          />
+          <div className="mt-6 sm:mt-8">
+            <ContentFilterBar
+              q={q}
+              searchLabel="جستجو در فرم‌ها"
+              searchPlaceholder="جستجو در فرم‌ها..."
+              selects={selects}
+            />
+          </div>
         </div>
 
         {loadFailed ? (
@@ -189,7 +193,7 @@ export function FormsPage({
             {forms.map((form) => (
               <li
                 key={form.id}
-                className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
+                className="flex min-w-0 flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5"
               >
                 <div>
                   <h2 className="type-h4 text-foreground">{form.name}</h2>

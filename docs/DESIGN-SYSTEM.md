@@ -16,7 +16,7 @@ A Persian, image-led construction marketplace with a deep navy frame, vivid lega
 
 ## Semantic palette
 
-Change colors centrally in `:root`; `.dark` remains a future-theme foundation, not an exposed feature. Tailwind utilities are mapped with `@theme inline`. Do not scatter hex colors, raw palette utilities, or per-component dark overrides.
+Tokens in `:root` and `.dark` remain unchanged during this alignment because protected UI uses them. `.dark` is an existing theme foundation, not an exposed feature. Use page-scoped token overrides only when required by client references and keep dark-mode inheritance. Tailwind utilities are mapped with `@theme inline`. Do not scatter hex colors, raw palette utilities, or per-component dark overrides.
 
 | Token                                         | Purpose                                                    |
 | --------------------------------------------- | ---------------------------------------------------------- |
@@ -56,7 +56,7 @@ Change colors centrally in `:root`; `.dark` remains a future-theme foundation, n
 | `card`, `card-foreground`                     | Primitive aliases for surface and foreground               |
 | `popover`, `popover-foreground`               | Elevated primitive aliases                                 |
 
-Status foreground pairs remain available for solid status surfaces. Strong yellow, amber, orange, navy, and near-black surfaces must use a near-white foreground pair: `accent` / `accent-foreground`, `warning` / `warning-foreground`, `warning-strong` / `warning-strong-foreground`, `primary-deep` / `primary-deep-foreground`, and `dark-surface` / `dark-surface-foreground`. If a yellow or amber fill is too light for white text, darken the surface rather than keeping dark-gray copy on a strong color. Pale tints (`accent-subtle`, `category-*`) keep charcoal text. Success and verification must come from actual data; do not imply verification with decorative badges. `glass-surface` remains for chrome, overlays, and hero treatments. Home and About service-category tiles use the restrained `glass-card` utility: translucent white, light blur, and category color only on the icon.
+Status foreground pairs remain available for solid status surfaces. Strong yellow, amber, orange, navy, and near-black surfaces must use a near-white foreground pair: `accent` / `accent-foreground`, `warning` / `warning-foreground`, `warning-strong` / `warning-strong-foreground`, `primary-deep` / `primary-deep-foreground`, and `dark-surface` / `dark-surface-foreground`. Evaluate contrast for each foreground/background pair. Do not change shared tokens to resolve an in-scope contrast problem; apply a local suitable foreground or background. Pale tints (`accent-subtle`, `category-*`) keep charcoal text. Success and verification must come from actual data; do not imply verification with decorative badges. `glass-surface` remains for chrome, overlays, and hero treatments. Home and About service-category tiles use the restrained `glass-card` utility: translucent white, light blur, and category color only on the icon.
 
 ## Typography
 
@@ -80,7 +80,7 @@ Headings should wrap naturally and use restrained weight. Body line height is 1.
 
 ## Layout and spacing
 
-Use Tailwind with `cn()`. Shared dimensions remain centralized:
+Use Tailwind with `cn()`. Page-scoped CSS modules may isolate mobile reference styling or responsive section ordering without changing global/protected styles. Shared dimensions remain centralized:
 
 | Utility / token     | Size or rule                                                   |
 | ------------------- | -------------------------------------------------------------- |
@@ -98,7 +98,7 @@ Use Tailwind with `cn()`. Shared dimensions remain centralized:
 
 The registration shell is capped at 64rem and uses a 17rem navy desktop progress rail. The form remains a focused white column. At small sizes the rail disappears, leaving the current step, progress bar and actual task.
 
-Do not hide layout bugs with page-level horizontal overflow clipping. Use `min-w-0`, wrapping, responsive grids and logical inline spacing. Check 360, 390, 430, 768, 1024, 1280 and 1440px.
+Do not hide layout bugs with page-level horizontal overflow clipping. Use `min-w-0`, wrapping, responsive grids and logical inline spacing. Validate 320, 360, 375, 390, 430, 640, 768, 1024, 1280, 1440 and 1920px. See [responsive guidelines](responsive-guidelines.md).
 
 ## Radius and elevation
 
@@ -127,7 +127,7 @@ second visual identity.
 - **Dense lists:** requests, conversations, reviews, and notifications are
   stacked rows with wrapping Persian metadata. Do not force desktop-only tables.
 - **Reviews:** `/engineer/reviews` is a linked list; `/engineer/reviews/[id]`
-  is the read-only detail. Engineer reply is not implemented.
+  is the read-only detail. Live review replies use the existing engineer review adapter; availability follows the authenticated API response.
 - **Status:** use existing Badge variants (`success`, `warning`, `danger`,
   `info`, `outline`). Completion uses `Progress` plus a derived percent from
   registration fields, not invented analytics.
@@ -149,17 +149,17 @@ Compact navy sticky header, geometric wordmark, desktop navigation, discreet sea
 
 ### Home
 
-The home page opens with a navy discovery hero and a Swiper image slider instead of one static photograph. Search, city, and specialist-join remain in the first section. Six service categories share a translucent white `glass-card` tile with About, using category color only on the icon well. The marketplace module stays the core: multi-service chips, city and expertise selects, count feedback, expert cards, URL pagination when more than nine results (`?page=` plus current filters), reset, and an intentional empty state. Popular services form a photographic grid of mapped destinations; drawing services use an open four-column consultation strip. A four-point trust band, navy “what is” narrative, specialist CTA, a single preserved testimonial, knowledge-tip slider, editorial learning grid, and FAQ category entry complete the page.
+The final client section order is documented in [homepage](pages/homepage.md). Mobile uses introduction/search, compact three-column service categories, a separate promotional slider, then the retained narrative and discovery content. Desktop retains the professional hero grid. The expert marketplace keeps multi-service chips, city and expertise selects, count feedback, expert cards, URL pagination when more than nine results (`?page=` plus current filters), reset, and an intentional empty state. Popular services form a photographic grid of mapped destinations; drawing services use an open four-column consultation strip. The narrative retains the existing process steps. Trust, join, marketplace, testimonials, knowledge tips, editorial learning and FAQ modules remain available according to their existing feature flags.
 
 ### Discovery
 
-Search preserves URL-driven query and city behavior and exposes the same city inventory as the marketplace. Search controls form one compact task region; service matches and expert results are separate. Global search and city-unavailable states use `ResponsiveDialog`. All six service routes share one layout: photo-led service hero, scope and specialty modules, URL-driven expert filters (city, skill, experience, license, discipline, degree, and service tabs where the legacy pages had them), a compact desktop filter sheet, a mobile bottom-sheet with active chips and result count, pagination above nine results, process, preparation guidance, FAQ when real copy exists, and related-service navigation.
+Search preserves URL-driven query and city behavior and exposes the same city inventory as the marketplace. Search controls form one compact task region; service matches and expert results are separate. Global search and city-unavailable states use `ResponsiveDialog`. All six service routes share a composition with per-service content and applicable tabs/filters: photo-led service hero, scope and specialty modules, URL-driven expert filters (city, skill, experience, license, discipline, degree, and service tabs where the legacy pages had them), a compact desktop filter sheet, a mobile bottom-sheet with active chips and result count, pagination above nine results, process, preparation guidance, FAQ when real copy exists, and related-service navigation.
 
 ### Experts
 
 Expert cards prioritize identity, profession, verification, location/experience, rating when available, a short specialties preview, and one profile action. At most three specialties appear in a result card; the remainder is counted, with full content on the profile.
 
-Profiles open with a navy identity band: photo (enlargeable), views, verification, profession and degree, license competencies, organization membership, city/experience, rating, a free-contact line, then contact / chat / share / save actions. Chat, save, and review submission stay visible as honest unavailable sheets because those APIs do not exist. The main column keeps biography, specialties, professional information, history, certificates, service cities, software, a usable portfolio gallery (count, thumbs, previous/next, Drawer on mobile), and reviews with tags, expert replies, and pagination above nine items. A supporting column holds quick facts and contact availability. Mobile contact uses an opaque safe-area bottom action only when a valid public contact exists. Do not fabricate phone numbers or pretend a review was sent.
+Profiles open with a navy identity band: photo (enlargeable), views, verification, profession and degree, license competencies, organization membership, city/experience, rating, a free-contact line, then contact / chat / share / save actions. Chat, save, requests, and review submission use existing authenticated service adapters. Development overlays are an explicit alternate mode; live failures remain real error states. The main column keeps biography, specialties, professional information, history, certificates, service cities, software, a usable portfolio gallery (count, thumbs, previous/next, Drawer on mobile), and reviews with tags, expert replies, and pagination above nine items. A supporting column holds quick facts and contact availability. Mobile contact uses an opaque safe-area bottom action only when a valid public contact exists. Do not fabricate phone numbers or pretend a review was sent.
 
 ### Articles, FAQ and knowledge
 
@@ -173,7 +173,7 @@ About opens with a navy/photo story, then moves through an open purpose split, s
 
 All nine steps share the same white workspace, navy desktop progress rail, progress bar, heading, form rhythm, and pending/error presentation. Existing guard rules and service operations remain authoritative. Mobile navigation keeps primary continue and secondary back side by side. Native keyboard types, visible labels, required markers, accessible descriptions and error relationships are preserved.
 
-OTP uses five LTR cells, numeric entry, Persian-digit normalization, paste transformation, a visible active ring, edit-phone action and the existing resend cooldown. No successful API response is simulated. Completion has no automatic redirect and retains the existing explicit home link; internal product-decision notes are not displayed as user-facing success content.
+OTP uses five LTR cells, numeric entry, Persian-digit normalization, paste transformation, a visible active ring, edit-phone action and the existing resend cooldown. No successful API response is simulated. Completion behavior is defined by the protected existing implementation; it is not redesigned by this alignment.
 
 ## Primitives and interaction states
 
@@ -198,10 +198,14 @@ Respect reduced motion globally. No workflow depends on hover, color alone, anim
 ## Data and asset strategy
 
 - `lib/mock-data/mock-data.ts` is the single source of local experts, service scopes, articles (via `lib/mock-data/articles-mock-data/articles-mock-data.ts`), article comments (via `lib/mock-data/article-comments-mock-data/article-comments-mock-data.ts`), FAQs, knowledge, cities, software, portfolio, homepage modules, and engineer-workspace display fixtures (via `lib/mock-data/engineer-workspace-mock-data.ts`).
-- Service modules are the only consumers exposed to route components. Turning `NEXT_PUBLIC_USE_MOCK_DATA` to `false` returns honest empty/unavailable states until backend contracts are supplied.
+- Service modules are the only consumers exposed to route components. With an API base configured, services use the live API and disable mock data. With no API and no explicit fixtures, catalogs remain empty/unavailable.
 - Reused legacy assets live under `public/images/`; generated concept boards live under `docs/design-concepts/` and are not shipped in page UI.
 - `IMAGE-ASSET-PLAN.md` records every reused and still-missing visual with exact dimensions, crop, subject, mood, and Persian alt intent.
 
 ## Validation record
 
-The redesign keeps routes, Server Component boundaries, services, providers, and business validation schemas. Quality gates are `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, and `pnpm build`. Browser review covers the homepage, service discovery, expert detail, editorial hubs, and registration at desktop and mobile widths. Unavailable backend mutations remain unavailable; visual verification does not imply backend completion.
+The redesign keeps routes, Server Component boundaries, services, providers, and business validation schemas. Quality gates are `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, and `pnpm build`. Browser review targets the homepage, service discovery, expert detail and editorial hubs; protected files are verified against their baseline without redesigning them. Unavailable backend mutations remain unavailable; visual verification does not imply backend completion.
+
+## Client alignment policy
+
+The reference identity uses teal `#01BFA6`, navy `#24313E`, yellow `#FDAF1E`, pale gray `#F8F9FA`, white and muted gray. Existing OKLCH semantic tokens are the production foundation; exact client accents may be scoped to in-scope page content. Never replace Kalameh, global tokens or shared primitives to imitate reference IRANSans/Bootstrap. Header, Footer and all authentication UI remain protected. Read [design reference audit](design-reference-audit.md) and page documents for actual differences and preservation decisions.

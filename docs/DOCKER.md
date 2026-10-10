@@ -11,14 +11,14 @@ This repository is frontend-only. The Docker setup does not include a database, 
 
 ## Environment
 
-`NEXT_PUBLIC_API_BASE_URL` is the API origin. Use an origin only, with no trailing slash.
+`NEXT_PUBLIC_API_BASE_URL` is the API base **including `/api/v1`**, with no trailing slash. It is distinct from the public website origin (`SITE_URL`).
 
 Because this value is a `NEXT_PUBLIC_*` variable, Next.js inlines it at **image build** time. Changing it later requires rebuilding the image.
 
 Create `.env.local` for local pnpm work, or pass the value when building/running Docker:
 
 ```bash
-NEXT_PUBLIC_API_BASE_URL=https://api.example.com
+NEXT_PUBLIC_API_BASE_URL=https://api.example.com/api/v1
 ```
 
 Do not put secrets in the image. `.dockerignore` excludes `.env` files.
@@ -108,3 +108,9 @@ You can work either way:
 - **Docker:** `docker compose up --build`. Use this to run the production image locally. There is no dev hot reload in this Compose file.
 
 Do not mix the two in the same workflow. Docker does not replace `pnpm install` for local development.
+
+## Server-only runtime values
+
+`API_TLS_SERVERNAME` is passed by Compose when the API certificate requires an explicit valid server name; certificate verification remains enabled. Optional `API_INTERNAL_BASE_URL` can provide an internal `/api/v1` address for server calls when supplied by deployment configuration. Optional `SITE_URL` supplies the public website origin for sitemap URLs; it does not change the deliberately preserved staging noindex gates. Do not derive it from the API base.
+
+The current Dockerfile only declares the public API URL as a build argument. Pass any additional deployment values explicitly rather than assuming `.env.local` is copied into the image. The local reference directory `Design/` is excluded from Docker context.

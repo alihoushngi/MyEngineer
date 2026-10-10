@@ -54,20 +54,22 @@ export function FaqLandingPage({
           ]}
         />
 
-        <ContentPageHeader
-          title={faqCopy.landingTitle}
-          description={faqCopy.landingDescription}
-        />
+        <div className="space-y-5 rounded-3xl border border-primary/10 bg-primary-subtle p-5 sm:contents sm:space-y-0">
+          <ContentPageHeader
+            title={faqCopy.landingTitle}
+            description={faqCopy.landingDescription}
+          />
 
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div className="min-w-0 flex-1">
-            <ContentFilterBar
-              q={q}
-              searchLabel={faqCopy.searchLabel}
-              searchPlaceholder={faqCopy.searchPlaceholder}
-            />
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0 flex-1">
+              <ContentFilterBar
+                q={q}
+                searchLabel={faqCopy.searchLabel}
+                searchPlaceholder={faqCopy.searchPlaceholder}
+              />
+            </div>
+            <FaqAskDialog />
           </div>
-          <FaqAskDialog />
         </div>
 
         {matchedItems.length > 0 ? (

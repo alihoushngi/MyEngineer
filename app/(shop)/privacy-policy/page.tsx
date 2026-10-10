@@ -9,6 +9,13 @@ import { storePaths } from "@/config/navigation.config/navigation.config";
 export const metadata: Metadata = {
   title: privacyCopy.breadcrumb,
   description: privacyCopy.metadataDescription,
+  openGraph: {
+    title: privacyCopy.title,
+    description: privacyCopy.metadataDescription,
+    type: "website",
+    locale: "fa_IR",
+    siteName: "مهندس من",
+  },
   alternates: {
     canonical: storePaths.privacy,
   },

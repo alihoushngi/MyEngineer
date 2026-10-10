@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card/card";
 import { articlesCopy } from "@/config/articles.config/articles.config";
 
 import { buildArticleMeta } from "@/lib/articles/article-meta/article-meta";
+import { buildArticleExcerpt } from "@/lib/articles/parse-article-body/parse-article-body";
 import { cn } from "@/lib/utils/cn/cn";
 
 import { type ArticleCardData } from "@/types/store/article.types";
@@ -15,10 +16,19 @@ import { type ArticleCardData } from "@/types/store/article.types";
 type ArticleCardProps = {
   article: ArticleCardData;
   className?: string;
+  headingLevel?: 2 | 3;
+  priority?: boolean;
 };
 
-export function ArticleCard({ article, className }: ArticleCardProps) {
+export function ArticleCard({
+  article,
+  className,
+  headingLevel = 2,
+  priority = false,
+}: ArticleCardProps) {
+  const Heading = headingLevel === 3 ? "h3" : "h2";
   const meta = buildArticleMeta(article);
+  const excerpt = article.excerpt ? buildArticleExcerpt(article.excerpt) : "";
 
   return (
     <article className={cn("h-full", className)}>
@@ -33,6 +43,7 @@ export function ArticleCard({ article, className }: ArticleCardProps) {
                 src={article.coverSrc}
                 alt={`تصویر مقاله ${article.title}`}
                 fill
+                priority={priority}
                 sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                 className="object-cover transition-all duration-200 ease-in-out group-hover:scale-[1.03] motion-reduce:transform-none"
               />
@@ -58,13 +69,13 @@ export function ArticleCard({ article, className }: ArticleCardProps) {
               </Badge>
             ) : null}
 
-            <h2 className="mt-4 wrap-break-word type-h3 text-foreground transition-all duration-200 ease-in-out group-hover:text-primary">
+            <Heading className="mt-4 wrap-break-word type-h3 text-foreground transition-all duration-200 ease-in-out group-hover:text-primary">
               {article.title}
-            </h2>
+            </Heading>
 
-            {article.excerpt ? (
+            {excerpt ? (
               <p className="mt-3 type-body-sm leading-relaxed text-foreground-muted">
-                {article.excerpt}
+                {excerpt}
               </p>
             ) : null}
 

@@ -19,3 +19,6 @@ next-env.d.ts
 docs
 .cursor
 README.md
+
+# Local client reference source is not part of the application image.
+Design

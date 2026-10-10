@@ -31,6 +31,7 @@ type ArticlesPageProps = {
   categories: readonly ArticleCategory[];
   activeCategory: string;
   popular: readonly ArticleCardData[];
+  recommended?: readonly ArticleCardData[];
   pagination: { page: number; pageCount: number; total: number };
   q: string;
   sort: ArticleSort;
@@ -44,6 +45,7 @@ export function ArticlesPage({
   categories,
   activeCategory,
   popular,
+  recommended = [],
   pagination,
   q,
   sort,
@@ -69,7 +71,7 @@ export function ArticlesPage({
         className="pointer-events-none absolute -inset-e-48 bottom-20 -z-10 size-128 rounded-full bg-secondary/5 blur-[150px]"
       />
 
-      <div className="container-app flex flex-col gap-10">
+      <div className="container-app flex flex-col gap-6 sm:gap-10">
         <StoreBreadcrumb
           items={[
             { label: "خانه", href: siteConfig.homeHref },
@@ -77,12 +79,13 @@ export function ArticlesPage({
           ]}
         />
 
-        <ContentPageHeader
-          title={articlesCopy.hubTitle}
-          description={articlesCopy.hubDescription}
-        />
-
-        <ArticleSearchBar q={q} sort={sort} category={activeCategory} />
+        <div className="space-y-5 rounded-3xl border border-primary/10 bg-primary-subtle p-5 sm:contents sm:space-y-0">
+          <ContentPageHeader
+            title="وبلاگ تخصصی مهندس من"
+            description={articlesCopy.hubDescription}
+          />
+          <ArticleSearchBar q={q} sort={sort} category={activeCategory} />
+        </div>
 
         <ArticleCategoryFilter
           categories={categories}
@@ -97,8 +100,17 @@ export function ArticlesPage({
             heading={articlesCopy.popularHeading}
             headingId="popular-articles-heading"
             description={articlesCopy.popularDescription}
+            layout="rail"
+            prioritizeImages
           />
         ) : null}
+
+        <RelatedArticles
+          items={recommended}
+          heading={articlesCopy.recommendedHeading}
+          headingId="recommended-articles-heading"
+          description={articlesCopy.recommendedDescription}
+        />
 
         {loadFailed ? (
           <Empty
@@ -112,13 +124,19 @@ export function ArticlesPage({
               {articlesCopy.latestHeading}
             </h2>
 
-            {featured ? <ArticleFeatured article={featured} /> : null}
+            {featured ? (
+              <ArticleFeatured
+                article={featured}
+                headingLevel={3}
+                priority={popular.length === 0 && recommended.length === 0}
+              />
+            ) : null}
 
             {list.length > 0 ? (
               <ul className="grid items-stretch gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {list.map((article) => (
                   <li key={article.id} className="h-full">
-                    <ArticleCard article={article} />
+                    <ArticleCard article={article} headingLevel={3} />
                   </li>
                 ))}
               </ul>

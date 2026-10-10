@@ -4,6 +4,7 @@ import { NewspaperIcon } from "lucide-react";
 import { ContentPageHeader } from "@/components/common/contentPageHeader/contentPageHeader";
 import { Pagination } from "@/components/common/pagination/pagination";
 import { StoreBreadcrumb } from "@/components/common/storeBreadcrumb/storeBreadcrumb";
+import { ArticleCategoryFilter } from "@/components/store/article/articleCategoryFilter/articleCategoryFilter";
 import { ArticleCard } from "@/components/store/article/articleCard/articleCard";
 import { RelatedArticles } from "@/components/store/article/relatedArticles/relatedArticles";
 import { Button } from "@/components/ui/button/button";
@@ -22,6 +23,7 @@ import {
 
 type ArticleCategoryPageProps = {
   category: ArticleCategory;
+  categories?: readonly ArticleCategory[];
   articles: readonly ArticleCardData[];
   recommended: readonly ArticleCardData[];
   pagination: PaginatedItems<ArticleCardData>;
@@ -30,6 +32,7 @@ type ArticleCategoryPageProps = {
 
 export function ArticleCategoryPage({
   category,
+  categories = [],
   articles,
   recommended,
   pagination,
@@ -58,6 +61,13 @@ export function ArticleCategoryPage({
         <ContentPageHeader
           title={category.title}
           description={category.description}
+        />
+
+        <ArticleCategoryFilter
+          categories={categories}
+          activeSlug={category.slug}
+          q=""
+          sort="newest"
         />
 
         {pagination.total > 0 ? (

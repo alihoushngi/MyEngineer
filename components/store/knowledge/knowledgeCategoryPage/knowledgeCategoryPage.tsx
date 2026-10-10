@@ -15,12 +15,14 @@ import { siteConfig } from "@/config/site.config/site.config";
 import { type PaginatedItems } from "@/lib/pagination/paginate-items/paginate-items";
 
 import {
+  type KnowledgeCategory,
   type KnowledgeCategoryDetail,
   type KnowledgeTip,
 } from "@/types/store/knowledge.types";
 
 type KnowledgeCategoryPageProps = {
   category: KnowledgeCategoryDetail;
+  categories?: readonly KnowledgeCategory[];
   tips: readonly KnowledgeTip[];
   pagination: PaginatedItems<KnowledgeTip>;
   pathname: string;
@@ -28,6 +30,7 @@ type KnowledgeCategoryPageProps = {
 
 export function KnowledgeCategoryPage({
   category,
+  categories = [],
   tips,
   pagination,
   pathname,
@@ -99,6 +102,33 @@ export function KnowledgeCategoryPage({
               </Link>
             </Button>
           </div>
+        ) : null}
+        {categories.some((item) => item.slug !== category.slug) ? (
+          <nav
+            aria-labelledby="knowledge-other-categories-heading"
+            className="border-t border-border-subtle pt-6"
+          >
+            <h2
+              id="knowledge-other-categories-heading"
+              className="type-h3 text-foreground"
+            >
+              سایر دسته‌بندی‌ها
+            </h2>
+            <ul className="mt-4 grid gap-2 sm:grid-cols-2">
+              {categories
+                .filter((item) => item.slug !== category.slug)
+                .map((item) => (
+                  <li key={item.slug}>
+                    <Link
+                      href={item.href}
+                      className="flex min-h-11 items-center rounded-xl border border-border-subtle bg-surface px-4 py-2 type-body-sm text-foreground hover:border-primary/25 hover:text-primary focus-visible:outline-2 focus-visible:outline-ring"
+                    >
+                      {item.title}
+                    </Link>
+                  </li>
+                ))}
+            </ul>
+          </nav>
         ) : null}
       </div>
     </div>
