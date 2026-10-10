@@ -2,6 +2,8 @@
 
 Client alignment changes and validation are complete in scoped page content. Exact QA outcomes and environmental limits are maintained in [testing and QA](testing-and-qa.md). The comparison audit was written before implementation in [design-reference-audit.md](design-reference-audit.md).
 
+This report records the client-alignment snapshot. Statements about unchanged auth/API code, dependencies and commit status describe that work. Subsequent security changes are documented in [security.md](security.md) and do not change its visual-design scope.
+
 ## Homepage
 
 Mobile section order follows introduction/search → compact service categories → separate promotional banners → about narrative with retained process → popular services → drawing consultation → why → join → expert marketplace → testimonials → knowledge → retained content highlights/FAQ. The marketplace keeps its filters, cities, expert cards and pagination. The new manual promotion controls keep accessible Persian labels and avoid autoplay. Homepage categories opt into responsive pictures using already bundled client illustrations; API artwork stays on desktop and the shared grid’s default path remains unchanged for Header/other consumers. Search/city fields stack below 640px. Scoped mobile spacing/surfaces use the client teal/navy/yellow identity while desktop retains its existing photographic hero and section layouts. Desktop marketplace placement follows the requested original order.

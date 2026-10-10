@@ -2,6 +2,17 @@
 
 Current implementation guidance for the Persian RTL Next.js marketplace. The local read-only `Design/` tree is the client reference; source code and actual service responses define current behavior. Header, Footer, Login, Registration, OTP/recovery UI, global CSS and Kalameh configuration are protected during the alignment.
 
+`Design/` is a local-only reference and may be absent from a fresh checkout. Its page mappings and verification records describe the original client-alignment audit; do not treat missing local reference files as missing application source.
+
+## Security and repository maintenance
+
+- [Security architecture, controls and verified limitations](security.md)
+- [Environment variables, secrets and safe Git practices](repository-guidelines.md)
+- [Development setup and configured validation commands](DEVELOPMENT.md)
+- [Docker deployment and runtime configuration](DOCKER.md)
+
+The design QA and implementation reports below record the separate client-alignment work. Their test counts and browser results describe that snapshot; rerun the configured checks after later security or application changes.
+
 ## Current design and implementation
 
 - [Architecture and module boundaries](ARCHITECTURE.md)
@@ -35,8 +46,6 @@ Current implementation guidance for the Persian RTL Next.js marketplace. The loc
 
 ## Integration and operations
 
-- [Development setup and conventions](DEVELOPMENT.md)
-- [Docker deployment](DOCKER.md)
 - [API contracts and schema snapshot](API-CONTRACTS.md)
 - [Customer authentication boundaries](USER-AUTH.md)
 - [Development mock authentication](MOCK-AUTH.md)
@@ -51,6 +60,8 @@ Current implementation guidance for the Persian RTL Next.js marketplace. The loc
 ## Historical records
 
 These preserve earlier product and architecture decisions, including scope assumptions that no longer match shipped functionality. They are labelled snapshots and do not override current instructions, actual APIs or page docs.
+
+The distinct historical records and active design audit/migration notes remain useful context. New maintenance guides use lowercase kebab-case filenames; established guide names are retained so existing links and macOS checkouts stay stable.
 
 - [Original legacy audit](history/LEGACY-AUDIT.md)
 - [Pre-implementation information architecture](history/INFORMATION-ARCHITECTURE.md)

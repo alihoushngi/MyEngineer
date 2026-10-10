@@ -28,8 +28,18 @@ import {
 } from "@/services/auth-api-service/auth-api-service";
 import { type ServiceMutationFailure } from "@/types/store/engineer-auth.types";
 import { storePaths } from "@/config/navigation.config/navigation.config";
-import { engineerPanelPaths } from "@/config/engineer-panel.config/engineer-panel.config";
 import { userAuthPaths } from "@/config/user-auth.config/user-auth.config";
+import { getSafeEngineerNext } from "@/lib/auth/safe-engineer-next/safe-engineer-next";
+import { getSafeInternalNext } from "@/lib/auth/is-safe-internal-path/is-safe-internal-path";
+import { canUseMocks } from "@/lib/auth/can-use-mocks/can-use-mocks";
+import {
+  loginActionInput,
+  registerActionInput,
+  requestOtpActionInput,
+  resetPasswordActionInput,
+  selectRoleActionInput,
+  verifyOtpActionInput,
+} from "@/lib/auth/auth-action-input/auth-action-input";
 
 export type AuthAudience = "user" | "engineer";
 
@@ -45,9 +55,7 @@ export type AuthRoleSelectionNeeded = {
 };
 
 export type AuthActionResult =
-  | AuthActionSuccess
-  | AuthRoleSelectionNeeded
-  | ServiceMutationFailure;
+  AuthActionSuccess | AuthRoleSelectionNeeded | ServiceMutationFailure;
 
 function toFailure(error: unknown, fallback: string): ServiceMutationFailure {
   if (isApiError(error)) {
@@ -83,7 +91,9 @@ function roleMatchesAudience(
   audience: AuthAudience,
 ): boolean {
   const isEngineer = isEngineerPanelRole(roleName);
-  return audience === "engineer" ? isEngineer : !isEngineer;
+  return audience === "engineer"
+    ? isEngineer
+    : audience === "user" && Boolean(roleName) && !isEngineer;
 }
 
 function wrongAudienceMessage(audience: AuthAudience): string {
@@ -104,14 +114,14 @@ function redirectForAudience(
   nextPath?: string,
 ): string {
   if (audience === "engineer") {
-    return nextPath?.startsWith("/engineer")
-      ? nextPath
-      : engineerPanelPaths.dashboard;
+    return getSafeEngineerNext(nextPath);
   }
-  if (nextPath?.startsWith("/account")) {
-    return nextPath;
-  }
-  return userAuthPaths.account;
+  return getSafeInternalNext(nextPath, userAuthPaths.account, (pathname) => {
+    return (
+      pathname !== userAuthPaths.account &&
+      !pathname.startsWith(`${userAuthPaths.account}/`)
+    );
+  });
 }
 
 async function writeSuccessfulSession(input: {
@@ -202,6 +212,12 @@ export async function loginWithMelliAction(input: {
     return mutationUnavailable("سرویس احراز هویت پیکربندی نشده است.");
   }
 
+  const parsed = loginActionInput.safeParse(input);
+  if (!parsed.success) {
+    return mutationFailed("اطلاعات ورود معتبر نیست.");
+  }
+  input = parsed.data;
+
   try {
     const data = await apiLogin({
       melli: input.melli.trim(),
@@ -210,7 +226,10 @@ export async function loginWithMelliAction(input: {
     });
     return persistLoginData(data, input.audience, input.nextPath);
   } catch (error) {
-    return toFailure(error, "ورود ناموفق بود. کد ملی یا رمز عبور را بررسی کنید.");
+    return toFailure(
+      error,
+      "ورود ناموفق بود. کد ملی یا رمز عبور را بررسی کنید.",
+    );
   }
 }
 
@@ -222,6 +241,12 @@ export async function selectRoleAction(input: {
   if (!env.apiBaseUrl) {
     return mutationUnavailable("سرویس احراز هویت پیکربندی نشده است.");
   }
+
+  const parsed = selectRoleActionInput.safeParse(input);
+  if (!parsed.success) {
+    return mutationFailed("اطلاعات انتخاب نقش معتبر نیست.");
+  }
+  input = parsed.data;
 
   if (!roleMatchesAudience(input.role, input.audience)) {
     return mutationFailed(wrongAudienceMessage(input.audience));
@@ -259,6 +284,12 @@ export async function requestOtpAction(input: {
     return mutationUnavailable("سرویس پیامک پیکربندی نشده است.");
   }
 
+  const parsed = requestOtpActionInput.safeParse(input);
+  if (!parsed.success) {
+    return mutationFailed("اطلاعات درخواست کد معتبر نیست.");
+  }
+  input = parsed.data;
+
   try {
     const data = await apiRequestOtp({
       mobile: input.mobile.trim(),
@@ -267,8 +298,10 @@ export async function requestOtpAction(input: {
     return {
       ok: true,
       resendAfter: data.resend_after ?? 120,
-      // Only present while the backend runs with OTP_EXPOSE_CODE (test servers).
-      ...(data.debug_code ? { debugCode: data.debug_code } : {}),
+      // Test-only backend responses must never disclose OTPs in production.
+      ...(canUseMocks() && data.debug_code
+        ? { debugCode: data.debug_code }
+        : {}),
     };
   } catch (error) {
     return toFailure(error, "ارسال کد ناموفق بود.");
@@ -285,6 +318,12 @@ export async function verifyOtpAction(input: {
   if (!env.apiBaseUrl) {
     return mutationUnavailable("سرویس احراز هویت پیکربندی نشده است.");
   }
+
+  const parsed = verifyOtpActionInput.safeParse(input);
+  if (!parsed.success) {
+    return mutationFailed("اطلاعات تأیید کد معتبر نیست.");
+  }
+  input = parsed.data;
 
   try {
     const data = await apiVerifyOtp({
@@ -326,6 +365,12 @@ export async function registerAction(input: {
     return mutationUnavailable("سرویس ثبت‌نام پیکربندی نشده است.");
   }
 
+  const parsed = registerActionInput.safeParse(input);
+  if (!parsed.success) {
+    return mutationFailed("اطلاعات ثبت‌نام معتبر نیست.");
+  }
+  input = parsed.data;
+
   try {
     await apiRegister({
       name: input.name.trim(),
@@ -353,6 +398,12 @@ export async function resetPasswordAction(input: {
   if (!env.apiBaseUrl) {
     return mutationUnavailable("سرویس بازیابی رمز پیکربندی نشده است.");
   }
+
+  const parsed = resetPasswordActionInput.safeParse(input);
+  if (!parsed.success) {
+    return mutationFailed("اطلاعات رمز عبور معتبر نیست.");
+  }
+  input = parsed.data;
 
   const pending = await readPendingToken();
   if (!pending) {

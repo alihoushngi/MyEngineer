@@ -5,9 +5,7 @@ import {
   mutationFailed,
   mutationOk,
 } from "@/lib/auth/service-mutation-result/service-mutation-result";
-import {
-  clearAccessSession,
-} from "@/lib/auth/access-token-cookie/access-token-cookie";
+import { clearAccessSession } from "@/lib/auth/access-token-cookie/access-token-cookie";
 import { clearMockEngineerSession } from "@/lib/auth/engineer-session/engineer-session";
 import { clearMockUserSession } from "@/lib/auth/user-session/user-session";
 import {
@@ -17,6 +15,7 @@ import {
   type AuthSession,
 } from "@/services/session-service/session-service";
 import { type ServiceMutationResult } from "@/types/store/engineer-auth.types";
+import { findOwnedSession } from "@/lib/auth/session-ownership/session-ownership";
 
 function toFailure(error: unknown, fallback: string): ServiceMutationResult {
   if (isApiError(error)) {
@@ -42,7 +41,9 @@ async function clearLocalSession(): Promise<void> {
   await clearAccessSession();
 }
 
-export async function listAuthSessionsAction(): Promise<readonly AuthSession[]> {
+export async function listAuthSessionsAction(): Promise<
+  readonly AuthSession[]
+> {
   try {
     return await listAuthSessions();
   } catch {
@@ -55,7 +56,10 @@ export async function revokeSessionAction(
 ): Promise<ServiceMutationResult & { signedOut?: boolean }> {
   try {
     const sessions = await listAuthSessions();
-    const target = sessions.find((session) => session.id === id);
+    const target = findOwnedSession(id, sessions);
+    if (!target) {
+      return mutationFailed("نشست انتخاب‌شده معتبر نیست.");
+    }
     await revokeAuthSession(id);
 
     if (target?.current) {

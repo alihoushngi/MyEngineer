@@ -1,9 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import {
-  isAllowedTicketFile,
-  ticketFileError,
-} from "./ticket-attachment.ts";
+import { isAllowedTicketFile, ticketFileError } from "./ticket-attachment.ts";
 
 function makeFile(name: string, type: string, size: number): File {
   const bytes = new Uint8Array(size);
@@ -21,10 +18,28 @@ test("rejects oversized or disallowed ticket files", () => {
     isAllowedTicketFile(makeFile("a.jpg", "image/jpeg", 2 * 1024 * 1024 + 1)),
     false,
   );
-  assert.equal(isAllowedTicketFile(makeFile("a.pdf", "application/pdf", 12)), false);
+  assert.equal(
+    isAllowedTicketFile(makeFile("a.pdf", "application/pdf", 12)),
+    false,
+  );
   assert.equal(
     ticketFileError(makeFile("a.webp", "image/webp", 12)),
     "فقط تصویر jpeg، png یا gif تا ۲ مگابایت مجاز است.",
   );
   assert.equal(ticketFileError(undefined), null);
+});
+
+test("ticket MIME and extension must agree, closing either-side spoofing", () => {
+  assert.equal(
+    isAllowedTicketFile(makeFile("script.php", "image/jpeg", 12)),
+    false,
+  );
+  assert.equal(
+    isAllowedTicketFile(makeFile("a.jpg", "application/x-php", 12)),
+    false,
+  );
+  assert.equal(isAllowedTicketFile(makeFile("a.jpg", "image/png", 12)), false);
+  assert.equal(isAllowedTicketFile(makeFile("a.jpg", "", 12)), true);
+  assert.equal(isAllowedTicketFile(makeFile("a.php", "", 12)), false);
+  assert.equal(isAllowedTicketFile(makeFile("a.JPG", "image/jpg", 12)), true);
 });

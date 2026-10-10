@@ -6,7 +6,9 @@ Rulebook for the Mohandes Man frontend. Follow these rules in human and AI-assis
 
 This frontend is a Next.js App Router application. The storefront, public content routes, private customer/engineer workspaces, and API adapters are implemented. Architecture exists to keep routes thin, server rendering the default, and domain UI isolated from primitives.
 
-Product routes, layouts, and domain component maps are specified in:
+Current route behavior is documented in the [page guides](README.md#page-documentation) and the [customer](USER-ACCOUNT.md), [engineer](ENGINEER-PANEL.md), and [messaging](MESSAGING.md) guides. Security boundaries and deployment limitations are documented in [security.md](security.md).
+
+The original route, layout, and component plans remain available as historical context:
 
 - [INFORMATION-ARCHITECTURE.md](history/INFORMATION-ARCHITECTURE.md)
 - [COMPONENT-ARCHITECTURE.md](history/COMPONENT-ARCHITECTURE.md)

@@ -23,6 +23,8 @@ NEXT_PUBLIC_API_BASE_URL=https://api.example.com/api/v1
 
 Do not put secrets in the image. `.dockerignore` excludes `.env` files.
 
+Public build arguments are visible in the browser bundle. Provide server-only secrets through deployment runtime configuration, and keep populated `.env` files outside Git and the build context. See [repository-guidelines.md](repository-guidelines.md) and [security.md](security.md). Production auth always uses Secure cookies. Use HTTPS when testing that authentication flow; the nonproduction HTTP cookie override does not apply to production builds.
+
 ## Build Image
 
 ```bash

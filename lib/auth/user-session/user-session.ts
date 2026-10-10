@@ -3,9 +3,8 @@ import { env } from "@/lib/env/env";
 import {
   isEngineerPanelRole,
   readAccessToken,
-  readAuthDisplayName,
-  readAuthRole,
 } from "@/lib/auth/access-token-cookie/access-token-cookie";
+import { getVerifiedAuthUser } from "@/services/session-service/session-identity";
 import {
   isMockUserAuthEnabled,
   isMockUserLoginEnabled,
@@ -25,13 +24,14 @@ import { type UserSession } from "@/types/store/user-auth.types";
 
 export async function getUserSession(): Promise<UserSession | null> {
   if (env.apiBaseUrl) {
-    const token = await readAccessToken();
-    const role = await readAuthRole();
-    if (!token || isEngineerPanelRole(role)) {
+    const user = await getVerifiedAuthUser();
+    if (!user || isEngineerPanelRole(user.role?.name)) {
       return null;
     }
 
-    const displayName = await readAuthDisplayName();
+    const displayName =
+      user.full_name?.trim() ||
+      [user.name, user.family].filter(Boolean).join(" ").trim();
     return {
       isAuthenticated: true,
       role: "user",

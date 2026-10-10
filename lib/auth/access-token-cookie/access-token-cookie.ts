@@ -1,3 +1,5 @@
+import { shouldUseSecureAuthCookies } from "@/lib/auth/secure-auth-cookie/secure-auth-cookie";
+
 // Lazy import: keeps this module safe to be pulled into client bundles
 // (the functions below only ever run on the server).
 async function cookies() {
@@ -13,10 +15,7 @@ export const PENDING_TOKEN_COOKIE = "mm_pending_token";
 const TOKEN_COOKIE_OPTIONS = {
   httpOnly: true,
   sameSite: "lax" as const,
-  // AUTH_COOKIE_SECURE=false lets a plain-HTTP test server keep its session.
-  secure: process.env.AUTH_COOKIE_SECURE
-    ? process.env.AUTH_COOKIE_SECURE === "true"
-    : process.env.NODE_ENV === "production",
+  secure: shouldUseSecureAuthCookies(),
   path: "/",
   maxAge: 60 * 60 * 24 * 30,
 };
@@ -27,17 +26,10 @@ const PENDING_COOKIE_OPTIONS = {
 };
 
 export type AuthRoleName =
-  | "admin"
-  | "user"
-  | "assistant"
-  | "engineer"
-  | "consulter"
-  | "insurance";
+  "admin" | "user" | "assistant" | "engineer" | "consulter" | "insurance";
 
 export function isEngineerPanelRole(role: string | undefined): boolean {
-  return (
-    role === "engineer" || role === "consulter" || role === "insurance"
-  );
+  return role === "engineer" || role === "consulter" || role === "insurance";
 }
 
 export async function readAccessToken(): Promise<string | undefined> {
@@ -53,7 +45,11 @@ export async function readAuthRole(): Promise<string | undefined> {
 export async function readAuthDisplayName(): Promise<string | undefined> {
   const store = await cookies();
   const value = store.get(AUTH_DISPLAY_COOKIE)?.value;
-  return value ? decodeURIComponent(value) : undefined;
+  try {
+    return value ? decodeURIComponent(value) : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 export async function writeAccessSession(input: {
@@ -78,6 +74,8 @@ export async function writeAccessSession(input: {
       value: encodeURIComponent(input.displayName),
       ...TOKEN_COOKIE_OPTIONS,
     });
+  } else {
+    store.delete(AUTH_DISPLAY_COOKIE);
   }
   store.delete(PENDING_TOKEN_COOKIE);
 }

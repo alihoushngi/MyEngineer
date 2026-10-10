@@ -2,6 +2,8 @@
 
 Validation completed on 2026-10-10. Available scripts were checked in `package.json` before execution. Node >=22 and pnpm >=11 are required; the configured package manager is pnpm 11.22.0.
 
+This is the client-alignment validation snapshot. Its test counts, protected-file comparisons and browser evidence apply to that work, before the subsequent security hardening. The [security guide](security.md) records current security controls and limitations; later changes require their own validation.
+
 ## Executed project checks
 
 | Check                                 | Result         | Notes                                                                                                                                                                                                           |

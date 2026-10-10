@@ -1,3 +1,5 @@
+import { shouldUseSecureAuthCookies } from "@/lib/auth/secure-auth-cookie/secure-auth-cookie";
+
 /** Development-only mock session cookies. Opaque values only. */
 export const MOCK_ENGINEER_SESSION_COOKIE = "mm_mock_engineer_session";
 export const MOCK_ENGINEER_PROFILE_COOKIE = "mm_mock_engineer_profile";
@@ -16,8 +18,5 @@ export const MOCK_SESSION_COOKIE_OPTIONS = {
   httpOnly: true,
   sameSite: "lax" as const,
   path: "/",
-  // AUTH_COOKIE_SECURE=false lets a plain-HTTP test server keep its session.
-  secure: process.env.AUTH_COOKIE_SECURE
-    ? process.env.AUTH_COOKIE_SECURE === "true"
-    : process.env.NODE_ENV === "production",
+  secure: shouldUseSecureAuthCookies(),
 };

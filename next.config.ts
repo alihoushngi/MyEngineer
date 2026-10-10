@@ -10,11 +10,18 @@ function apiImagePattern(): NonNullable<
   }
   try {
     const url = new URL(base);
+    if (
+      !["http:", "https:"].includes(url.protocol) ||
+      url.username ||
+      url.password
+    ) {
+      return [];
+    }
     return [
       {
         protocol: url.protocol === "https:" ? "https" : "http",
         hostname: url.hostname,
-        ...(url.port ? { port: url.port } : {}),
+        port: url.port,
         pathname: "/**",
       },
     ];
@@ -26,7 +33,12 @@ function apiImagePattern(): NonNullable<
 function isBareIpApi(): boolean {
   try {
     const host = new URL(process.env.NEXT_PUBLIC_API_BASE_URL ?? "").hostname;
-    return /^\d{1,3}(\.\d{1,3}){3}$/.test(host) && !host.startsWith("127.");
+    return (
+      /^\d{1,3}(\.\d{1,3}){3}$/.test(host) ||
+      host === "[::1]" ||
+      host === "localhost" ||
+      host.endsWith(".localhost")
+    );
   } catch {
     return false;
   }
@@ -36,10 +48,10 @@ const nextConfig: NextConfig = {
   output: "standalone",
   reactCompiler: true,
   agentRules: false,
+  poweredByHeader: false,
   images: {
-    // Private/local hosts (localhost, 127.0.0.1, server IPs) are blocked by
-    // default in Next's image optimizer; the backend media host is trusted.
-    dangerouslyAllowLocalIP: true,
+    // Keep the optimizer's private-network SSRF protection enabled.
+    dangerouslyAllowLocalIP: false,
     // A bare server IP is typically unreachable from inside its own container,
     // so the optimiser could not fetch backend media; serve it directly.
     unoptimized: isBareIpApi(),
@@ -48,25 +60,45 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "test.kbdcland.ir",
+        port: "",
         pathname: "/public/**",
       },
       {
         protocol: "https",
         hostname: "test.kbdcland.ir",
+        port: "",
         pathname: "/front/**",
       },
       {
         protocol: "https",
         hostname: "test.kbdcland.ir",
+        port: "",
         pathname: "/web/**",
       },
     ],
   },
   experimental: {
     optimizePackageImports: ["lucide-react", "radix-ui", "swiper"],
+    // Existing upload rules allow 4 MB files; reserve room for multipart fields.
+    serverActions: { bodySizeLimit: "5mb" },
   },
   async headers() {
     return [
+      {
+        source: "/:path*",
+        headers: [
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          {
+            key: "Content-Security-Policy",
+            value: "base-uri 'self'; object-src 'none'; frame-ancestors 'self'",
+          },
+          ...(process.env.NODE_ENV === "production"
+            ? [{ key: "Strict-Transport-Security", value: "max-age=31536000" }]
+            : []),
+        ],
+      },
       {
         source: "/sw.js",
         headers: [

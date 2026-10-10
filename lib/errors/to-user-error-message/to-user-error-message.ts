@@ -1,5 +1,6 @@
 import { isApiError } from "@/lib/api/api-error/api-error";
 import { type ApiErrorCode } from "@/lib/api/api-error-code/api-error-code";
+import { safePublicErrorMessage } from "@/lib/api/api-error/public-api-error";
 
 const REQUEST_FAILED_PREFIX = /^Request failed with status/i;
 const PERSIAN_LETTER = /[\u0600-\u06FF]/;
@@ -17,9 +18,10 @@ const CODE_MESSAGES: Partial<Record<ApiErrorCode, string>> = {
 
 export function toUserErrorMessage(error: unknown, fallback: string): string {
   if (isApiError(error)) {
-    const validationMessage = firstSafeValidationMessage(
-      error.validationErrors,
-    );
+    const validationMessage =
+      error.status >= 400 && error.status < 500
+        ? firstSafeValidationMessage(error.validationErrors)
+        : null;
 
     if (validationMessage) {
       return validationMessage;
@@ -68,7 +70,7 @@ function firstSafeValidationMessage(
 }
 
 function isSafeUserMessage(message: string): boolean {
-  if (message === "" || REQUEST_FAILED_PREFIX.test(message)) {
+  if (!safePublicErrorMessage(message) || REQUEST_FAILED_PREFIX.test(message)) {
     return false;
   }
 

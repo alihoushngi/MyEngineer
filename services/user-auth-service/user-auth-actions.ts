@@ -25,9 +25,7 @@ import {
 } from "@/lib/auth/service-mutation-result/service-mutation-result";
 import { isApiError } from "@/lib/api/api-error/api-error";
 import { env } from "@/lib/env/env";
-import {
-  clearMockEngineerSession,
-} from "@/lib/auth/engineer-session/engineer-session";
+import { clearMockEngineerSession } from "@/lib/auth/engineer-session/engineer-session";
 import { clearMockUserSession } from "@/lib/auth/user-session/user-session";
 import { writeAccessSession } from "@/lib/auth/access-token-cookie/access-token-cookie";
 import {
@@ -36,6 +34,11 @@ import {
   apiUserRegistrationVerify,
 } from "@/services/auth-api-service/auth-api-service";
 import { type ServiceMutationResult } from "@/types/store/engineer-auth.types";
+import {
+  userRegisterCompleteActionInput,
+  userRegisterOtpActionInput,
+  userRegisterVerifyActionInput,
+} from "@/lib/auth/auth-action-input/auth-action-input";
 
 const AUTH_UNAVAILABLE = "ورود مشتری پس از اتصال سرویس احراز هویت فعال می‌شود.";
 const REGISTER_UNAVAILABLE =
@@ -121,6 +124,12 @@ export async function requestUserRegisterOtpAction(input: {
   phone: string;
 }): Promise<ServiceMutationResult> {
   if (env.apiBaseUrl) {
+    const parsed = userRegisterOtpActionInput.safeParse(input);
+    if (!parsed.success) {
+      return mutationFailed("شماره موبایل معتبر نیست.");
+    }
+    input = parsed.data;
+
     try {
       await apiUserRegistrationOtp({ mobile: input.phone.trim() });
       return mutationOk();
@@ -141,6 +150,12 @@ export async function verifyUserRegisterOtpAction(input: {
   otp: string;
 }): Promise<ServiceMutationResult> {
   if (env.apiBaseUrl) {
+    const parsed = userRegisterVerifyActionInput.safeParse(input);
+    if (!parsed.success) {
+      return mutationFailed("اطلاعات تأیید کد معتبر نیست.");
+    }
+    input = parsed.data;
+
     try {
       await apiUserRegistrationVerify({
         mobile: input.phone.trim(),
@@ -166,6 +181,12 @@ export async function completeUserRegisterAction(input: {
   password: string;
 }): Promise<ServiceMutationResult> {
   if (env.apiBaseUrl) {
+    const parsed = userRegisterCompleteActionInput.safeParse(input);
+    if (!parsed.success) {
+      return mutationFailed("اطلاعات ثبت‌نام معتبر نیست.");
+    }
+    input = parsed.data;
+
     try {
       const data = await apiUserRegistrationComplete({
         mobile: input.phone.trim(),

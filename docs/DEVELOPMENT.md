@@ -32,9 +32,9 @@ Copy the example environment file, then edit the copy:
 cp .env.example .env.local
 ```
 
-`.env.local` is gitignored and is what `pnpm dev` reads. Compose reads a sibling `.env` next to `compose.yaml` (also gitignored). `.env.example` is tracked and must not contain secrets or a live host URL.
+`.env.local` is gitignored and is what `pnpm dev` reads. Compose reads a sibling `.env` next to `compose.yaml` (also gitignored). `.env.example` is tracked and must contain only safe variable names, defaults and documented examples. See [repository guidelines](repository-guidelines.md) for secrets, tracking checks and local reference files.
 
-After changing env files, restart the Next.js process. `NEXT_PUBLIC_*` values are inlined at startup.
+After changing env files, restart the development process. Production `NEXT_PUBLIC_*` values are inlined into browser code at build time; changing them requires a new build. Never put credentials, bearer tokens or private keys in those variables.
 
 Do not hardcode API hosts in source. Read them through `lib/env/env.ts`. Endpoint contracts live in [API-CONTRACTS.md](API-CONTRACTS.md). Docker build-time notes are in [DOCKER.md](DOCKER.md).
 
@@ -56,23 +56,31 @@ NEXT_PUBLIC_API_BASE_URL=http://localhost:3001/api/v1
 
 `lib/env/api-env/api-env.ts` trims the value and strips trailing slashes. `lib/api/http-client/http-client.ts` then joins it with paths such as `/home` and `/services` (`https://test.kbdcland.ir/api/v1/home`).
 
-When this variable is set, the app is live-first: catalog and content come from the API, and `NEXT_PUBLIC_USE_MOCK_DATA` is ignored. Leave it empty only when you intentionally want empty public catalogs.
+When an API base is set, the app is live-first: catalog and content come from the API, and `NEXT_PUBLIC_USE_MOCK_DATA` is ignored.
 
-If the variable is missing, public pages still render, but lists (experts, services, articles) stay empty.
+With neither API base configured, public pages still render. Lists stay empty by default; explicit `NEXT_PUBLIC_USE_MOCK_DATA=true` selects development catalog fixtures. Catalog fixtures do not grant authentication.
+
+### `API_INTERNAL_BASE_URL`
+
+Optional server-only API base, also including `/api/v1`. It takes precedence over `NEXT_PUBLIC_API_BASE_URL` for server rendering and Server Actions. For example, a container can use `http://backend/api/v1` while browsers use a public HTTPS API origin. The internal address is not a `NEXT_PUBLIC_*` value and must never be exposed through client props or public configuration.
+
+Keep the public API/media origin configured for browser calls and uploaded media. Media resolution uses the public API origin or `NEXT_PUBLIC_MEDIA_BASE_URL`, not the internal origin. Configuring the internal API also disables server-side catalog fixtures. Compose does not currently forward this variable; supply it explicitly in deployment configuration as described in [DOCKER.md](DOCKER.md).
+
+### `SITE_URL`
+
+Optional server-only public website origin for `/sitemap.xml`, for example `https://your-site.example`. This is separate from the API and must be an origin you control. Missing or invalid values produce an empty sitemap. Configuring this value does not remove the existing staging noindex restrictions; coordinate any production indexing change with [seo-guidelines.md](seo-guidelines.md).
 
 ### `API_TLS_SERVERNAME`
 
-The certificate on `test.kbdcland.ir` does not match that hostname. Node `fetch` then fails with `ERR_TLS_CERT_ALTNAME_INVALID`, and the home catalog (and other server-side lists) come back empty.
-
-For the test API, set the valid name from its certificate:
+If an API certificate does not match its configured hostname, Node `fetch` fails with `ERR_TLS_CERT_ALTNAME_INVALID`. A previously observed test-API mismatch used this valid certificate name:
 
 ```bash
 API_TLS_SERVERNAME=kbdcland.ir
 ```
 
-The Node process uses that server name only for TLS connections to the configured API origin. Certificate verification remains enabled, and other HTTPS requests keep their normal dispatcher.
+Verify the certificate and intended deployment before using this override. The Node process uses that server name only for TLS connections to the configured API origin. Certificate verification remains enabled, and other HTTPS requests keep their normal dispatcher. Never use `NODE_TLS_REJECT_UNAUTHORIZED=0`.
 
-Leave this unset for a host whose certificate already matches its hostname. The durable fix is a certificate whose SAN includes `test.kbdcland.ir`.
+Leave this unset for a host whose certificate already matches its hostname. The durable fix is a certificate whose SAN includes the actual API hostname.
 
 Server Components, Server Actions, and server-side image requests can load data with this setting. Browser requests that go **directly** to `https://test.kbdcland.ir` can still fail TLS in the user’s browser.
 
@@ -96,7 +104,7 @@ pnpm dev
 
 The App Router application starts in development mode.
 
-If the chrome renders but experts, services, articles, or FAQ stay empty, check `.env.local`: the API URL must include `/api/v1`, the process must have been restarted after the change, and `API_TLS_SERVERNAME=kbdcland.ir` is required against the current `test.kbdcland.ir` certificate.
+If the chrome renders but experts, services, articles, or FAQ stay empty, check `.env.local`: the API URL must include `/api/v1`, and the process must have been restarted after the change. Inspect the API connection error and certificate before applying the scoped TLS workaround above.
 
 A development-only design system preview is available at `/dev/design-system`. It is not linked in product navigation and returns 404 in production builds. Visual rules are documented in [DESIGN-SYSTEM.md](DESIGN-SYSTEM.md).
 
@@ -293,9 +301,9 @@ components/store/cartDrawer/type/cartDrawer.types.ts
 Routes use kebab-case. Dynamic segments use `[id]`. Route groups are `(auth)`, `(shop)`, `(engineer)`, and `(account)`.
 
 ```text
-app/(auth)/sign-in/page.tsx
-app/(auth)/verify-otp/page.tsx
-app/(shop)/engineers/[id]/page.tsx
+app/(auth)/login/page.tsx
+app/(auth)/forgot-password/page.tsx
+app/(shop)/experts/[id]/page.tsx
 ```
 
 ## Creating a new component
@@ -338,26 +346,16 @@ export function useCart() {
 
 ## Creating a new service
 
-```text
-services/user-service/user-service.ts
-```
+Place the module under `services/<domain>-service/` and reuse the shared HTTP client. Existing examples include `apiMe` in `services/auth-api-service/auth-api-service.ts` for authenticated `/auth/me`, and `getExpertProfile` in `services/expert-service/expert-service.ts` for public specialist data. Reuse their typed envelope, authentication and error handling where applicable.
 
-```ts
-import { httpGet } from "@/lib/api/http-client/http-client";
-
-export async function getUser(userId: string): Promise<unknown> {
-  return httpGet(`/users/${userId}`);
-}
-```
-
-Do not hardcode the API origin. Do not invent endpoints; follow [API-CONTRACTS.md](API-CONTRACTS.md) and the live `/api/v1` paths.
+Do not hardcode the API origin or invent a `/users/[id]` endpoint. Follow [API-CONTRACTS.md](API-CONTRACTS.md) and actual live `/api/v1` contracts; customer identity stays private.
 
 ## Creating a new route
 
 Keep the page thin. Put UI in `components/`.
 
 ```text
-app/(shop)/engineers/[id]/page.tsx
+app/(shop)/experts/[id]/page.tsx
 ```
 
 ```tsx

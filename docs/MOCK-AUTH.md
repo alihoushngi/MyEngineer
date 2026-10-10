@@ -3,6 +3,8 @@
 Frontend-only mock **engineer** and **customer** authentication for local
 testing. Customer details live in [USER-AUTH.md](USER-AUTH.md).
 
+All phone numbers, OTPs and passwords in this guide are published synthetic test fixtures. Never reuse them for a live account or place real customer information in mock cookies. These development fixtures are not production security controls; see [security.md](security.md).
+
 **DO NOT ENABLE MOCK AUTH IN PRODUCTION.**
 
 Even if the flags below are left `true`, mock authentication is forced off when

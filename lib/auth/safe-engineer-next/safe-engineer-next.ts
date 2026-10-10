@@ -1,4 +1,9 @@
 import { engineerPanelPaths } from "@/config/engineer-panel.config/engineer-panel.config";
+import {
+  isEngineerFamilyPath,
+  isSafeInternalPath,
+  pathWithoutSearch,
+} from "@/lib/auth/is-safe-internal-path/is-safe-internal-path";
 
 const ENGINEER_LOGIN_PATH = "/engineer/login";
 
@@ -12,18 +17,19 @@ export function getSafeEngineerNext(next: string | null | undefined): string {
 
   const value = next.trim();
 
-  if (!value.startsWith("/engineer")) {
+  if (!isSafeInternalPath(value)) {
+    return engineerPanelPaths.dashboard;
+  }
+
+  const pathname = pathWithoutSearch(value);
+  if (!isEngineerFamilyPath(pathname)) {
     return engineerPanelPaths.dashboard;
   }
 
   if (
-    value === ENGINEER_LOGIN_PATH ||
-    value.startsWith(`${ENGINEER_LOGIN_PATH}/`)
+    pathname === ENGINEER_LOGIN_PATH ||
+    pathname.startsWith(`${ENGINEER_LOGIN_PATH}/`)
   ) {
-    return engineerPanelPaths.dashboard;
-  }
-
-  if (value.startsWith("//") || value.includes("://") || value.includes("\\")) {
     return engineerPanelPaths.dashboard;
   }
 

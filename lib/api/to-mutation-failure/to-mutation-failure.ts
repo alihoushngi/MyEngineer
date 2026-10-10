@@ -3,9 +3,7 @@ import { mutationFailed } from "@/lib/auth/service-mutation-result/service-mutat
 import { type ServiceMutationFailure } from "@/types/store/engineer-auth.types";
 
 /** Maps a thrown error from a server action into a serialisable failure. */
-function toFieldErrors(
-  error: ApiError,
-): Record<string, string> | undefined {
+function toFieldErrors(error: ApiError): Record<string, string> | undefined {
   const entries = error.validationErrors
     .filter((item) => item.field)
     .map((item) => [item.field as string, item.message] as const);
@@ -27,8 +25,11 @@ export function toMutationFailure(
           : error.status >= 500
             ? "server"
             : "validation",
-      message: error.message || fallback,
-      fieldErrors: toFieldErrors(error),
+      message: error.status >= 500 ? fallback : error.message || fallback,
+      fieldErrors:
+        error.status >= 400 && error.status < 500
+          ? toFieldErrors(error)
+          : undefined,
     };
   }
 

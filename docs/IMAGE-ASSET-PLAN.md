@@ -38,6 +38,8 @@ be restyled. Historical concept boards remain in `docs/design-concepts/`.
 
 ### Home expert portraits
 
+The names below identify synthetic development fixtures. They are optional fixture-art directions, not verified production specialist identities. Production portraits must come from the corresponding approved specialist records; do not assign a generated or unrelated person's portrait to a live API identity.
+
 Path: `public/images/experts/nazanin-farhadi.webp`
 
 - Page/section: Home marketplace, service/search results, expert profile.

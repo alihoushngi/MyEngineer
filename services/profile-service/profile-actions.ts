@@ -2,11 +2,15 @@
 
 import { revalidatePath } from "next/cache";
 
-import { isApiError } from "@/lib/api/api-error/api-error";
+import { toMutationFailure } from "@/lib/api/to-mutation-failure/to-mutation-failure";
 import {
   mutationFailed,
   mutationOk,
 } from "@/lib/auth/service-mutation-result/service-mutation-result";
+import {
+  avatarUploadRule,
+  validateUpload,
+} from "@/lib/uploads/validate-upload/validate-upload";
 import { userAccountPaths } from "@/config/user-account.config/user-account.config";
 import { engineerPanelPaths } from "@/config/engineer-panel.config/engineer-panel.config";
 import {
@@ -18,21 +22,7 @@ import {
 import { type ServiceMutationResult } from "@/types/store/engineer-auth.types";
 
 function toFailure(error: unknown, fallback: string): ServiceMutationResult {
-  if (isApiError(error)) {
-    return {
-      ok: false,
-      status: error.status,
-      code:
-        error.status === 401 || error.status === 403
-          ? "unauthorized"
-          : error.status >= 500
-            ? "server"
-            : "validation",
-      message: error.message || fallback,
-    };
-  }
-
-  return mutationFailed(fallback);
+  return toMutationFailure(error, fallback);
 }
 
 function revalidateProfilePaths() {
@@ -74,6 +64,11 @@ export async function uploadAvatarAction(
   const file = formData.get("image");
   if (!(file instanceof File) || file.size === 0) {
     return mutationFailed("یک تصویر معتبر انتخاب کنید.");
+  }
+
+  const validationError = validateUpload(file, avatarUploadRule);
+  if (validationError) {
+    return mutationFailed(validationError);
   }
 
   try {

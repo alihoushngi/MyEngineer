@@ -2,6 +2,10 @@ allowBuilds:
   sharp: false
   unrs-resolver: false
 
+# minimatch currently pins an affected release; stay within the same major.
+overrides:
+  brace-expansion@5.0.9: 5.0.12
+
 verifyDepsBeforeRun: false
 fetchRetries: 10
 fetchRetryMaxtimeout: 120000

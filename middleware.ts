@@ -17,6 +17,11 @@ import {
   AUTH_ROLE_COOKIE,
   isEngineerPanelRole,
 } from "@/lib/auth/cookie-names/cookie-names";
+import { env } from "@/lib/env/env";
+import {
+  isMockAuthEnabled,
+  isMockUserAuthEnabled,
+} from "@/config/mock-auth.config/mock-auth.config";
 import {
   MOCK_ENGINEER_SESSION_COOKIE,
   MOCK_ENGINEER_SESSION_VALUE,
@@ -37,30 +42,39 @@ export function middleware(request: NextRequest) {
   }
 
   const accessToken = request.cookies.get(ACCESS_TOKEN_COOKIE)?.value;
-  const authRole = request.cookies.get(AUTH_ROLE_COOKIE)?.value;
-  const hasLiveEngineerSession =
-    Boolean(accessToken) && isEngineerPanelRole(authRole);
-  const hasLiveUserSession =
-    Boolean(accessToken) && Boolean(authRole) && !isEngineerPanelRole(authRole);
+  // Token presence only avoids an unnecessary login redirect. Server session
+  // readers and backend access endpoints verify identity and permissions.
+  // Live checks stay out of Edge middleware so private API TLS configuration
+  // and backend outages cannot introduce repeated redirects here.
+  const hasLiveSessionHint = Boolean(env.apiBaseUrl && accessToken);
+  const hasLiveEngineerHint =
+    hasLiveSessionHint &&
+    isEngineerPanelRole(request.cookies.get(AUTH_ROLE_COOKIE)?.value);
 
   const hasMockEngineerSession =
+    !env.apiBaseUrl &&
+    isMockAuthEnabled() &&
     request.cookies.get(MOCK_ENGINEER_SESSION_COOKIE)?.value ===
-    MOCK_ENGINEER_SESSION_VALUE;
+      MOCK_ENGINEER_SESSION_VALUE;
   const hasMockUserSession =
+    !env.apiBaseUrl &&
+    isMockUserAuthEnabled() &&
     request.cookies.get(MOCK_USER_SESSION_COOKIE)?.value ===
-    MOCK_USER_SESSION_VALUE;
+      MOCK_USER_SESSION_VALUE;
 
-  const hasEngineerSession = hasLiveEngineerSession || hasMockEngineerSession;
-  const hasUserSession = hasLiveUserSession || hasMockUserSession;
-
-  if (isEngineerPanelPath(pathname) && !hasEngineerSession) {
+  if (
+    isEngineerPanelPath(pathname) &&
+    !hasLiveSessionHint &&
+    !hasMockEngineerSession
+  ) {
     const url = request.nextUrl.clone();
     url.pathname = engineerPanelPaths.login;
     url.search = `?next=${encodeURIComponent(pathname)}`;
     return NextResponse.redirect(url);
   }
 
-  if (hasEngineerSession && pathname === engineerPanelPaths.login) {
+  // Live login pages perform their own verified session read and redirect.
+  if (hasMockEngineerSession && pathname === engineerPanelPaths.login) {
     const next = getSafeEngineerNext(request.nextUrl.searchParams.get("next"));
     const url = request.nextUrl.clone();
     url.pathname = next;
@@ -71,21 +85,29 @@ export function middleware(request: NextRequest) {
   // Only the wizard entry redirects a signed-in engineer to the panel. Deeper
   // steps must stay reachable: OTP verification (step 2) already creates the
   // session, and the remaining steps run while that session is active.
-  if (hasEngineerSession && pathname === "/expert-registration") {
+  if (
+    (hasLiveEngineerHint || hasMockEngineerSession) &&
+    pathname === "/expert-registration"
+  ) {
     const url = request.nextUrl.clone();
     url.pathname = engineerPanelPaths.dashboard;
     url.search = "";
     return NextResponse.redirect(url);
   }
 
-  if (isAccountPath(pathname) && !hasUserSession && !hasEngineerSession) {
+  if (
+    isAccountPath(pathname) &&
+    !hasLiveSessionHint &&
+    !hasMockUserSession &&
+    !hasMockEngineerSession
+  ) {
     const url = request.nextUrl.clone();
     url.pathname = userAuthPaths.login;
     url.search = `?next=${encodeURIComponent(pathname)}`;
     return NextResponse.redirect(url);
   }
 
-  if (hasUserSession && isUserAuthEntryPath(pathname)) {
+  if (hasMockUserSession && isUserAuthEntryPath(pathname)) {
     const next = getSafeUserNext(request.nextUrl.searchParams.get("next"));
     const url = request.nextUrl.clone();
     url.pathname = next;

@@ -23,6 +23,36 @@ test("pathWithoutSearch strips query and hash", () => {
   assert.equal(pathWithoutSearch("/account#profile"), "/account");
 });
 
+test("redirects reject browser-normalized traversal, separators and controls", () => {
+  for (const value of [
+    "/account/../../outside",
+    "/engineer/%2e%2e/login",
+    "/account/%252e%252e/login",
+    "/account%2f..%2flogin",
+    "/account/%5cevil",
+    "/account\u0000",
+    "/account/%00",
+    "/account\n",
+    "/account/%zz",
+  ]) {
+    assert.equal(isSafeInternalPath(value), false, value);
+  }
+});
+
+test("encoded route names cannot bypass forbidden destination families", () => {
+  const reject = (pathname: string) =>
+    isEngineerFamilyPath(pathname) || pathname === "/login";
+  assert.equal(
+    getSafeInternalNext("/%65ngineer/profile", "/account", reject),
+    "/account",
+  );
+  assert.equal(getSafeInternalNext("/%6cogin", "/account", reject), "/account");
+  assert.equal(
+    getSafeInternalNext("/search?q=%2Fsomewhere", "/account", reject),
+    "/search?q=%2Fsomewhere",
+  );
+});
+
 test("isEngineerFamilyPath covers the engineer workspace tree", () => {
   assert.equal(isEngineerFamilyPath("/engineer"), true);
   assert.equal(isEngineerFamilyPath("/engineer/profile"), true);

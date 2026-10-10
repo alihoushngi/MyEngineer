@@ -1,10 +1,14 @@
 "use server";
 
-import { isApiError } from "@/lib/api/api-error/api-error";
+import { toMutationFailure } from "@/lib/api/to-mutation-failure/to-mutation-failure";
 import {
   mutationFailed,
   mutationOk,
 } from "@/lib/auth/service-mutation-result/service-mutation-result";
+import {
+  purposeUploadRules,
+  validateUpload,
+} from "@/lib/uploads/validate-upload/validate-upload";
 import {
   uploadFile,
   type UploadPurpose,
@@ -38,6 +42,14 @@ export async function uploadFileAction(
     return mutationFailed("یک فایل معتبر انتخاب کنید.");
   }
 
+  const validationError = validateUpload(
+    file,
+    purposeUploadRules[purposeValue],
+  );
+  if (validationError) {
+    return mutationFailed(validationError);
+  }
+
   try {
     const uploaded = await uploadFile({
       purpose: purposeValue,
@@ -45,10 +57,6 @@ export async function uploadFileAction(
     });
     return { ...mutationOk(), uploadId: uploaded.uploadId };
   } catch (error) {
-    if (isApiError(error)) {
-      return mutationFailed(error.message || "بارگذاری فایل انجام نشد.");
-    }
-
-    return mutationFailed("بارگذاری فایل انجام نشد.");
+    return toMutationFailure(error, "بارگذاری فایل انجام نشد.");
   }
 }

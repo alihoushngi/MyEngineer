@@ -1,11 +1,7 @@
 import { cookies } from "next/headers";
 import { env } from "@/lib/env/env";
-import {
-  isEngineerPanelRole,
-  readAccessToken,
-  readAuthDisplayName,
-  readAuthRole,
-} from "@/lib/auth/access-token-cookie/access-token-cookie";
+import { isEngineerPanelRole } from "@/lib/auth/access-token-cookie/access-token-cookie";
+import { getVerifiedAuthUser } from "@/services/session-service/session-identity";
 import {
   isMockAuthEnabled,
   isMockLoginEnabled,
@@ -25,13 +21,14 @@ import { type EngineerSession } from "@/types/store/engineer-auth.types";
 
 export async function getEngineerSession(): Promise<EngineerSession | null> {
   if (env.apiBaseUrl) {
-    const token = await readAccessToken();
-    const role = await readAuthRole();
-    if (!token || !isEngineerPanelRole(role)) {
+    const user = await getVerifiedAuthUser();
+    if (!user || !isEngineerPanelRole(user.role?.name)) {
       return null;
     }
 
-    const displayName = await readAuthDisplayName();
+    const displayName =
+      user.full_name?.trim() ||
+      [user.name, user.family].filter(Boolean).join(" ").trim();
     const [firstName, ...rest] = (displayName ?? "").split(" ");
 
     return {

@@ -4,6 +4,8 @@ Customer (normal user) authentication for Mohandes Man. This is **not**
 Engineer authentication. The two account types keep distinct panels, routes and permission guards.
 Live auth uses the existing token/role boundary; development mock cookies remain role-specific.
 
+Live sessions validate the bearer token against `/auth/me` and derive role and display name from the backend response. Cookie role/name metadata is not an authorization source. Auth cookies are HttpOnly, SameSite=Lax and scoped to `/`; production enforces Secure. The nonproduction HTTP test override must never weaken production cookies. See [security architecture](security.md) for controls and backend verification requirements.
+
 Visual identity follows [DESIGN-SYSTEM.md](DESIGN-SYSTEM.md). Folder rules
 follow [ARCHITECTURE.md](ARCHITECTURE.md). Engineer auth remains documented in
 [MOCK-AUTH.md](MOCK-AUTH.md) and [ENGINEER-PANEL.md](ENGINEER-PANEL.md).
