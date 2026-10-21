@@ -6,7 +6,6 @@ import {
   UserPlusIcon,
 } from "lucide-react";
 
-import { BrandLogo } from "@/components/layout/brandLogo/brandLogo";
 
 import {
   Alert,
@@ -51,12 +50,6 @@ export function EngineerUnauthorized({ access }: EngineerUnauthorizedProps) {
         aria-hidden="true"
         className="pointer-events-none absolute -bottom-48 -inset-e-48 -z-10 size-128 rounded-full bg-primary/5 blur-[150px]"
       />
-
-      <header className="border-b border-primary-deep-foreground/10 bg-primary-deep/95 px-4 py-2.5 text-primary-deep-foreground shadow-sm backdrop-blur-xl">
-        <div className="container-app">
-          <BrandLogo className="text-primary-deep-foreground" />
-        </div>
-      </header>
 
       <main
         id="main-content"

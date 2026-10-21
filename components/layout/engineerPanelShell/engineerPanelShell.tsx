@@ -5,7 +5,6 @@ import { EngineerSidebar } from "@/components/layout/engineerSidebar/engineerSid
 import { EngineerStatusBanner } from "@/components/layout/engineerStatusBanner/engineerStatusBanner";
 import { EngineerTopbar } from "@/components/layout/engineerTopbar/engineerTopbar";
 import { PanelWorkspaceFrame } from "@/components/layout/panelWorkspaceFrame/panelWorkspaceFrame";
-import { SkipLink } from "@/components/layout/skipLink/skipLink";
 
 import { type EngineerShellData } from "@/types/store/engineer.types";
 
@@ -28,8 +27,6 @@ export function EngineerPanelShell({
         aria-hidden="true"
         className="pointer-events-none fixed -inset-e-56 bottom-10 -z-10 size-128 rounded-full bg-secondary/4 blur-[150px]"
       />
-
-      <SkipLink />
 
       <div className="min-h-dvh lg:grid lg:grid-cols-[17rem_minmax(0,1fr)] lg:grid-rows-[minmax(100dvh,auto)] lg:items-stretch">
         <EngineerSidebar />

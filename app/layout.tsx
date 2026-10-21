@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { type ReactNode } from "react";
 import { PwaRegistration } from "@/components/common/pwaRegistration/pwaRegistration";
+import { SkipLink } from "@/components/layout/skipLink/skipLink";
+import { StoreHeader } from "@/components/layout/storeHeader/storeHeader";
 import { AppProvider } from "@/providers/app-provider/app-provider";
 import { homeHeroCopy } from "@/config/home.config/home.config";
 import { siteConfig } from "@/config/site.config/site.config";
@@ -57,7 +59,11 @@ export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="fa" dir="rtl" className={kalameh.variable}>
       <body className={kalameh.className}>
-        <AppProvider>{children}</AppProvider>
+        <AppProvider>
+          <SkipLink />
+          <StoreHeader />
+          {children}
+        </AppProvider>
         <PwaRegistration />
       </body>
     </html>

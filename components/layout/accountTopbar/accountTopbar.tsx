@@ -8,7 +8,6 @@ import {
   SettingsIcon,
   UserRoundIcon,
 } from "lucide-react";
-import { BrandLogo } from "@/components/layout/brandLogo/brandLogo";
 import { AccountLogoutItem } from "@/components/layout/accountLogoutItem/accountLogoutItem";
 import {
   Avatar,
@@ -42,10 +41,8 @@ export function AccountTopbar({ shell }: AccountTopbarProps) {
   const initials = getDisplayInitials(shell.displayName);
 
   return (
-    <header className="sticky top-0 z-30 border-b border-primary-deep-foreground/10 bg-primary-deep/95 pt-[env(safe-area-inset-top)] text-primary-deep-foreground shadow-sm backdrop-blur-xl">
+    <header className="sticky top-[env(safe-area-inset-top)] z-30 border-b border-primary-deep-foreground/10 bg-primary-deep/95 text-primary-deep-foreground shadow-sm backdrop-blur-xl">
       <div className="flex min-h-16 min-w-0 items-center gap-2 px-4 py-2 lg:px-6">
-        <BrandLogo className="min-w-0 text-primary-deep-foreground focus-visible:ring-offset-primary-deep lg:hidden" />
-
         <div className="hidden min-w-0 flex-1 lg:block">
           <p className="type-caption text-primary-deep-foreground/45">
             پنل کاربری

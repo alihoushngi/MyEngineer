@@ -16,7 +16,11 @@ import { buildSearchHref } from "@/lib/search/search-params/search-params";
 
 const defaultCityLabel = "انتخاب شهر";
 
-export function HeaderCityButton({ selectedCityLabel }: HeaderCityButtonProps) {
+export function HeaderCityButton({
+  selectedCityLabel,
+  surface = false,
+  onSelectionComplete,
+}: HeaderCityButtonProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<readonly PreferredCity[]>([]);
@@ -37,7 +41,7 @@ export function HeaderCityButton({ selectedCityLabel }: HeaderCityButtonProps) {
       <Button
         type="button"
         variant="ghost"
-        className="group hidden min-h-10 max-w-36 rounded-xl px-3 text-primary-deep-foreground/70 transition-all duration-200 ease-in-out hover:bg-primary-deep-foreground/8 hover:text-primary-deep-foreground focus-visible:ring-offset-primary-deep md:inline-flex xl:max-w-44"
+        className={`group hidden min-h-10 max-w-36 rounded-xl px-3 transition-all duration-200 ease-in-out md:inline-flex xl:max-w-44 ${surface ? "text-client-secondary hover:bg-client-surface-secondary hover:text-client-secondary focus-visible:ring-client-focus focus-visible:ring-offset-client-surface-soft" : "text-primary-deep-foreground/70 hover:bg-primary-deep-foreground/8 hover:text-primary-deep-foreground focus-visible:ring-offset-primary-deep"}`}
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-controls="city-selector-surface"
@@ -55,7 +59,7 @@ export function HeaderCityButton({ selectedCityLabel }: HeaderCityButtonProps) {
         type="button"
         variant="ghost"
         size="icon"
-        className="rounded-xl text-primary-deep-foreground/75 transition-all duration-200 ease-in-out hover:bg-primary-deep-foreground/8 hover:text-primary-deep-foreground focus-visible:ring-offset-primary-deep md:hidden"
+        className={`rounded-xl transition-all duration-200 ease-in-out md:hidden ${surface ? "text-client-secondary hover:bg-client-surface-secondary hover:text-client-secondary focus-visible:ring-client-focus focus-visible:ring-offset-client-surface-soft" : "text-primary-deep-foreground/75 hover:bg-primary-deep-foreground/8 hover:text-primary-deep-foreground focus-visible:ring-offset-primary-deep"}`}
         aria-label={label}
         aria-haspopup="dialog"
         aria-expanded={open}
@@ -77,6 +81,7 @@ export function HeaderCityButton({ selectedCityLabel }: HeaderCityButtonProps) {
             router.push(buildSearchHref({ cities: cities.map((city) => city.name) }));
           }
           router.refresh();
+          onSelectionComplete?.();
         }}
       />
     </>

@@ -3,7 +3,6 @@ import { AccountMobileNavigation } from "@/components/layout/accountMobileNaviga
 import { AccountSidebar } from "@/components/layout/accountSidebar/accountSidebar";
 import { AccountTopbar } from "@/components/layout/accountTopbar/accountTopbar";
 import { PanelWorkspaceFrame } from "@/components/layout/panelWorkspaceFrame/panelWorkspaceFrame";
-import { SkipLink } from "@/components/layout/skipLink/skipLink";
 import { type UserShellData } from "@/types/store/user-account.types";
 
 type AccountPanelShellProps = {
@@ -22,8 +21,6 @@ export function AccountPanelShell({ shell, children }: AccountPanelShellProps) {
         aria-hidden="true"
         className="pointer-events-none fixed -inset-e-56 bottom-10 -z-10 size-128 rounded-full bg-secondary/4 blur-[150px]"
       />
-
-      <SkipLink />
 
       <div className="min-h-dvh lg:grid lg:grid-cols-[17rem_minmax(0,1fr)] lg:grid-rows-[minmax(100dvh,auto)] lg:items-stretch">
         <AccountSidebar />

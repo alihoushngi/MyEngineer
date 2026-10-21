@@ -3,10 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LogInIcon, UserRoundIcon } from "lucide-react";
-import { BrandLogo } from "@/components/layout/brandLogo/brandLogo";
 import { JoinLink } from "@/components/layout/joinLink/joinLink";
 import { MobileNavLink } from "@/components/layout/mobileNavigation/mobileNavLink/mobileNavLink";
 import { type MobileNavigationProps } from "@/components/layout/mobileNavigation/type/mobileNavigation.types";
+import { HeaderCityButton } from "@/components/layout/storeHeader/headerCityButton/headerCityButton";
+import { HeaderSearchButton } from "@/components/layout/storeHeader/headerSearchButton/headerSearchButton";
 import {
   Accordion,
   AccordionContent,
@@ -23,6 +24,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet/sheet";
 import { isPageEnabled } from "@/config/feature-flags.config/feature-flags.config";
+import { siteConfig } from "@/config/site.config/site.config";
 import {
   buildServicesNavigation,
   engineerLoginNavigation,
@@ -43,6 +45,8 @@ export function MobileNavigation({
   open,
   onOpenChange,
   authChrome,
+  showUtilityTools = true,
+  selectedCityLabel,
 }: MobileNavigationProps) {
   const pathname = usePathname();
   const showServicesMenu = isPageEnabled("services");
@@ -51,6 +55,7 @@ export function MobileNavigation({
   const categoriesQuery = useQuery({
     queryKey: ["lookup", "service-categories"],
     queryFn: listServiceCategories,
+    enabled: open,
   });
   const servicesNavigation = buildServicesNavigation(
     categoriesQuery.data ?? [],
@@ -61,30 +66,31 @@ export function MobileNavigation({
       <SheetContent
         id="mobile-navigation"
         side="start"
-        className="w-full gap-0 overflow-hidden p-0 sm:max-w-sm"
+        className="!inset-y-0 !inset-s-0 !h-dvh !w-[70%] !max-w-none !rounded-none !border-0 bg-client-surface-soft p-0 sm:!inset-y-0 sm:!inset-s-0 sm:!h-dvh min-[600px]:!w-1/2 min-[900px]:!w-[35%]"
       >
-        <SheetHeader className="border-b border-border-subtle bg-surface-elevated px-5 py-4 pe-16">
+        <SheetHeader className="border-b border-client-border bg-client-surface-soft px-4 py-3 pe-16">
           <SheetTitle className="sr-only">منوی اصلی</SheetTitle>
           <SheetDescription className="sr-only">
             پیوندهای فروشگاه مهندس من
           </SheetDescription>
-          <BrandLogo />
+          <Link
+            href={siteConfig.homeHref}
+            className="min-h-11 rounded-sm text-start text-client-16 font-semibold text-client-secondary outline-none focus-visible:ring-2 focus-visible:ring-client-focus focus-visible:ring-offset-2 focus-visible:ring-offset-client-surface-soft"
+          >
+            {siteConfig.name}
+          </Link>
         </SheetHeader>
 
         <nav
           aria-label="ناوبری موبایل"
-          className="flex flex-1 flex-col overflow-y-auto px-4 py-4"
+          className="flex flex-1 flex-col overflow-y-auto px-0 py-0"
           onClick={(event) => {
             if (event.target instanceof Element && event.target.closest("a")) {
               onOpenChange(false);
             }
           }}
         >
-          <p className="mb-2 px-3 type-caption font-semibold text-foreground-subtle">
-            منوی اصلی
-          </p>
-
-          <ul className="flex flex-col gap-1">
+          <ul className="flex flex-col gap-0">
             {homeLink ? (
               <li>
                 <MobileNavLink
@@ -107,20 +113,21 @@ export function MobileNavigation({
                 >
                   <AccordionItem
                     value="services"
-                    className="overflow-hidden rounded-2xl border-0 bg-transparent shadow-none"
+                    className="overflow-hidden rounded-none border-0 border-b border-client-border bg-transparent shadow-none"
                   >
-                    <AccordionTrigger className="min-h-12 rounded-2xl border-0 bg-transparent px-3 type-body text-foreground shadow-none transition-all duration-200 ease-in-out hover:bg-surface-muted data-[state=open]:bg-primary-subtle data-[state=open]:text-primary">
+                    <AccordionTrigger className="min-h-[3.75rem] rounded-none border-0 bg-transparent px-[10px] py-[18px] text-client-14 font-semibold text-client-secondary shadow-none transition-colors hover:bg-client-surface-secondary focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-client-focus data-[state=open]:bg-transparent data-[state=open]:text-client-secondary">
                       {servicesNavigation.label}
                     </AccordionTrigger>
 
-                    <AccordionContent className="border-0 pb-1 pt-1">
-                      <ul className="flex flex-col gap-1 ps-3">
+                    <AccordionContent className="border-0 pb-0 pt-0">
+                      <ul className="flex flex-col gap-0 ps-0">
                         {servicesNavigation.items.map((item) => (
                           <li key={item.href}>
                             <MobileNavLink
                               href={item.href}
                               label={item.label}
                               isActive={isActivePath(pathname, item.href)}
+                              nested
                             />
                           </li>
                         ))}
@@ -144,13 +151,9 @@ export function MobileNavigation({
 
           {mobileUtilityNavigation.length > 0 ? (
             <>
-              <Separator className="my-4" />
+              <Separator className="my-1 bg-client-border" />
 
-              <p className="mb-2 px-3 type-caption font-semibold text-foreground-subtle">
-                دسترسی سریع
-              </p>
-
-              <ul className="flex flex-col gap-1">
+              <ul className="flex flex-col gap-0">
                 {mobileUtilityNavigation.map((item) => (
                   <li key={item.href}>
                     <MobileNavLink
@@ -165,7 +168,20 @@ export function MobileNavigation({
           ) : null}
         </nav>
 
-        <div className="border-t border-border-subtle bg-surface-elevated/95 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur-xl">
+        <div className="border-t border-client-border bg-client-surface-soft p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+          {showUtilityTools ? (
+            <div className="mb-3 flex items-center justify-center gap-2 border-b border-client-border pb-3">
+              <HeaderSearchButton
+                surface
+                onDialogClose={() => onOpenChange(false)}
+              />
+              <HeaderCityButton
+                selectedCityLabel={selectedCityLabel}
+                surface
+                onSelectionComplete={() => onOpenChange(false)}
+              />
+            </div>
+          ) : null}
           <MobileAuthActions chrome={authChrome} />
         </div>
       </SheetContent>

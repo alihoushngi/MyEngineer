@@ -8,9 +8,15 @@ import { type StoreAuthChrome } from "@/types/store/auth.types";
 
 type HeaderMenuButtonProps = {
   authChrome: StoreAuthChrome;
+  showUtilityTools?: boolean;
+  selectedCityLabel?: string;
 };
 
-export function HeaderMenuButton({ authChrome }: HeaderMenuButtonProps) {
+export function HeaderMenuButton({
+  authChrome,
+  showUtilityTools = true,
+  selectedCityLabel,
+}: HeaderMenuButtonProps) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -19,20 +25,22 @@ export function HeaderMenuButton({ authChrome }: HeaderMenuButtonProps) {
         type="button"
         variant="ghost"
         size="icon"
-        className="rounded-xl text-primary-deep-foreground/75 transition-all duration-200 ease-in-out hover:bg-primary-deep-foreground/8 hover:text-primary-deep-foreground focus-visible:ring-offset-primary-deep xl:hidden"
+        className="rounded-md border-client-focus bg-[#212529] text-client-white hover:bg-[#212529]/90 hover:text-client-white focus-visible:ring-client-focus focus-visible:ring-offset-2 focus-visible:ring-offset-client-secondary"
         aria-label="منو"
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-controls="mobile-navigation"
         onClick={() => setOpen(true)}
       >
-        <MenuIcon aria-hidden="true" className="size-5" />
+        <MenuIcon aria-hidden="true" className="size-7" />
       </Button>
 
       <MobileNavigation
         open={open}
         onOpenChange={setOpen}
         authChrome={authChrome}
+        showUtilityTools={showUtilityTools}
+        selectedCityLabel={selectedCityLabel}
       />
     </>
   );

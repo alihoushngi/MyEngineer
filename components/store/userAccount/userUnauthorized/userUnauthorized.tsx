@@ -1,7 +1,6 @@
 import { CircleAlertIcon, ShieldCheckIcon } from "lucide-react";
 import Link from "next/link";
 
-import { BrandLogo } from "@/components/layout/brandLogo/brandLogo";
 import {
   Alert,
   AlertDescription,
@@ -29,10 +28,6 @@ export function UserUnauthorized({ access, nextPath }: UserUnauthorizedProps) {
   if (access.kind === "checking") {
     return (
       <div className="flex min-h-dvh flex-col bg-background">
-        <header className="border-b border-border-subtle bg-surface px-4 py-3">
-          <BrandLogo />
-        </header>
-
         <main
           id="main-content"
           tabIndex={-1}
@@ -85,10 +80,6 @@ export function UserUnauthorized({ access, nextPath }: UserUnauthorizedProps) {
 
   return (
     <div className="flex min-h-dvh flex-col bg-background">
-      <header className="border-b border-border-subtle bg-surface px-4 py-3">
-        <BrandLogo />
-      </header>
-
       <main
         id="main-content"
         tabIndex={-1}
