@@ -274,6 +274,115 @@
     "Courier New", monospace;
 }
 
+/* Client reference tokens: opt-in values for gradual adoption. */
+:root {
+  /* Reference palette primitives, verified in design-reference/assets/css/main.css. */
+  --client-color-primary: #01bfa6;
+  --client-color-secondary: #24313e;
+  --client-color-blue: #0849fa;
+  --client-color-info: #0dcaf0;
+  --client-color-danger: #f01414;
+  --client-color-white: #fff;
+  --client-color-text-muted: #6b6b6b;
+  --client-color-border: #ccc;
+  --client-color-surface-secondary: #e4e4e4;
+  --client-color-surface-soft: #f8f9fa;
+  --client-color-surface-subtle: #f3f3f3;
+
+  /* Reference states vary by component; these are concrete observed examples. */
+  --client-color-focus: #0d6efd;
+  --client-color-hover-indicator: #0d6efd;
+  --client-color-hover-otp: #0d6efd33;
+  --client-color-hover-selected: #000;
+  --client-color-focus-cyan: #86e5ff;
+  --client-color-selected: #8edfd4;
+  --client-state-disabled-opacity: 0.5;
+  --client-shadow-focus-blue: 0 4px 10px rgb(13 110 253 / 0.2);
+  --client-shadow-focus-cyan: 0 0 0 0.25rem rgb(13 202 240 / 0.25);
+
+  /* Reusable samples from the reference; page-specific values can stay exact. */
+  --client-radius-xs: 0.25rem;
+  --client-radius-sm: 0.375rem;
+  --client-radius-md: 0.5rem;
+  --client-radius-lg: 0.75rem;
+  --client-radius-xl: 1rem;
+  --client-radius-2xl: 1.25rem;
+  --client-radius-pill: 999px;
+
+  --client-space-xxs: 0.1rem;
+  --client-space-xs: 0.3rem;
+  --client-space-sm: 0.5rem;
+  --client-space-md: 0.7rem;
+  --client-space-lg: 1rem;
+  --client-space-xl: 1.5rem;
+
+  --client-shadow-card-soft: 0 10px 25px rgb(0 0 0 / 0.08);
+  --client-shadow-card: 0 10px 30px rgb(0 0 0 / 0.15);
+  --client-shadow-card-hover: 0 12px 30px rgb(0 0 0 / 0.12);
+
+  /* Bootstrap container widths plus custom reference content widths. */
+  --client-container-sm: 33.75rem;
+  --client-container-md: 45rem;
+  --client-container-lg: 60rem;
+  --client-container-xl: 71.25rem;
+  --client-container-2xl: 82.5rem;
+  --client-container-header: 43.75rem;
+  --client-container-content: 48rem;
+  --client-container-panel: 50rem;
+  --client-container-page: 59.375rem;
+
+  /* App-aware semantic aliases follow existing light/dark theme values. */
+  --client-canvas: var(--background);
+  --client-surface: var(--surface);
+  --client-surface-elevated: var(--surface-elevated);
+  --client-surface-muted: var(--client-color-surface-subtle);
+  --client-text-primary: var(--foreground);
+  --client-text-muted: var(--client-color-text-muted);
+  --client-border-default: var(--client-color-border);
+
+  /* Reference typography scale; values follow the original responsive cascade. */
+  --client-font-size-8: 0.5rem;
+  --client-font-size-10: 0.64rem;
+  --client-font-size-11: 0.7rem;
+  --client-font-size-12: 0.76rem;
+  --client-font-size-14: 0.88rem;
+  --client-font-size-16: 1rem;
+  --client-font-size-18: 1.12rem;
+  --client-font-size-22: 1.5rem;
+  --client-line-height-body: 1.8;
+  --client-line-height-utility: 1.7;
+}
+
+@media (min-width: 36rem) {
+  :root {
+    --client-font-size-8: 0.62rem;
+    --client-font-size-10: 0.76rem;
+    --client-font-size-11: 0.82rem;
+    --client-font-size-12: 0.88rem;
+    --client-font-size-14: 1rem;
+    --client-font-size-16: 1.12rem;
+    --client-font-size-18: 1.24rem;
+  }
+}
+
+@media (min-width: 48rem) {
+  :root {
+    --client-font-size-8: 0.75rem;
+    --client-font-size-10: 0.95rem;
+    --client-font-size-12: 1.01rem;
+    --client-font-size-14: 1.13rem;
+    --client-font-size-16: 1.25rem;
+    --client-font-size-18: 1.37rem;
+  }
+}
+
+.dark {
+  --client-surface-muted: var(--surface-muted);
+  --client-text-primary: var(--foreground);
+  --client-text-muted: var(--foreground-muted);
+  --client-border-default: var(--border);
+}
+
 /* =========================================================
    DARK MODE
 ========================================================= */
@@ -551,6 +660,29 @@
   --color-category-green: var(--category-green);
   --color-category-rose: var(--category-rose);
 
+  /* Opt-in client reference palette and semantic aliases. */
+  --color-client-primary: var(--client-color-primary);
+  --color-client-secondary: var(--client-color-secondary);
+  --color-client-blue: var(--client-color-blue);
+  --color-client-info: var(--client-color-info);
+  --color-client-danger: var(--client-color-danger);
+  --color-client-white: var(--client-color-white);
+  --color-client-text-muted: var(--client-text-muted);
+  --color-client-border: var(--client-border-default);
+  --color-client-surface-secondary: var(--client-color-surface-secondary);
+  --color-client-surface-soft: var(--client-color-surface-soft);
+  --color-client-surface-subtle: var(--client-surface-muted);
+  --color-client-canvas: var(--client-canvas);
+  --color-client-surface: var(--client-surface);
+  --color-client-surface-elevated: var(--client-surface-elevated);
+  --color-client-text-primary: var(--client-text-primary);
+  --color-client-focus: var(--client-color-focus);
+  --color-client-hover-indicator: var(--client-color-hover-indicator);
+  --color-client-hover-otp: var(--client-color-hover-otp);
+  --color-client-hover-selected: var(--client-color-hover-selected);
+  --color-client-focus-cyan: var(--client-color-focus-cyan);
+  --color-client-selected: var(--client-color-selected);
+
   /* Fonts */
 
   --font-sans: var(--font-sans-family);
@@ -576,6 +708,45 @@
   --shadow-md: var(--shadow-md);
   --shadow-lg: var(--shadow-lg);
   --shadow-xl: var(--shadow-xl);
+
+  --shadow-client-card-soft: var(--client-shadow-card-soft);
+  --shadow-client-card: var(--client-shadow-card);
+  --shadow-client-card-hover: var(--client-shadow-card-hover);
+  --shadow-client-focus-blue: var(--client-shadow-focus-blue);
+  --shadow-client-focus-cyan: var(--client-shadow-focus-cyan);
+  --opacity-client-disabled: var(--client-state-disabled-opacity);
+
+  --radius-client-xs: var(--client-radius-xs);
+  --radius-client-sm: var(--client-radius-sm);
+  --radius-client-md: var(--client-radius-md);
+  --radius-client-lg: var(--client-radius-lg);
+  --radius-client-xl: var(--client-radius-xl);
+  --radius-client-2xl: var(--client-radius-2xl);
+  --radius-client-pill: var(--client-radius-pill);
+
+  --spacing-client-xxs: var(--client-space-xxs);
+  --spacing-client-xs: var(--client-space-xs);
+  --spacing-client-sm: var(--client-space-sm);
+  --spacing-client-md: var(--client-space-md);
+  --spacing-client-lg: var(--client-space-lg);
+  --spacing-client-xl: var(--client-space-xl);
+
+  --container-client-sm: var(--client-container-sm);
+  --container-client-md: var(--client-container-md);
+  --container-client-lg: var(--client-container-lg);
+  --container-client-xl: var(--client-container-xl);
+  --container-client-2xl: var(--client-container-2xl);
+  --container-client-header: var(--client-container-header);
+  --container-client-content: var(--client-container-content);
+  --container-client-panel: var(--client-container-panel);
+  --container-client-page: var(--client-container-page);
+
+  --breakpoint-client-mobile: 28.125rem;
+  --breakpoint-client-sm: 36rem;
+  --breakpoint-client-md: 48rem;
+  --breakpoint-client-lg: 62rem;
+  --breakpoint-client-xl: 75rem;
+  --breakpoint-client-2xl: 87.5rem;
 
   /* Typography */
 
@@ -611,6 +782,25 @@
 
   --text-label: var(--type-label);
   --text-label--line-height: 1.5;
+
+  --text-client-8: var(--client-font-size-8);
+  --text-client-8--line-height: var(--client-line-height-utility);
+  --text-client-10: var(--client-font-size-10);
+  --text-client-10--line-height: var(--client-line-height-utility);
+  --text-client-11: var(--client-font-size-11);
+  --text-client-11--line-height: var(--client-line-height-utility);
+  --text-client-12: var(--client-font-size-12);
+  --text-client-12--line-height: var(--client-line-height-utility);
+  --text-client-14: var(--client-font-size-14);
+  --text-client-14--line-height: var(--client-line-height-utility);
+  --text-client-16: var(--client-font-size-16);
+  --text-client-16--line-height: var(--client-line-height-utility);
+  --text-client-18: var(--client-font-size-18);
+  --text-client-18--line-height: var(--client-line-height-utility);
+  --text-client-22: var(--client-font-size-22);
+  --text-client-22--line-height: var(--client-line-height-utility);
+  --leading-client-body: var(--client-line-height-body);
+  --leading-client-utility: var(--client-line-height-utility);
 
   /* Animations */
 
