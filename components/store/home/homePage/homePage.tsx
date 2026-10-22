@@ -34,7 +34,7 @@ export function HomePage({
   return (
     <div className={styles.page}>
       {shouldRenderHomeSection("hero") ? (
-        <HomeHero slides={heroSlides} />
+        <HomeHero />
       ) : null}
       {shouldRenderHomeSection("serviceCategories") ? (
         <ServiceCategories categories={catalog.serviceCategories} />

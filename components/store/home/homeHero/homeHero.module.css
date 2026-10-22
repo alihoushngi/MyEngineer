@@ -1,0 +1,347 @@
+.hero {
+  background: var(--client-color-white);
+  color: var(--client-text-primary);
+  padding-block: 0;
+}
+
+.hero.hero {
+  padding-block: 0;
+}
+
+.content {
+  padding-inline: 0.75rem;
+  padding-block: 0;
+}
+
+.title {
+  margin: 1rem auto 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: center;
+  text-wrap: balance;
+}
+
+.description {
+  margin: 0 auto;
+  color: var(--client-text-muted);
+  font-size: 0.76rem;
+  line-height: 1.8;
+  text-align: center;
+}
+
+.card {
+  box-sizing: border-box;
+  width: min(calc(100vw - 1.5rem), 43.75rem);
+  margin: 1.125rem auto 0;
+  padding: 1.375rem 0.75rem 0.65rem;
+  border-radius: 1rem;
+  background: var(--client-color-primary);
+}
+
+.searchControls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 6.25rem;
+  align-items: center;
+  margin-inline: 0.55rem;
+  height: 2.1875rem;
+  min-height: 2.1875rem;
+  padding: 0.1875rem;
+  overflow: hidden;
+  border: 1px solid var(--client-border-default);
+  border-radius: 0.625rem;
+  background: var(--client-color-white);
+  box-shadow: 0 0.625rem 1.5625rem rgb(0 0 0 / 8%);
+  transition: box-shadow 200ms ease;
+}
+
+.searchControls:hover {
+  box-shadow: 0 0.75rem 1.875rem rgb(0 0 0 / 12%);
+}
+
+.searchControls:not(:has(.searchField)) {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.searchField {
+  min-width: 0;
+}
+
+.searchField form {
+  width: 100%;
+}
+
+.searchField :global([data-slot="field"]) {
+  gap: 0;
+}
+
+.searchField :global([data-slot="field"] > div) {
+  position: relative;
+  display: block;
+  height: 100%;
+}
+
+.searchField :global([data-slot="field"] > div > div:first-child) {
+  width: 100%;
+  height: 100%;
+}
+
+.searchField :global([data-slot="field"] > div > div:first-child > svg) {
+  display: none;
+}
+
+.searchField :global(input[type="search"]) {
+  width: 100%;
+  height: 100%;
+  padding-inline: 2.75rem 0.625rem;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--client-text-primary);
+  font-size: 0.64rem;
+}
+
+.searchField :global(input[type="search"]:focus-visible) {
+  outline: 2px solid var(--client-color-primary);
+  outline-offset: -2px;
+  box-shadow: none;
+}
+
+.searchField :global(form > [data-slot="field"] > div > button[type="submit"]) {
+  position: absolute;
+  inset-inline-start: 1.25rem;
+  top: 50%;
+  display: flex;
+  width: 1.5rem;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  transform: translateY(-50%);
+  border: 0;
+  border-radius: 0.5rem;
+  background: transparent;
+  box-shadow: none;
+  color: var(--client-text-muted);
+}
+
+.searchField :global(form > [data-slot="field"] > div > button[type="submit"]:hover) {
+  background: rgb(1 191 166 / 8%);
+  box-shadow: none;
+}
+
+.searchField :global(form > [data-slot="field"] > div > button[type="submit"] > svg) {
+  width: 0.75rem;
+  height: 0.75rem;
+  display: block;
+}
+
+.searchField :global(form > [data-slot="field"] > div > button[type="submit"] > span:not(.sr-only)) {
+  display: none;
+}
+
+.cityTrigger {
+  box-sizing: border-box;
+  grid-column: 2;
+  width: 100%;
+  height: 100% !important;
+  min-height: 0 !important;
+  padding-inline: 0.5rem !important;
+  border-inline-start: 1px solid #818181;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: var(--client-text-muted) !important;
+  font-size: 0.64rem;
+  line-height: 1.5;
+}
+
+.cityTrigger:hover {
+  background: transparent !important;
+}
+
+.cityTrigger > span {
+  justify-content: flex-start !important;
+  gap: 0.5rem !important;
+}
+
+.cityTrigger > span > span:first-child {
+  width: auto !important;
+  height: auto !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: var(--client-text-muted) !important;
+}
+
+.cityTrigger > span > span:first-child svg {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+.cityTrigger > span > span:nth-child(2) {
+  font-size: inherit;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.cityTrigger > svg {
+  display: none;
+}
+
+.searchControls:not(:has(.searchField)) .cityTrigger {
+  grid-column: 1;
+  border-inline-start: 0;
+}
+
+.supporting {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-block: 0.75rem 1rem;
+  color: var(--client-color-white);
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.8;
+}
+
+.supporting p {
+  margin: 0;
+}
+
+.supporting p:first-child {
+  text-align: right;
+}
+
+.supporting p:nth-child(2) {
+  text-align: center;
+}
+
+.supporting p:last-child {
+  text-align: left;
+}
+
+.joinLink {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
+  padding: 0 1.875rem;
+  border: 1px dashed var(--client-color-white);
+  border-radius: 0.625rem;
+  color: var(--client-color-white);
+  font-size: 0.875rem;
+  line-height: 1.7;
+  text-align: center;
+  text-decoration: none;
+}
+
+.joinLink span {
+  font-size: 0.625rem;
+}
+
+.joinLink span:nth-child(2) {
+  color: #ffc107;
+}
+
+.joinLink:focus-visible {
+  outline: 2px solid var(--client-color-white);
+  outline-offset: 3px;
+}
+
+.scrollLink:focus-visible {
+  border-radius: 0.625rem;
+  outline: 2px solid var(--client-color-primary);
+  outline-offset: 3px;
+}
+
+@media (max-width: 22.5rem) {
+  .searchControls {
+    grid-template-columns: minmax(0, 1fr) 6.25rem;
+  }
+}
+
+@media (min-width: 36rem) {
+  .title {
+    font-size: 1.125rem;
+  }
+
+  .description {
+    font-size: 0.88rem;
+  }
+
+  .joinLink {
+    font-size: 1rem;
+  }
+
+  .joinLink span {
+    font-size: 0.76rem;
+  }
+
+  .searchControls {
+    grid-template-columns: minmax(0, 1fr) 8rem;
+  }
+
+  .searchField :global(input[type="search"]),
+  .cityTrigger {
+    font-size: 0.76rem;
+  }
+
+}
+
+@media (min-width: 28.125rem) {
+  .searchControls {
+    height: 2.8125rem;
+    min-height: 2.8125rem;
+  }
+
+  .searchField :global(form > [data-slot="field"] > div > button[type="submit"]) {
+    width: 2rem;
+    min-width: 2rem;
+    height: 2rem;
+  }
+}
+
+@media (min-width: 48rem) {
+  .title {
+    margin-top: 1.125rem;
+    font-size: 1.25rem;
+  }
+
+  .description {
+    font-size: 1rem;
+  }
+
+  .card {
+    margin-top: 1rem;
+    padding: 1.75rem 1.625rem 0.9rem;
+  }
+
+  .searchControls {
+    grid-template-columns: minmax(0, 1fr) 11.875rem;
+    margin-inline: 0;
+  }
+
+  .searchField :global(input[type="search"]),
+  .cityTrigger {
+    font-size: 0.95rem;
+  }
+
+  .searchField :global(form > [data-slot="field"] > div > button[type="submit"] > svg),
+  .cityTrigger > span > span:first-child svg {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .supporting {
+    gap: 1rem;
+    font-size: 1.25rem;
+  }
+
+  .joinLink {
+    font-size: 1.13rem;
+  }
+
+  .joinLink span {
+    font-size: 0.95rem;
+  }
+
+}
