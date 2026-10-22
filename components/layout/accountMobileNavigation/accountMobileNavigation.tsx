@@ -47,6 +47,7 @@ export function AccountMobileNavigation() {
   return (
     <nav
       aria-label="ناوبری اصلی حساب کاربری"
+      data-fixed-mobile-navigation="true"
       className="fixed inset-x-2 bottom-2 z-30 overflow-hidden rounded-2xl border border-border-subtle bg-surface-elevated/95 pb-[env(safe-area-inset-bottom)] shadow-lg backdrop-blur-xl lg:hidden"
     >
       <ul className={cn("grid p-1.5", gridClass)}>

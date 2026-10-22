@@ -2,7 +2,6 @@
 
 import { type ReactNode } from "react";
 import { usePathname } from "next/navigation";
-import { AuthFooter } from "@/components/layout/authFooter/authFooter";
 import { cn } from "@/lib/utils/cn/cn";
 
 type AuthShellProps = {
@@ -16,7 +15,7 @@ export function AuthShell({ children }: AuthShellProps) {
   return (
     <div
       className={cn(
-        "relative isolate flex min-h-dvh flex-col overflow-hidden bg-background-subtle",
+        "relative isolate flex min-h-0 flex-1 flex-col overflow-hidden bg-background-subtle",
         isRegistrationRoute && "h-dvh min-h-0",
       )}
     >
@@ -48,8 +47,6 @@ export function AuthShell({ children }: AuthShellProps) {
           {children}
         </div>
       </main>
-
-      <AuthFooter compact={isRegistrationRoute} />
     </div>
   );
 }

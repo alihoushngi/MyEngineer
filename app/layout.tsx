@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { type ReactNode } from "react";
 import { PwaRegistration } from "@/components/common/pwaRegistration/pwaRegistration";
+import { StoreFooter } from "@/components/layout/storeFooter/storeFooter";
 import { SkipLink } from "@/components/layout/skipLink/skipLink";
 import { StoreHeader } from "@/components/layout/storeHeader/storeHeader";
 import { AppProvider } from "@/providers/app-provider/app-provider";
@@ -60,9 +61,12 @@ export default function RootLayout({ children }: RootLayoutProps) {
     <html lang="fa" dir="rtl" className={kalameh.variable}>
       <body className={kalameh.className}>
         <AppProvider>
-          <SkipLink />
-          <StoreHeader />
-          {children}
+          <div className="flex min-h-dvh flex-col">
+            <SkipLink />
+            <StoreHeader />
+            {children}
+            <StoreFooter />
+          </div>
         </AppProvider>
         <PwaRegistration />
       </body>
