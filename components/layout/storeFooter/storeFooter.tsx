@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Fragment } from "react";
 import {
   FacebookIcon,
   GlobeIcon,
@@ -21,6 +20,7 @@ import {
 import {
   buildFooterNavigation,
   legalNavigation,
+  storePaths,
 } from "@/config/navigation.config/navigation.config";
 import { footerDefaults, siteConfig } from "@/config/site.config/site.config";
 import { type ServiceCategory } from "@/config/services.config/services.config";
@@ -55,6 +55,12 @@ const contractorServiceLabels = [
   "استادکار لوله کشی",
   "پیمانکار بازسازی منازل و دفاتر کار",
   "پیمانکار اجرای اسکلت بتنی",
+];
+
+const referenceServiceMatches = [
+  /پروانه|permit/i,
+  /طراحی[\s-]*داخلی|interior/i,
+  /ترسیم[\s-]*نقشه|drawing/i,
 ];
 
 const referenceSocialKeys = new Set<string>(
@@ -131,11 +137,27 @@ function SocialIcon({ platform }: { platform: string }) {
   return <Icon aria-hidden="true" className={className} />;
 }
 
-function getGroupLabel(id: string, label: string): string {
-  if (id === "content") return "منابع";
-  if (id === "company") return "شرکت";
-  if (id === "services") return "خدمات مهندسی";
-  return label;
+function getReferenceServiceCategories(categories: readonly ServiceCategory[]) {
+  const remaining = new Set(categories);
+  const featured = referenceServiceMatches.flatMap((pattern) => {
+    const category = categories.find(
+      (item) =>
+        remaining.has(item) &&
+        pattern.test(`${item.slug} ${item.label} ${item.href}`),
+    );
+    if (!category) return [];
+    remaining.delete(category);
+    return [category];
+  });
+
+  if (featured.length === 0) {
+    return { featured: categories.slice(0, 3), additional: categories.slice(3) };
+  }
+
+  return {
+    featured,
+    additional: categories.filter((category) => remaining.has(category)),
+  };
 }
 
 export async function StoreFooter({
@@ -151,9 +173,161 @@ export async function StoreFooter({
   const footerNavigation = buildFooterNavigation(serviceCategories).filter(
     (group) => group.id !== "legal",
   );
-  const footerSocials = getFooterSocials(settings.socials);
+  const serviceGroup = footerNavigation.find((group) => group.id === "services");
+  const contentGroup = footerNavigation.find((group) => group.id === "content");
+  const companyGroup = footerNavigation.find((group) => group.id === "company");
+  const { featured: referenceServiceCategories, additional: additionalServiceCategories } =
+    getReferenceServiceCategories(serviceGroup?.items.length ? serviceCategories : []);
+  const aboutLink = companyGroup?.items.find((item) => item.href === storePaths.about);
+  const visibleCompanyLink = aboutLink ?? companyGroup?.items[0];
+  const additionalCompanyLinks = companyGroup?.items.filter(
+    (item) => item !== visibleCompanyLink,
+  ) ?? [];
+  const contentLabels: Record<string, string> = {
+    [storePaths.articles]: "وبلاگ مهندس من",
+    [storePaths.faq]: "سوالات متداول",
+    [storePaths.knowledge]: "پایگاه دانش",
+  };
+  const contentLinks = (contentGroup?.items ?? []).map((item) => ({
+    ...item,
+    label: contentLabels[item.href] ?? item.label,
+  }));
+  const legalLabels: Record<string, string> = {
+    [storePaths.privacy]: "سیاست حفظ حریم خصوصی",
+    [storePaths.terms]: "شرایط استفاده",
+  };
+  const legalLinks = [...legalNavigation].reverse().map((item) => ({
+    ...item,
+    label: legalLabels[item.href] ?? item.label,
+  }));
+  const allFooterSocials = getFooterSocials(settings.socials);
+  const featuredSocials = referenceSocials.map(
+    ({ key, label }) =>
+      allFooterSocials.find((social) => social.key === key) ?? {
+        key,
+        label,
+        url: "",
+      },
+  );
+  const additionalSocials = allFooterSocials.filter(
+    (social) => !featuredSocials.includes(social),
+  );
+  const newsletterEnabled = isFooterFeatureEnabled("newsletter");
+  const hasFooterDetails =
+    additionalServiceCategories.length > 0 ||
+    additionalCompanyLinks.length > 0 ||
+    additionalSocials.length > 0 ||
+    Boolean(settings.email) ||
+    newsletterEnabled ||
+    Boolean(footerDefaults.legalLine);
   const footerSectionId = (name: string) =>
     `${siteWide ? "" : "preview-"}footer-${name}`;
+  const renderSocial = (social: (typeof allFooterSocials)[number], index: number) => {
+    const label = social.label || `${social.key} مهندس من`;
+    return (
+      <li key={`${social.key}-${social.url}-${index}`}>
+        {social.url ? (
+          <a
+            href={social.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={label}
+            className="flex size-[25px] items-center justify-center rounded-full outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--client-color-focus)] sm:size-8"
+          >
+            <SocialIcon platform={social.key} />
+          </a>
+        ) : (
+          <span role="img" aria-label={label} className="flex size-[25px] items-center justify-center sm:size-8">
+            <SocialIcon platform={social.key} />
+          </span>
+        )}
+      </li>
+    );
+  };
+  const footerDetails = hasFooterDetails ? (
+    <details className="inline-block min-w-0 text-[length:var(--client-font-size-12)] leading-[var(--client-line-height-body)] [&[open]]:basis-full md:basis-full md:mb-2">
+      <summary className="min-h-6 cursor-pointer rounded-sm px-2 text-[length:var(--client-font-size-12)] leading-[var(--client-line-height-body)] text-[var(--client-color-white)] marker:text-[var(--client-color-primary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--client-color-focus)]">
+        خدمات و اطلاعات بیشتر
+      </summary>
+      <div className="mt-2">
+        {additionalServiceCategories.length ? (
+          <section aria-labelledby={footerSectionId("additional-services")}>
+            <h3
+              id={footerSectionId("additional-services")}
+              className="mb-[0.2rem] text-[length:var(--client-font-size-14)] leading-[1.2] text-[var(--client-color-primary)]"
+            >
+              سایر خدمات
+            </h3>
+            <ul className="mb-[var(--client-space-md)] list-none ps-10 pe-8">
+              {additionalServiceCategories.map((item) => (
+                <li key={`additional-service-${item.href}`}>
+                  <Link
+                    href={item.href}
+                    className="inline-flex min-h-6 max-w-full items-center justify-center break-words rounded-sm px-2 text-[length:var(--client-font-size-12)] leading-[var(--client-line-height-body)] text-[var(--client-color-white)] outline-none hover:text-[var(--client-color-primary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--client-color-focus)]"
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+        {additionalCompanyLinks.length || isPageEnabled("expertRegistration") ? (
+          <section aria-labelledby={footerSectionId("additional-company")}>
+            <h3
+              id={footerSectionId("additional-company")}
+              className="mb-[0.2rem] text-[length:var(--client-font-size-14)] leading-[1.2] text-[var(--client-color-primary)]"
+            >
+              پیوندهای بیشتر
+            </h3>
+            <ul className="mb-[var(--client-space-md)] list-none ps-10 pe-8">
+              {additionalCompanyLinks.map((item) => (
+                <li key={`company-${item.href}`}>
+                  <Link
+                    href={item.href}
+                    className="inline-flex min-h-6 max-w-full items-center justify-center break-words rounded-sm px-2 text-[length:var(--client-font-size-12)] leading-[var(--client-line-height-body)] text-[var(--client-color-white)] outline-none hover:text-[var(--client-color-primary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--client-color-focus)]"
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+              {isPageEnabled("expertRegistration") ? (
+                <li>
+                  <JoinLink
+                    size="sm"
+                    variant="ghost"
+                    className="min-h-6 rounded-sm px-2 text-[length:var(--client-font-size-12)] text-[var(--client-color-white)] hover:bg-transparent hover:text-[var(--client-color-primary)] focus-visible:ring-[var(--client-color-focus)]"
+                  />
+                </li>
+              ) : null}
+            </ul>
+          </section>
+        ) : null}
+        {additionalSocials.length ? (
+          <ul aria-label="شبکه‌های اجتماعی بیشتر" className="my-2 flex flex-wrap justify-center gap-2">
+            {additionalSocials.map(renderSocial)}
+          </ul>
+        ) : null}
+        {settings.email ? (
+          <p className="my-2">
+            <a href={`mailto:${settings.email}`} dir="ltr" className="break-all">
+              {settings.email}
+            </a>
+          </p>
+        ) : null}
+        {newsletterEnabled ? (
+          <div className="mx-auto w-full max-w-md text-start">
+            <NewsletterSubscribeForm />
+          </div>
+        ) : null}
+        {footerDefaults.legalLine ? (
+          <p className="my-2 break-words text-[length:var(--client-font-size-8)]">
+            {footerDefaults.legalLine}
+          </p>
+        ) : null}
+      </div>
+    </details>
+  ) : null;
 
   return (
     <footer
@@ -162,7 +336,7 @@ export async function StoreFooter({
       className="mt-auto w-full shrink-0 bg-[var(--client-color-secondary)] px-2 text-center text-[var(--client-color-white)]"
       dir="rtl"
     >
-      <h2 className="mb-2 px-2 py-4 text-[length:var(--client-font-size-18)] leading-[var(--client-line-height-utility)]">
+      <h2 className="mb-2 px-2 py-4 text-[length:var(--client-font-size-18)] leading-[1.2]">
         {settings.name || siteConfig.name}
       </h2>
 
@@ -171,102 +345,113 @@ export async function StoreFooter({
       </p>
 
       <nav aria-label="پیوندهای پاورقی">
-        {footerNavigation.map((group) => (
-          <Fragment key={group.id}>
-            <section aria-labelledby={footerSectionId(`nav-${group.id}`)}>
-              <h3
-                id={footerSectionId(`nav-${group.id}`)}
-                className="mb-[var(--client-space-xxs)] text-[length:var(--client-font-size-14)] leading-[var(--client-line-height-utility)] text-[var(--client-color-primary)]"
-              >
-                {getGroupLabel(group.id, group.label)}
-              </h3>
+        {referenceServiceCategories.length ? (
+          <section aria-labelledby={footerSectionId("nav-services")}>
+            <h3
+              id={footerSectionId("nav-services")}
+              className="mb-[0.2rem] text-[length:var(--client-font-size-14)] leading-[1.2] text-[var(--client-color-primary)]"
+            >
+              خدمات مهندسی
+            </h3>
+            <ul className="mb-[var(--client-space-md)] list-none ps-10 pe-8">
+              {referenceServiceCategories.map((item) => (
+                <li key={`services-${item.href}`}>
+                  <Link
+                    href={item.href}
+                    className="inline-flex min-h-6 max-w-full items-center justify-center break-words rounded-sm px-2 text-[length:var(--client-font-size-12)] leading-[var(--client-line-height-body)] text-[var(--client-color-white)] outline-none transition-colors duration-200 hover:text-[var(--client-color-primary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--client-color-focus)]"
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
 
-              <ul className="mb-[var(--client-space-md)] list-none ps-8">
-                {group.items.map((item) => (
-                  <li key={`${group.id}-${item.href}`}>
-                    <Link
-                      href={item.href}
-                      className="inline-flex min-h-10 max-w-full items-center justify-center break-words rounded-sm px-2 text-[length:var(--client-font-size-12)] leading-[var(--client-line-height-body)] text-[var(--client-color-white)] outline-none transition-colors duration-200 hover:text-[var(--client-color-primary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--client-color-focus)] lg:min-h-0 lg:px-0"
-                    >
-                      {item.label}
-                    </Link>
-                  </li>
-                ))}
-                {group.id === "company" && isPageEnabled("expertRegistration") ? (
-                  <li>
-                    <JoinLink
-                      size="sm"
-                      variant="ghost"
-                      className="min-h-10 rounded-sm px-2 text-[length:var(--client-font-size-12)] text-[var(--client-color-white)] hover:bg-transparent hover:text-[var(--client-color-primary)] focus-visible:ring-[var(--client-color-focus)] lg:min-h-0 lg:px-0"
-                    />
-                  </li>
-                ) : null}
-              </ul>
-            </section>
-            {group.id === "services" ? (
-              <section aria-labelledby={footerSectionId("nav-contractors")}>
-                <h3
-                  id={footerSectionId("nav-contractors")}
-                  className="mb-[var(--client-space-xxs)] text-[length:var(--client-font-size-14)] leading-[var(--client-line-height-utility)] text-[var(--client-color-primary)]"
+        <section aria-labelledby={footerSectionId("nav-contractors")}>
+          <h3
+            id={footerSectionId("nav-contractors")}
+            className="mb-[0.2rem] text-[length:var(--client-font-size-14)] leading-[1.2] text-[var(--client-color-primary)]"
+          >
+            خدمات استادکاری و پیمانکاری
+          </h3>
+          <ul className="mb-[var(--client-space-md)] list-none ps-10 pe-8 text-[length:var(--client-font-size-12)] leading-[var(--client-line-height-body)]">
+            {contractorServiceLabels.map((label) => (
+              <li key={label}>{label}</li>
+            ))}
+          </ul>
+        </section>
+
+        {contentLinks.length ? (
+          <section aria-labelledby={footerSectionId("nav-content")}>
+            <h3
+              id={footerSectionId("nav-content")}
+              className="mb-[0.2rem] text-[length:var(--client-font-size-14)] leading-[1.2] text-[var(--client-color-primary)]"
+            >
+              منابع
+            </h3>
+            <ul className="mb-[var(--client-space-md)] list-none ps-10 pe-8">
+              {contentLinks.map((item) => (
+                <li key={`content-${item.href}`}>
+                  <Link
+                    href={item.href}
+                    className="inline-flex min-h-6 max-w-full items-center justify-center break-words rounded-sm px-2 text-[length:var(--client-font-size-12)] leading-[var(--client-line-height-body)] text-[var(--client-color-white)] outline-none transition-colors duration-200 hover:text-[var(--client-color-primary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--client-color-focus)]"
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+
+        {visibleCompanyLink ? (
+          <section aria-labelledby={footerSectionId("nav-company")}>
+            <h3
+              id={footerSectionId("nav-company")}
+              className="mb-[0.2rem] text-[length:var(--client-font-size-14)] leading-[1.2] text-[var(--client-color-primary)]"
+            >
+              شرکت
+            </h3>
+            <ul className="mb-[var(--client-space-md)] list-none ps-10 pe-8">
+              <li className="flex flex-wrap items-center justify-center gap-x-2">
+                <Link
+                  href={visibleCompanyLink.href}
+                  className="inline-flex min-h-6 max-w-full items-center justify-center break-words rounded-sm px-2 text-[length:var(--client-font-size-12)] leading-[var(--client-line-height-body)] text-[var(--client-color-white)] outline-none transition-colors duration-200 hover:text-[var(--client-color-primary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--client-color-focus)]"
                 >
-                  خدمات استادکاری و پیمانکاری
-                </h3>
-                <ul className="mb-[var(--client-space-md)] list-none ps-8 text-[length:var(--client-font-size-12)] leading-[var(--client-line-height-body)]">
-                  {contractorServiceLabels.map((label) => (
-                    <li key={label}>{label}</li>
-                  ))}
-                </ul>
-              </section>
-            ) : null}
-          </Fragment>
-        ))}
+                  {visibleCompanyLink.label}
+                </Link>
+                {footerDetails}
+              </li>
+            </ul>
+          </section>
+        ) : null}
       </nav>
+
+      {!visibleCompanyLink ? footerDetails : null}
 
       <ul
         aria-label="شبکه‌های اجتماعی"
-        className="my-4 grid grid-cols-5 justify-items-center gap-x-2"
+        className="my-4 grid grid-cols-5 justify-items-center gap-x-2 px-8"
       >
-        {footerSocials.map((social, index) => {
-          const label = social.label || `${social.key} مهندس من`;
-          return (
-            <li key={`${social.key}-${social.url}-${index}`}>
-              {social.url ? (
-                <a
-                  href={social.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={label}
-                  className="flex size-11 items-center justify-center rounded-full outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--client-color-focus)]"
-                >
-                  <SocialIcon platform={social.key} />
-                </a>
-              ) : (
-                <span
-                  role="img"
-                  aria-label={label}
-                  className="flex size-11 items-center justify-center"
-                >
-                  <SocialIcon platform={social.key} />
-                </span>
-              )}
-            </li>
-          );
-        })}
+        {featuredSocials.map(renderSocial)}
       </ul>
 
       <section aria-labelledby={footerSectionId("contact-heading")}>
         <h3
           id={footerSectionId("contact-heading")}
-          className="text-[length:var(--client-font-size-14)] leading-[var(--client-line-height-utility)]"
+          className="text-[length:var(--client-font-size-14)] leading-[1.2]"
         >
           آدرس
         </h3>
         {settings.address ? (
-          <address className="mx-4 break-words not-italic text-[length:var(--client-font-size-12)] leading-[var(--client-line-height-body)]">
-            {settings.address}
+          <address className="mx-4 break-words not-italic text-[length:var(--client-font-size-8)]">
+            <p className="mt-2 mb-0 break-words py-[0.1rem] text-[length:var(--client-font-size-12)] leading-[var(--client-line-height-body)]">
+              {settings.address}
+            </p>
           </address>
         ) : null}
-        <p className="mt-2 text-[length:var(--client-font-size-12)] leading-[var(--client-line-height-body)]">
+        <p className="mt-2 mb-0 py-[0.1rem] text-[length:var(--client-font-size-12)] leading-[var(--client-line-height-body)]">
           تماس با واحد پشتیبانی پلتفرم
         </p>
         <div className="flex flex-wrap items-center justify-center gap-x-4">
@@ -275,49 +460,31 @@ export async function StoreFooter({
               key={`${phone.label}-${phone.number}`}
               href={toTelHref(phone.number)}
               aria-label={phone.label ? `${phone.label}: ${phone.number}` : phone.number}
-              className="inline-flex min-h-10 max-w-full flex-wrap items-center justify-center gap-x-1 rounded-sm px-2 text-[length:var(--client-font-size-10)] leading-[var(--client-line-height-utility)] text-[var(--client-color-white)] outline-none hover:text-[var(--client-color-primary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--client-color-focus)]"
+              className="inline-flex min-h-6 max-w-full flex-wrap items-center justify-center gap-x-1 rounded-sm px-2 text-[length:var(--client-font-size-10)] leading-[1.8] text-[var(--client-color-white)] outline-none hover:text-[var(--client-color-primary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--client-color-focus)]"
             >
               <bdi dir="ltr">{phone.number}</bdi>
             </a>
           ))}
-          {settings.email ? (
-            <a
-              href={`mailto:${settings.email}`}
-              dir="ltr"
-              className="inline-flex min-h-10 max-w-full break-all rounded-sm px-2 text-[length:var(--client-font-size-10)] leading-[var(--client-line-height-utility)] text-[var(--client-color-white)] outline-none hover:text-[var(--client-color-primary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--client-color-focus)]"
-            >
-              {settings.email}
-            </a>
-          ) : null}
         </div>
       </section>
-
-      {isFooterFeatureEnabled("newsletter") ? (
-        <div className="mx-auto w-full max-w-md text-start">
-          <NewsletterSubscribeForm />
-        </div>
-      ) : null}
 
       <section aria-label="پیوندهای قانونی و حقوق سایت" className="py-2">
         <nav
           aria-label="پیوندهای قانونی"
           className="flex flex-wrap items-center justify-center gap-x-6"
         >
-          {legalNavigation.map((item) => (
+          {legalLinks.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="inline-flex min-h-10 items-center rounded-sm px-2 text-[length:var(--client-font-size-10)] leading-[var(--client-line-height-utility)] text-[var(--client-color-white)] outline-none hover:text-[var(--client-color-primary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--client-color-focus)] lg:min-h-0 lg:px-0"
+              className="inline-flex min-h-6 items-center rounded-sm px-2 text-[length:var(--client-font-size-10)] leading-[1.8] text-[var(--client-color-white)] outline-none hover:text-[var(--client-color-primary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--client-color-focus)] lg:px-0"
             >
               {item.label}
             </Link>
           ))}
         </nav>
-        <p className="mt-2 break-words text-[length:var(--client-font-size-8)] leading-[var(--client-line-height-utility)]">
+        <p className="mt-2 mb-4 break-words text-[length:var(--client-font-size-8)] leading-[1.8]">
           {settings.copyright || footerDefaults.copyright}
-        </p>
-        <p className="mt-1 break-words text-[length:var(--client-font-size-8)] leading-[var(--client-line-height-utility)] text-white/75">
-          {footerDefaults.legalLine}
         </p>
       </section>
     </footer>
