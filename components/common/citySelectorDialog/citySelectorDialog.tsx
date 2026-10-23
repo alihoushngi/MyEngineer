@@ -37,7 +37,7 @@ import {
 } from "@/lib/city/popular-cities/popular-cities";
 import { formatFaNumber } from "@/lib/format/format-fa-number/format-fa-number";
 import { cn } from "@/lib/utils/cn/cn";
-import { getAllCities } from "@/services/city-service/city-service";
+import { listPublicCitiesAction } from "@/services/city-service/city-actions";
 import { type City } from "@/types/store/registration.types";
 
 type CitySelectorDialogProps = {
@@ -84,7 +84,7 @@ export function CitySelectorDialog({
 
   const allCitiesQuery = useQuery({
     queryKey: ["cities", "all"],
-    queryFn: getAllCities,
+    queryFn: listPublicCitiesAction,
     enabled: open,
     retry: false,
     staleTime: 10 * 60 * 1000,

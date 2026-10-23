@@ -4,6 +4,7 @@ import {
   activeRequests,
   filterRequestsByStatus,
   findById,
+  headerUnreadCount,
   parseUserRequestFilter,
   unreadCount,
   unreadMessageTotal,
@@ -21,6 +22,14 @@ test("unread helpers count notifications and conversation badges", () => {
     2,
   );
   assert.equal(unreadMessageTotal([{ unreadCount: 1 }, { unreadCount: 0 }]), 1);
+});
+
+test("header notification count never uses mock data when API is configured", () => {
+  const mockNotifications = [{ isRead: false }];
+
+  assert.equal(headerUnreadCount(true, [], mockNotifications), 0);
+  assert.equal(headerUnreadCount(true, [{ isRead: false }], []), 1);
+  assert.equal(headerUnreadCount(false, [], mockNotifications), 1);
 });
 
 test("activeRequests keeps sent and in-review items only", () => {

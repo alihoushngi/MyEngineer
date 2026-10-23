@@ -9,6 +9,14 @@ export function unreadCount(items: readonly { isRead: boolean }[]): number {
   return items.filter((item) => !item.isRead).length;
 }
 
+export function headerUnreadCount(
+  apiConfigured: boolean,
+  apiNotifications: readonly { isRead: boolean }[],
+  mockNotifications: readonly { isRead: boolean }[],
+): number {
+  return unreadCount(apiConfigured ? apiNotifications : mockNotifications);
+}
+
 export function unreadMessageTotal(
   items: readonly { unreadCount: number }[],
 ): number {

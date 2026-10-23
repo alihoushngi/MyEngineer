@@ -3,9 +3,9 @@
 import { useCallback, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
-  getProvinces,
-  getCitiesByProvince,
-} from "@/services/city-service/city-service";
+  listPublicCitiesByProvinceAction,
+  listPublicProvincesAction,
+} from "@/services/city-service/city-actions";
 import { type City, type Province } from "@/types/store/registration.types";
 import { toUserErrorMessage } from "@/lib/errors/to-user-error-message/to-user-error-message";
 
@@ -34,13 +34,13 @@ export function useProvinceCities(options?: {
 
   const provincesQuery = useQuery({
     queryKey: ["registration", "provinces"],
-    queryFn: getProvinces,
+    queryFn: listPublicProvincesAction,
     retry: false,
   });
 
   const citiesQuery = useQuery({
     queryKey: ["registration", "cities", selectedProvinceId],
-    queryFn: () => getCitiesByProvince(selectedProvinceId),
+    queryFn: () => listPublicCitiesByProvinceAction(selectedProvinceId),
     enabled: selectedProvinceId !== "",
     retry: false,
   });

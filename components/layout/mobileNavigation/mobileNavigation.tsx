@@ -38,7 +38,7 @@ import {
   userAuthCopy,
   userAuthPaths,
 } from "@/config/user-auth.config/user-auth.config";
-import { listServiceCategories } from "@/services/lookup-service/lookup-service";
+import { listPublicServiceCategoriesAction } from "@/services/lookup-service/lookup-actions";
 import { useQuery } from "@tanstack/react-query";
 
 export function MobileNavigation({
@@ -54,7 +54,7 @@ export function MobileNavigation({
   const restLinks = primaryNavigation.filter((item) => item.href !== "/");
   const categoriesQuery = useQuery({
     queryKey: ["lookup", "service-categories"],
-    queryFn: listServiceCategories,
+    queryFn: listPublicServiceCategoriesAction,
     enabled: open,
   });
   const servicesNavigation = buildServicesNavigation(

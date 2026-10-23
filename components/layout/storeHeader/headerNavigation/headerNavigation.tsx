@@ -18,7 +18,7 @@ import {
   primaryNavigation,
 } from "@/config/navigation.config/navigation.config";
 import { cn } from "@/lib/utils/cn/cn";
-import { listServiceCategories } from "@/services/lookup-service/lookup-service";
+import { listPublicServiceCategoriesAction } from "@/services/lookup-service/lookup-actions";
 import { useQuery } from "@tanstack/react-query";
 
 function navLinkClassName(isActive: boolean) {
@@ -37,7 +37,7 @@ export function HeaderNavigation() {
   const restLinks = primaryNavigation.filter((item) => item.href !== "/");
   const categoriesQuery = useQuery({
     queryKey: ["lookup", "service-categories"],
-    queryFn: listServiceCategories,
+    queryFn: listPublicServiceCategoriesAction,
   });
   const servicesNavigation = buildServicesNavigation(
     categoriesQuery.data ?? [],
