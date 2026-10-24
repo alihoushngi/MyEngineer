@@ -21,6 +21,7 @@ import {
 } from "@/lib/api/map-backend/map-backend";
 import { type ServiceCategory } from "@/config/services.config/services.config";
 import { env } from "@/lib/env/env";
+import { getHomeServiceCategoryHref } from "@/lib/home/service-category-directory/service-category-directory";
 import {
   type BackendCity,
   type BackendFaq,
@@ -144,11 +145,13 @@ export async function getHomeCatalog(): Promise<ExtendedHomeCatalogData> {
 
       const drawingFromHome = (home.drawing_services ?? []).map((service) => {
         const title = service.short_title || service.title;
+        const category = mapServiceCategory(service);
+
         return {
           id: String(service.id),
           title,
           description: stripHtml(service.description) || title,
-          href: `/services/${service.slug}`,
+          href: getHomeServiceCategoryHref(category),
           imageSrc: resolveMediaUrl(service.image) ?? undefined,
         };
       });

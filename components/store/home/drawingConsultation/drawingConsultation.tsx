@@ -1,140 +1,118 @@
 import Link from "next/link";
-import {
-  Building2Icon,
-  CableIcon,
-  DraftingCompassIcon,
-  WindIcon,
-} from "lucide-react";
-
 import { ServiceContentImage } from "@/components/store/home/serviceContentImage/serviceContentImage";
 import { homeDrawingCopy } from "@/config/home.config/home.config";
+import {
+  drawingConsultationPreviewModes,
+  type DrawingConsultationPreviewMode,
+} from "@/lib/home/drawing-consultation-preview/drawing-consultation-preview";
+import {
+  mapDrawingConsultationCards,
+  type DrawingConsultationDiscipline,
+} from "@/lib/home/drawing-consultation-cards/drawing-consultation-cards";
 import { type HomeDrawingService } from "@/types/store/home.types";
+import styles from "./drawingConsultation.module.css";
 
 type DrawingConsultationProps = {
   items: readonly HomeDrawingService[];
+  previewMode?: DrawingConsultationPreviewMode;
 };
 
 const disciplines = [
   {
     title: "ترسیم نقشه معماری",
     matches: ["معماری"],
-    Icon: DraftingCompassIcon,
   },
   {
     title: "ترسیم نقشه سازه",
     matches: ["سازه"],
-    Icon: Building2Icon,
   },
   {
     title: "ترسیم نقشه برق",
     matches: ["برق", "الکت"],
-    Icon: CableIcon,
   },
   {
     title: "ترسیم نقشه مکانیک",
     matches: ["مکانیک"],
-    Icon: WindIcon,
   },
-] as const;
+] as const satisfies readonly DrawingConsultationDiscipline[];
 
-export function DrawingConsultation({ items }: DrawingConsultationProps) {
+export function DrawingConsultation({
+  items,
+  previewMode,
+}: DrawingConsultationProps) {
+  const cards = mapDrawingConsultationCards(disciplines, items);
+
   return (
     <section
       aria-labelledby="drawing-consultation-heading"
-      className="bg-background py-4 sm:py-6"
+      className={styles.section}
+      data-home-part="drawing-consultation"
     >
-      <div className="container-wide">
-        <h2
-          id="drawing-consultation-heading"
-          className="mb-3 text-end type-h3 text-foreground"
+      <h2 id="drawing-consultation-heading" className={styles.heading}>
+        {homeDrawingCopy.title}
+      </h2>
+
+      <ul
+        aria-labelledby="drawing-consultation-heading"
+        className={styles.list}
+      >
+        {cards.map(({ disciplineTitle, item }, index) => {
+          const label = item?.title ?? disciplineTitle;
+          const card = (
+            <article className={styles.card}>
+              <ServiceContentImage
+                key={`${item?.id ?? disciplineTitle}-${item?.imageSrc ?? "missing"}`}
+                src={item?.imageSrc}
+                alt={label}
+                variant="drawing"
+              />
+              <h3 className={styles.title}>{label}</h3>
+            </article>
+          );
+
+          return (
+            <li
+              key={item ? `${item.id}-${index}` : `empty-${disciplineTitle}`}
+              className={styles.item}
+            >
+              {item?.href ? (
+                <Link href={item.href} aria-label={label} className={styles.link}>
+                  {card}
+                </Link>
+              ) : (
+                <div
+                  role="group"
+                  aria-label={`${label}؛ ${item ? "پیوند" : "اطلاعات خدمت"} در دسترس نیست`}
+                  aria-disabled="true"
+                  className={styles.unavailable}
+                >
+                  {card}
+                </div>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+
+      {process.env.NODE_ENV === "development" && previewMode ? (
+        <nav
+          className={styles.previewToggle}
+          aria-label="Drawing consultation demo data"
         >
-          {homeDrawingCopy.title}
-        </h2>
-
-        <ul
-          aria-labelledby="drawing-consultation-heading"
-          className="
-            -mx-4
-            flex
-            snap-x
-            snap-mandatory
-            gap-2
-            overflow-x-auto
-            px-4
-            pb-2
-
-            scrollbar-none
-            [&::-webkit-scrollbar]:hidden
-
-            sm:mx-0
-            sm:px-0
-          "
-        >
-          {disciplines.map(({ title, matches, Icon }) => {
-            const item = items.find((candidate) =>
-              matches.some((match) => candidate.title.includes(match)),
-            );
-            const label = item?.title ?? title;
-            const cardClass = `
-              block
-              w-[142px]
-              shrink-0
-              snap-start
-              rounded-lg
-              text-center
-              text-foreground-muted
-
-              sm:w-[164px]
-              lg:w-[218px]
-            `;
-
-            return (
-              <li key={title} className="min-w-0">
-                {item ? (
-                  <Link href={item.href} className={cardClass}>
-                    <ServiceContentImage
-                      key={`${item.id}-${item.imageSrc ?? "missing"}`}
-                      src={item.imageSrc}
-                      alt={label}
-                    />
-                    <span className="mt-1 block type-body-sm">{label}</span>
-                  </Link>
-                ) : (
-                  <div className={cardClass} aria-disabled="true">
-                    <span
-                      role="img"
-                      aria-label={`${label}؛ تصویر و اطلاعات خدمت در دسترس نیست`}
-                      className="
-                        flex
-                        h-20
-                        w-full
-                        items-center
-                        justify-center
-
-                        rounded-lg
-                        border
-                        border-border-subtle
-
-                        bg-surface-subtle
-                        text-foreground-subtle
-
-                        sm:h-[92px]
-                        lg:h-[122px]
-                      "
-                    >
-                      <Icon aria-hidden="true" className="size-6" />
-                    </span>
-                    <span className="mt-1 block type-body-sm">{label}</span>
-                    <span className="mt-1 block type-caption text-foreground-subtle">
-                      اطلاعات خدمت دریافت نشد
-                    </span>
-                  </div>
-                )}
-              </li>
-            );
-          })}
-        </ul>
-      </div>
+          {drawingConsultationPreviewModes.map((mode) => (
+            <Link
+              key={mode}
+              href={mode === "demo" ? "/" : `/?drawingData=${mode}`}
+              aria-current={previewMode === mode ? "page" : undefined}
+              className={`${styles.previewLink} ${
+                previewMode === mode ? styles.previewLinkActive : ""
+              }`}
+            >
+              {mode}
+            </Link>
+          ))}
+        </nav>
+      ) : null}
     </section>
   );
 }

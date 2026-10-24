@@ -13,6 +13,7 @@ import { PopularServices } from "@/components/store/home/popularServices/popular
 import { ServiceCategories } from "@/components/store/home/serviceCategories/serviceCategories";
 import { WhyMohandesMan } from "@/components/store/home/whyMohandesMan/whyMohandesMan";
 import { shouldRenderHomeSection } from "@/config/feature-flags.config/feature-flags.config";
+import { type DrawingConsultationPreviewMode } from "@/lib/home/drawing-consultation-preview/drawing-consultation-preview";
 import { type PopularServicesPreviewMode } from "@/lib/home/popular-services-preview/popular-services-preview";
 import { type ExtendedHomeCatalogData } from "@/services/catalog-service/catalog-service";
 import styles from "./homePage.module.css";
@@ -22,6 +23,7 @@ type HomePageProps = {
   isAuthenticated?: boolean;
   userName?: string;
   popularServicesPreviewMode?: PopularServicesPreviewMode;
+  drawingConsultationPreviewMode?: DrawingConsultationPreviewMode;
 };
 
 export function HomePage({
@@ -29,6 +31,7 @@ export function HomePage({
   isAuthenticated = false,
   userName,
   popularServicesPreviewMode,
+  drawingConsultationPreviewMode,
 }: HomePageProps) {
   return (
     <div className={styles.page}>
@@ -49,7 +52,10 @@ export function HomePage({
         />
       ) : null}
       {shouldRenderHomeSection("drawingConsultation") ? (
-        <DrawingConsultation items={catalog.drawingServices} />
+        <DrawingConsultation
+          items={catalog.drawingServices}
+          previewMode={drawingConsultationPreviewMode}
+        />
       ) : null}
       {shouldRenderHomeSection("whyMohandesMan") ? <WhyMohandesMan /> : null}
       {shouldRenderHomeSection("joinCta") ? <JoinCtaSection /> : null}

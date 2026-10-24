@@ -14,7 +14,7 @@ export type HomeDrawingService = {
   id: string;
   title: string;
   description: string;
-  href: string;
+  href?: string;
   imageSrc?: string;
 };
 

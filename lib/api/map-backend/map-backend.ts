@@ -42,6 +42,7 @@ import {
 } from "@/types/store/faq.types";
 import {
   type HomeHeroSlide,
+  type HomeDrawingService,
   type HomeKnowledgeTip,
   type HomePopularService,
 } from "@/types/store/home.types";
@@ -458,26 +459,27 @@ export function mapPopularFromServices(
   services: readonly BackendServiceNode[],
 ): {
   popularServices: HomePopularService[];
-  drawingServices: {
-    id: string;
-    title: string;
-    description: string;
-    href: string;
-  }[];
+  drawingServices: HomeDrawingService[];
 } {
   const parents = services.map(mapPopularService);
 
   const drawingParent =
-    services.find((service) => service.slug.includes("ترسیم")) ??
-    services.find((service) => (service.short_title || service.title).includes("ترسیم"));
+    services.find((service) => service.slug?.includes("ترسیم")) ??
+    services.find((service) =>
+      (service.short_title || service.title).includes("ترسیم"),
+    );
 
-  const drawingServices = (drawingParent?.children ?? []).map((child) => ({
-    id: String(child.id),
-    title: child.short_title || child.title,
-    description: stripHtml(child.description) || child.title,
-    href: `/services/${child.slug}`,
-    imageSrc: resolveMediaUrl(child.image) ?? undefined,
-  }));
+  const drawingServices = (drawingParent?.children ?? []).map((child) => {
+    const category = mapServiceCategory(child);
+
+    return {
+      id: String(child.id),
+      title: child.short_title || child.title,
+      description: stripHtml(child.description) || child.title,
+      href: getHomeServiceCategoryHref(category),
+      imageSrc: resolveMediaUrl(child.image) ?? undefined,
+    };
+  });
 
   return { popularServices: parents, drawingServices };
 }

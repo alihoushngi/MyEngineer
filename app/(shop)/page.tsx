@@ -5,6 +5,10 @@ import { storePaths } from "@/config/navigation.config/navigation.config";
 import { siteConfig } from "@/config/site.config/site.config";
 import { getUserSession } from "@/lib/auth/user-session/user-session";
 import {
+  getDrawingConsultationPreview,
+  parseDrawingConsultationPreviewMode,
+} from "@/lib/home/drawing-consultation-preview/drawing-consultation-preview";
+import {
   getPopularServicesPreview,
   parsePopularServicesPreviewMode,
 } from "@/lib/home/popular-services-preview/popular-services-preview";
@@ -28,12 +32,19 @@ export const metadata: Metadata = {
 };
 
 type ShopHomePageProps = {
-  searchParams: Promise<{ popularData?: string | string[] }>;
+  searchParams: Promise<{
+    drawingData?: string | string[];
+    popularData?: string | string[];
+  }>;
 };
 
-export default async function ShopHomePage({ searchParams }: ShopHomePageProps) {
-  const previewMode = parsePopularServicesPreviewMode(
-    (await searchParams).popularData,
+export default async function ShopHomePage({
+  searchParams,
+}: ShopHomePageProps) {
+  const params = await searchParams;
+  const previewMode = parsePopularServicesPreviewMode(params.popularData);
+  const drawingPreviewMode = parseDrawingConsultationPreviewMode(
+    params.drawingData,
   );
   const [catalog, session] = await Promise.all([
     getHomeCatalog(),
@@ -47,6 +58,10 @@ export default async function ShopHomePage({ searchParams }: ShopHomePageProps) 
             catalog.popularServices,
             previewMode,
           ),
+          drawingServices: getDrawingConsultationPreview(
+            catalog.drawingServices,
+            drawingPreviewMode,
+          ),
         }
       : catalog;
   return (
@@ -56,6 +71,9 @@ export default async function ShopHomePage({ searchParams }: ShopHomePageProps) 
       userName={session?.profile?.displayName}
       popularServicesPreviewMode={
         process.env.NODE_ENV === "development" ? previewMode : undefined
+      }
+      drawingConsultationPreviewMode={
+        process.env.NODE_ENV === "development" ? drawingPreviewMode : undefined
       }
     />
   );
