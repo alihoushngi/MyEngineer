@@ -13,6 +13,7 @@ import { PopularServices } from "@/components/store/home/popularServices/popular
 import { ServiceCategories } from "@/components/store/home/serviceCategories/serviceCategories";
 import { WhyMohandesMan } from "@/components/store/home/whyMohandesMan/whyMohandesMan";
 import { shouldRenderHomeSection } from "@/config/feature-flags.config/feature-flags.config";
+import { type PopularServicesPreviewMode } from "@/lib/home/popular-services-preview/popular-services-preview";
 import { type ExtendedHomeCatalogData } from "@/services/catalog-service/catalog-service";
 import styles from "./homePage.module.css";
 
@@ -20,12 +21,14 @@ type HomePageProps = {
   catalog: ExtendedHomeCatalogData;
   isAuthenticated?: boolean;
   userName?: string;
+  popularServicesPreviewMode?: PopularServicesPreviewMode;
 };
 
 export function HomePage({
   catalog,
   isAuthenticated = false,
   userName,
+  popularServicesPreviewMode,
 }: HomePageProps) {
   return (
     <div className={styles.page}>
@@ -40,7 +43,10 @@ export function HomePage({
       ) : null}
       {shouldRenderHomeSection("narrative") ? <HomeNarrative /> : null}
       {shouldRenderHomeSection("popularServices") ? (
-        <PopularServices items={catalog.popularServices} />
+        <PopularServices
+          items={catalog.popularServices}
+          previewMode={popularServicesPreviewMode}
+        />
       ) : null}
       {shouldRenderHomeSection("drawingConsultation") ? (
         <DrawingConsultation items={catalog.drawingServices} />

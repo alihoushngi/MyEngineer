@@ -65,6 +65,10 @@ test("only returns the existing service route for a matching API slug", () => {
   const service = category("نقشه-برداری");
   assert.equal(getHomeServiceCategoryHref(service), service.href);
   assert.equal(
+    getHomeServiceCategoryHref({ ...service, slug: "", href: "/services/" }),
+    undefined,
+  );
+  assert.equal(
     getHomeServiceCategoryHref({ ...service, href: "/faq" as ServiceCategory["href"] }),
     undefined,
   );

@@ -10,6 +10,7 @@ import {
   mapCity,
   mapFaqItem,
   mapKnowledgeTipsForHome,
+  mapPopularService,
   mapPopularFromServices,
   mapProfessionalCard,
   mapServiceCategory,
@@ -137,16 +138,9 @@ export async function getHomeCatalog(): Promise<ExtendedHomeCatalogData> {
           : "/knowledge",
       }));
 
-      const popularFromHome = (home.popular_services ?? []).map((service) => {
-        const title = service.short_title || service.title;
-        return {
-          id: String(service.id),
-          title,
-          description: stripHtml(service.description) || title,
-          href: `/services/${service.slug}`,
-          imageSrc: resolveMediaUrl(service.image) ?? undefined,
-        };
-      });
+      const popularFromHome = (home.popular_services ?? []).map(
+        mapPopularService,
+      );
 
       const drawingFromHome = (home.drawing_services ?? []).map((service) => {
         const title = service.short_title || service.title;

@@ -6,7 +6,7 @@ export type HomePopularService = {
   id: string;
   title: string;
   description: string;
-  href: string;
+  href?: string;
   imageSrc?: string;
 };
 

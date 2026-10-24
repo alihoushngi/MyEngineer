@@ -2,13 +2,19 @@ import Link from "next/link";
 
 import { ServiceContentImage } from "@/components/store/home/serviceContentImage/serviceContentImage";
 import { homePopularCopy } from "@/config/home.config/home.config";
+import {
+  popularServicesPreviewModes,
+  type PopularServicesPreviewMode,
+} from "@/lib/home/popular-services-preview/popular-services-preview";
 import { type HomePopularService } from "@/types/store/home.types";
+import styles from "./popularServices.module.css";
 
 type PopularServicesProps = {
   items: readonly HomePopularService[];
+  previewMode?: PopularServicesPreviewMode;
 };
 
-export function PopularServices({ items }: PopularServicesProps) {
+export function PopularServices({ items, previewMode }: PopularServicesProps) {
   if (items.length === 0) {
     return null;
   }
@@ -16,71 +22,59 @@ export function PopularServices({ items }: PopularServicesProps) {
   return (
     <section
       aria-labelledby="popular-services-heading"
-      className="bg-background py-4 sm:py-6"
+      data-home-part="popular-services"
+      className={styles.section}
     >
-      <div className="container-wide">
-        <h2
-          id="popular-services-heading"
-          className="mb-3 text-end type-h3 text-foreground"
-        >
+      <div className={styles.container}>
+        <h2 id="popular-services-heading" className={styles.heading}>
           {homePopularCopy.title}
         </h2>
 
         <ul
           aria-labelledby="popular-services-heading"
-          className="
-            -mx-4
-            flex
-            snap-x
-            snap-mandatory
-            gap-2
-            overflow-x-auto
-            px-4
-            pb-2
-
-            scrollbar-none
-            [&::-webkit-scrollbar]:hidden
-
-            sm:mx-0
-            sm:px-0
-          "
+          className={styles.list}
         >
           {items.map((item) => (
-            <li key={item.id} className="min-w-0 shrink-0 snap-start">
-              <Link
-                href={item.href}
-                className="
-                  block
-                  rounded-lg
-                  text-center
-                  text-foreground-muted
-                  outline-none
-
-                  transition-colors
-                  duration-200
-                  ease-in-out
-
-                  hover:text-primary
-
-                  focus-visible:ring-2
-                  focus-visible:ring-ring
-                  focus-visible:ring-offset-2
-                  focus-visible:ring-offset-background
-                "
-              >
-                <ServiceContentImage
-                  key={`${item.id}-${item.imageSrc ?? "missing"}`}
-                  src={item.imageSrc}
-                  alt={item.title}
-                />
-                <span className="mt-1 block max-w-[218px] type-body-sm">
-                  {item.title}
-                </span>
-              </Link>
+            <li key={item.id} className={styles.card}>
+              {item.href ? (
+                <Link href={item.href} className={styles.link}>
+                  <span className={styles.media}>
+                    <ServiceContentImage
+                      key={`${item.id}-${item.imageSrc ?? "missing"}`}
+                      src={item.imageSrc}
+                      alt={item.title}
+                    />
+                  </span>
+                  <span className={styles.title}>{item.title}</span>
+                </Link>
+              ) : (
+                <article className={styles.unavailable} data-disabled="true">
+                  <span className={styles.media}>
+                    <ServiceContentImage src={item.imageSrc} alt={item.title} />
+                  </span>
+                  <span className={styles.title}>{item.title}</span>
+                </article>
+              )}
             </li>
           ))}
         </ul>
       </div>
+
+      {process.env.NODE_ENV === "development" && previewMode ? (
+        <nav className={styles.previewToggle} aria-label="Popular services demo data">
+          {popularServicesPreviewModes.map((mode) => (
+            <Link
+              key={mode}
+              href={mode === "demo" ? "/" : `/?popularData=${mode}`}
+              className={`${styles.previewLink} ${
+                previewMode === mode ? styles.previewLinkActive : ""
+              }`}
+            >
+              {mode}
+            </Link>
+          ))}
+        </nav>
+      ) : null}
     </section>
   );
 }

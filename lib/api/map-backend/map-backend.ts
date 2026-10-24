@@ -6,6 +6,7 @@ import { storePaths } from "@/config/navigation.config/navigation.config";
 import { type ServiceCategory } from "@/config/services.config/services.config";
 import { resolveMediaUrl } from "@/lib/api/resolve-media-url/resolve-media-url";
 import { stripHtml } from "@/lib/api/strip-html/strip-html";
+import { getHomeServiceCategoryHref } from "@/lib/home/service-category-directory/service-category-directory";
 import {
   type BackendBlog,
   type BackendBlogCategory,
@@ -39,7 +40,11 @@ import {
   type FaqCategoryDetail,
   type FaqItem,
 } from "@/types/store/faq.types";
-import { type HomeHeroSlide, type HomeKnowledgeTip } from "@/types/store/home.types";
+import {
+  type HomeHeroSlide,
+  type HomeKnowledgeTip,
+  type HomePopularService,
+} from "@/types/store/home.types";
 import {
   type KnowledgeCategoryDetail,
   type KnowledgeTip,
@@ -452,13 +457,7 @@ export function mapServiceDetail(
 export function mapPopularFromServices(
   services: readonly BackendServiceNode[],
 ): {
-  popularServices: {
-    id: string;
-    title: string;
-    description: string;
-    href: string;
-    imageSrc?: string;
-  }[];
+  popularServices: HomePopularService[];
   drawingServices: {
     id: string;
     title: string;
@@ -466,16 +465,7 @@ export function mapPopularFromServices(
     href: string;
   }[];
 } {
-  const parents = services.slice(0, 6).map((service) => {
-    const title = service.short_title || service.title;
-    return {
-      id: String(service.id),
-      title,
-      description: stripHtml(service.description) || title,
-      href: `/services/${service.slug}`,
-      imageSrc: resolveMediaUrl(service.image) ?? undefined,
-    };
-  });
+  const parents = services.map(mapPopularService);
 
   const drawingParent =
     services.find((service) => service.slug.includes("ترسیم")) ??
@@ -490,6 +480,20 @@ export function mapPopularFromServices(
   }));
 
   return { popularServices: parents, drawingServices };
+}
+
+export function mapPopularService(
+  service: BackendServiceNode,
+): HomePopularService {
+  const category = mapServiceCategory(service);
+
+  return {
+    id: String(service.id),
+    title: category.label,
+    description: category.description,
+    href: getHomeServiceCategoryHref(category),
+    imageSrc: category.imageSrc ?? undefined,
+  };
 }
 
 function mapEducation(

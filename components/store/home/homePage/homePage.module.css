@@ -23,6 +23,27 @@
     padding-block: 1.5rem;
   }
 
+  .page :global([data-home-part="popular-services"]) {
+    padding-block: 0;
+  }
+
+  .page :global([data-home-part="popular-services"]) h2 {
+    font-size: var(--client-font-size-12);
+    line-height: 1.2;
+  }
+
+  .page :global(section[aria-labelledby="popular-services-heading"][data-home-part="popular-services"])
+    ul {
+    gap: 0.5rem;
+  }
+
+  .page :global(section[aria-labelledby="popular-services-heading"][data-home-part="popular-services"])
+    li
+    > a {
+    min-height: 0;
+    border-radius: 0.5rem;
+  }
+
   .page > section > :global(.py-section) {
     padding-block: 0;
   }
