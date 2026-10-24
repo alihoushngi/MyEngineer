@@ -1,186 +1,52 @@
 import Link from "next/link";
-import { ArrowLeftIcon } from "lucide-react";
-
-import { SectionHeader } from "@/components/common/sectionHeader/sectionHeader";
 import { ServiceCategoryGrid } from "@/components/store/service/serviceCategoryGrid/serviceCategoryGrid";
-import { Button } from "@/components/ui/button/button";
 
 import { homeServicesCopy } from "@/config/home.config/home.config";
 import { isPageEnabled } from "@/config/feature-flags.config/feature-flags.config";
 import { storePaths } from "@/config/navigation.config/navigation.config";
 import { type ServiceCategory } from "@/config/services.config/services.config";
+import { orderHomeServiceCategories } from "@/lib/home/service-category-directory/service-category-directory";
 
 type ServiceCategoriesProps = {
   categories: readonly ServiceCategory[];
 };
 
-// The mobile client illustrations are already bundled with the application.
-// Desktop and other consumers keep the API artwork.
-const mobileArtworkBySlug = {
-  "نقشه-برداری": "/images/services/surveying.png",
-  "استادکار-ساختمان": "/images/services/contractor.png",
-  "ترسیم-نقشه": "/images/services/engineeringservice.png",
-  "طراحی-داخلی-طراحی-نما": "/images/services/designer.png",
-  "اخذ-پروانه-ساخت-اخد-پایان-کار": "/images/services/license.png",
-  "خدمات-اداری": "/images/services/adminastrative.png",
-} as const;
-
 export function ServiceCategories({ categories }: ServiceCategoriesProps) {
-  const clientOrder = Object.keys(mobileArtworkBySlug);
-  const orderedCategories = [...categories].sort((a, b) => {
-    const aIndex = clientOrder.indexOf(a.slug);
-    const bIndex = clientOrder.indexOf(b.slug);
-    return (
-      (aIndex < 0 ? clientOrder.length : aIndex) -
-      (bIndex < 0 ? clientOrder.length : bIndex)
-    );
-  });
+  const orderedCategories = orderHomeServiceCategories(categories);
+
   return (
     <section
       id="service-categories"
+      data-home-part="service-categories"
       aria-labelledby="service-categories-heading"
-      className="
-        relative
-        isolate
-        scroll-mt-[calc(5.75rem+env(safe-area-inset-top))]
-        overflow-hidden
-        bg-background-subtle
-      "
+      dir="rtl"
+      className="flow-root mx-auto mt-2 mb-2 w-full max-w-[1000px] px-3 text-center min-[800px]:mt-6 min-[800px]:mb-4"
     >
-      {/* ambient background */}
-      <div
-        aria-hidden="true"
-        className="
-          pointer-events-none
-          absolute
-          -inset-s-40
-          -top-48
-          -z-10
+      <p className="mx-0 mb-2 text-start text-client-12 font-bold leading-client-body text-client-text-muted min-[800px]:mx-24 min-[800px]:mb-6">
+        {homeServicesCopy.description}
+      </p>
 
-          size-128
-
-          rounded-full
-
-          bg-primary/6
-          blur-[120px]
-
-          sm:size-160
-        "
-      />
-
-      <div
-        aria-hidden="true"
-        className="
-          pointer-events-none
-          absolute
-          -bottom-56
-          -inset-e-40
-          -z-10
-
-          size-136
-
-          rounded-full
-
-          bg-secondary/5
-          blur-[130px]
-
-          sm:size-168
-        "
-      />
-
-      {/* subtle top separator */}
-      <div
-        aria-hidden="true"
-        className="
-          pointer-events-none
-          absolute
-          inset-x-0
-          top-0
-          h-px
-
-          bg-linear-to-r
-          from-transparent
-          via-border
-          to-transparent
-        "
-      />
-
-      <div className="container-app py-section">
-        <div
-          className="
-            flex
-            flex-col
-            gap-7
-
-            sm:gap-9
-            lg:gap-10
-          "
+      <div className="mx-0 flex justify-between text-start min-[800px]:mx-24">
+        <h2
+          id="service-categories-heading"
+          className="mb-2 text-client-12 font-medium leading-[1.2] text-client-text-muted"
         >
-          <SectionHeader
-            titleId="service-categories-heading"
-            title={homeServicesCopy.title}
-            description={homeServicesCopy.description}
-            action={
-              isPageEnabled("faq") ? (
-                <Button
-                  asChild
-                  variant="outline"
-                  size="sm"
-                  className="
-                    group
-                    w-full
-
-                    border-border-subtle
-                    bg-surface/80
-
-                    shadow-xs
-                    backdrop-blur-md
-
-                    hover:border-primary/25
-                    hover:bg-primary-subtle
-                    hover:text-primary
-
-                    sm:w-auto
-
-                    transition-all
-                    duration-200
-                    ease-in-out
-                  "
-                >
-                  <Link href={storePaths.faq}>
-                    {homeServicesCopy.faqLabel}
-
-                    <ArrowLeftIcon
-                      aria-hidden="true"
-                      className="
-                        transition-transform
-                        duration-(--duration-normal)
-                        ease-(--ease-standard)
-
-                        group-hover:-translate-x-0.5
-
-                        motion-reduce:transform-none
-                      "
-                    />
-                  </Link>
-                </Button>
-              ) : undefined
-            }
-          />
-
-          <div
-            className="
-              relative
-              rounded-4xl
-            "
+          {homeServicesCopy.title}
+        </h2>
+        {isPageEnabled("faq") ? (
+          <Link
+            href={storePaths.faq}
+            className="text-client-14 leading-[1.5] text-[#fdaf1e] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
           >
-            <ServiceCategoryGrid
-              categories={orderedCategories}
-              mobileArtworkBySlug={mobileArtworkBySlug}
-            />
-          </div>
-        </div>
+            {homeServicesCopy.faqLabel}
+          </Link>
+        ) : null}
       </div>
+
+      <ServiceCategoryGrid
+        categories={orderedCategories}
+        appearance="directory"
+      />
     </section>
   );
 }
