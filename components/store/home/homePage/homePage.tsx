@@ -13,7 +13,6 @@ import { PopularServices } from "@/components/store/home/popularServices/popular
 import { ServiceCategories } from "@/components/store/home/serviceCategories/serviceCategories";
 import { WhyMohandesMan } from "@/components/store/home/whyMohandesMan/whyMohandesMan";
 import { shouldRenderHomeSection } from "@/config/feature-flags.config/feature-flags.config";
-import { homeHeroSlides } from "@/lib/home/hero-slides/hero-slides";
 import { type ExtendedHomeCatalogData } from "@/services/catalog-service/catalog-service";
 import styles from "./homePage.module.css";
 
@@ -28,9 +27,6 @@ export function HomePage({
   isAuthenticated = false,
   userName,
 }: HomePageProps) {
-  const heroSlides =
-    catalog.heroSlides.length > 0 ? catalog.heroSlides : homeHeroSlides;
-
   return (
     <div className={styles.page}>
       {shouldRenderHomeSection("hero") ? (
@@ -40,7 +36,7 @@ export function HomePage({
         <ServiceCategories categories={catalog.serviceCategories} />
       ) : null}
       {shouldRenderHomeSection("hero") ? (
-        <HomePromotions slides={heroSlides} />
+        <HomePromotions slides={catalog.heroSlides} />
       ) : null}
       {shouldRenderHomeSection("narrative") ? <HomeNarrative /> : null}
       {shouldRenderHomeSection("popularServices") ? (

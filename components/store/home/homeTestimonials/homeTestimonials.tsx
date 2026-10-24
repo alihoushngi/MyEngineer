@@ -1,18 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { QuoteIcon, SparklesIcon } from "lucide-react";
-
-import { A11y, Autoplay, Pagination } from "swiper/modules";
-
+import { useRef, useState } from "react";
+import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
+import { A11y, Keyboard, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
+import type { Swiper as SwiperInstance } from "swiper";
 
 import "swiper/css";
 import "swiper/css/pagination";
-
-import { homeTestimonialCopy } from "@/config/home.config/home.config";
-
-import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion/use-prefers-reduced-motion";
 
 import { AuthRequiredAction } from "@/components/store/auth/authRequiredAction/authRequiredAction";
 import { TestimonialSubmitDialog } from "@/components/store/home/homeTestimonials/testimonialSubmitDialog/testimonialSubmitDialog";
@@ -21,6 +16,9 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@/components/ui/avatar/avatar";
+import { homeTestimonialCopy } from "@/config/home.config/home.config";
+import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion/use-prefers-reduced-motion";
+import { isKnownDuplicateContentImage } from "@/lib/home/known-duplicate-content-image/known-duplicate-content-image";
 
 type HomeTestimonialItem = {
   id: string;
@@ -43,444 +41,131 @@ export function HomeTestimonials({
 }: HomeTestimonialsProps) {
   const prefersReducedMotion = usePrefersReducedMotion();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const swiperRef = useRef<SwiperInstance | null>(null);
 
-  const testimonials = items;
-
-  if (testimonials.length === 0) {
+  if (items.length === 0) {
     return null;
   }
 
   return (
     <section
       aria-labelledby="home-testimonials-heading"
-      className="
-        relative
-        isolate
-        overflow-hidden
-
-        bg-surface-subtle
-
-        py-section
-      "
+      className="bg-surface-subtle py-5 sm:py-8"
     >
-      {/* Background glow */}
-      <div
-        aria-hidden="true"
-        className="
-          pointer-events-none
-          absolute
-          -inset-s-40
-          -top-44
-          -z-10
-
-          size-120
-          rounded-full
-
-          bg-primary/6
-          blur-[130px]
-        "
-      />
-
-      <div
-        aria-hidden="true"
-        className="
-          pointer-events-none
-          absolute
-          -bottom-48
-          -inset-e-40
-          -z-10
-
-          size-128
-          rounded-full
-
-          bg-secondary/6
-          blur-[140px]
-        "
-      />
-
       <div className="container-narrow">
-        <div
-          className="
-            flex
-            flex-col
-            items-center
-
-            text-center
-          "
-        >
-          {/* Eyebrow */}
-          <p
-            className="
-              inline-flex
-              w-fit
-              items-center
-              gap-2
-
-              rounded-full
-              border
-              border-primary/10
-
-              bg-primary-subtle
-
-              px-3
-              py-1
-
-              type-caption
-              font-semibold
-              text-primary
-            "
-          >
-            <SparklesIcon aria-hidden="true" className="size-3.5" />
-
+        <div className="text-center">
+          <p className="type-caption font-semibold text-secondary">
             {homeTestimonialCopy.eyebrow}
           </p>
-
-          {/* Title */}
           <h2
             id="home-testimonials-heading"
-            className="
-              mt-4
-              max-w-2xl
-
-              type-h1
-              text-foreground
-            "
+            className="mt-1 type-h3 text-foreground"
           >
             {homeTestimonialCopy.title}
           </h2>
+        </div>
 
-          {/* Carousel */}
-          <div
+        <div className="mt-4 rounded-lg border border-border-subtle bg-surface px-4 py-5 sm:px-8 sm:py-7">
+          <Swiper
+            dir="rtl"
+            modules={[A11y, Keyboard, Pagination]}
+            onSwiper={(swiper) => {
+              swiperRef.current = swiper;
+            }}
+            slidesPerView={1}
+            spaceBetween={12}
+            loop={items.length > 1}
+            speed={prefersReducedMotion ? 0 : 250}
+            keyboard={{ enabled: true, onlyInViewport: true }}
+            pagination={
+              items.length > 1
+                ? {
+                    clickable: true,
+                  }
+                : false
+            }
+            a11y={{
+              enabled: true,
+              containerMessage: "نظر کاربران",
+              paginationBulletMessage: "نمایش نظر {{index}}",
+            }}
             className="
-              mt-8
+              home-testimonials-swiper
               w-full
+              pb-8
+              text-center
+
+              [&_.swiper-pagination]:bottom-0
+              [&_.swiper-pagination-bullet]:bg-border-strong
+              [&_.swiper-pagination-bullet-active]:bg-secondary
             "
           >
-            <Swiper
-              dir="rtl"
-              modules={[Autoplay, Pagination, A11y]}
-              slidesPerView={1}
-              spaceBetween={16}
-              loop={testimonials.length > 1}
-              speed={500}
-              grabCursor
-              autoplay={
-                prefersReducedMotion || testimonials.length <= 1
-                  ? false
-                  : {
-                      delay: 5500,
-                      disableOnInteraction: false,
-                      pauseOnMouseEnter: true,
-                    }
-              }
-              pagination={
-                testimonials.length > 1
-                  ? {
-                      clickable: true,
-                    }
-                  : false
-              }
-              a11y={{
-                enabled: true,
-                paginationBulletMessage: "نمایش نظر {{index}}",
-              }}
-              className="
-                home-testimonials-swiper
-                w-full
-                overflow-visible
-              "
-            >
-              {testimonials.map((testimonial, index) => (
-                <SwiperSlide
-                  key={testimonial.id}
-                  className="
-                      h-auto
-                      pb-1
-                    "
-                >
-                  <blockquote
-                    className="
-                        group
-                        relative
-
-                        flex
-                        min-h-80
-                        w-full
-                        flex-col
-                        items-center
-                        justify-center
-
-                        overflow-hidden
-
-                        rounded-4xl
-                        border
-                        border-border-subtle
-
-                        bg-surface
-
-                        px-5
-                        py-8
-
-                        text-center
-
-                        shadow-sm
-
-                        transition-all
-                        duration-200
-                        ease-in-out
-
-                        hover:border-primary/15
-                        hover:shadow-md
-
-                        sm:min-h-96
-                        sm:px-8
-                        sm:py-10
-
-                        lg:px-12
-                        lg:py-12
-                      "
-                  >
-                    {/* Hover glow */}
-                    <div
-                      aria-hidden="true"
-                      className="
-                          pointer-events-none
-                          absolute
-                          -inset-e-20
-                          -top-20
-
-                          size-44
-                          rounded-full
-
-                          bg-primary/0
-                          blur-3xl
-
-                          transition-all
-                          duration-200
-                          ease-in-out
-
-                          group-hover:scale-125
-                          group-hover:bg-primary/10
-                        "
-                    />
-
-                    {/* Bottom glow */}
-                    <div
-                      aria-hidden="true"
-                      className="
-                          pointer-events-none
-                          absolute
-                          -bottom-32
-                          -inset-s-24
-
-                          size-64
-                          rounded-full
-
-                          bg-secondary/5
-                          blur-[90px]
-                        "
-                    />
-
-                    {/* Top highlight */}
-                    <div
-                      aria-hidden="true"
-                      className="
-                          pointer-events-none
-                          absolute
-                          inset-x-10
-                          top-0
-
-                          h-px
-
-                          bg-linear-to-r
-                          from-transparent
-                          via-primary/30
-                          to-transparent
-                        "
-                    />
-
-                    {/* Number */}
-                    <span
-                      aria-hidden="true"
-                      className="
-                          absolute
-                          inset-s-5
-                          top-5
-
-                          type-caption
-                          font-semibold
-                          tabular-nums
-                          text-foreground-subtle
-
-                          sm:inset-s-7
-                          sm:top-7
-                        "
-                    >
-                      {String(index + 1).padStart(2, "0")}
-                    </span>
-
-                    {/* Quote icon */}
-                    <span
-                      aria-hidden="true"
-                      className="
-                          relative
-                          z-10
-
-                          flex
-                          size-12
-                          shrink-0
-                          items-center
-                          justify-center
-
-                          rounded-2xl
-                          border
-                          border-primary/10
-
-                          bg-primary-subtle
-                          text-primary
-
-                          shadow-xs
-
-                          transition-all
-                          duration-200
-                          ease-in-out
-
-                          group-hover:scale-105
-                          group-hover:bg-primary
-                          group-hover:text-primary-foreground
-
-                          motion-reduce:transform-none
-                        "
-                    >
-                      <QuoteIcon
-                        className="
-                            size-5
-                            fill-current
-                          "
-                      />
-                    </span>
-
-                    {/* Quote */}
-                    <p
-                      className="
-                          relative
-                          z-10
-
-                          mx-auto
-                          mt-6
-                          max-w-2xl
-
-                          type-body-lg
-                          leading-loose
-                          text-foreground
-
-                          sm:text-[1.2rem]
-                        "
-                    >
-                      «{testimonial.quote}»
+            {items.map((item) => (
+              <SwiperSlide key={item.id} className="h-auto">
+                <article className="flex min-h-52 flex-col items-center justify-center text-center">
+                  <Avatar size="lg" className="rounded-full">
+                    {item.photoSrc &&
+                    !isKnownDuplicateContentImage(item.photoSrc) ? (
+                      <AvatarImage src={item.photoSrc} alt="" />
+                    ) : null}
+                    <AvatarFallback>{item.author.slice(0, 1)}</AvatarFallback>
+                  </Avatar>
+                  <cite className="mt-2 not-italic type-body font-semibold text-foreground">
+                    {item.author}
+                  </cite>
+                  {item.role ? (
+                    <p className="mt-0.5 type-caption text-foreground-muted">
+                      {item.role}
                     </p>
-
-                    {/* Author */}
-                    <footer
-                      className="
-                          relative
-                          z-10
-
-                          mt-7
-
-                          flex
-                          flex-col
-                          items-center
-                          gap-1
-                        "
-                    >
-                      {testimonial.photoSrc ? (
-                        <Avatar size="lg">
-                          <AvatarImage src={testimonial.photoSrc} alt="" />
-                          <AvatarFallback>
-                            {testimonial.author.slice(0, 1)}
-                          </AvatarFallback>
-                        </Avatar>
-                      ) : null}
-
-                      <cite
-                        className="
-                            not-italic
-
-                            type-h4
-                            font-semibold
-                            text-foreground
-                          "
-                      >
-                        {testimonial.author}
-                      </cite>
-
-                      {testimonial.role ? (
-                        <p
-                          className="
-                            type-body-sm
-                            text-foreground-muted
-                          "
-                        >
-                          {testimonial.role}
-                        </p>
-                      ) : null}
-                    </footer>
-
-                    <span
-                      aria-hidden="true"
-                      className="
-                          pointer-events-none
-
-                          mx-auto
-                          mt-7
-                          block
-
-                          h-px
-                          w-24
-
-                          bg-linear-to-r
-                          from-transparent
-                          via-border-strong
-                          to-transparent
-                        "
-                    />
+                  ) : null}
+                  <blockquote className="mx-auto mt-3 max-w-3xl type-body-sm leading-relaxed text-foreground">
+                    «{item.quote}»
                   </blockquote>
-                </SwiperSlide>
-              ))}
-            </Swiper>
-          </div>
+                </article>
+              </SwiperSlide>
+            ))}
+          </Swiper>
 
-          <p
-            className="
-              mt-5
-              max-w-lg
+          {items.length > 1 ? (
+            <div className="flex items-center justify-center gap-3">
+              <button
+                type="button"
+                aria-label="نظر قبلی"
+                onClick={() => swiperRef.current?.slidePrev()}
+                className="flex size-9 items-center justify-center rounded-lg border border-border-subtle text-foreground-muted outline-none hover:bg-surface-muted focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <ArrowRightIcon aria-hidden="true" className="size-4" />
+              </button>
+              <button
+                type="button"
+                aria-label="نظر بعدی"
+                onClick={() => swiperRef.current?.slideNext()}
+                className="flex size-9 items-center justify-center rounded-lg border border-border-subtle text-foreground-muted outline-none hover:bg-surface-muted focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <ArrowLeftIcon aria-hidden="true" className="size-4" />
+              </button>
+            </div>
+          ) : null}
+        </div>
 
-              type-caption
-              leading-relaxed
-              text-foreground-muted
-            "
-          >
+        <div className="mt-3 flex flex-col items-center gap-2 text-center">
+          <p className="type-caption text-foreground-muted">
             {homeTestimonialCopy.submitNote}
           </p>
-
           <AuthRequiredAction
             isAuthenticated={isAuthenticated}
             nextPath="/"
             label={homeTestimonialCopy.submitCta}
             variant="outline"
-            className="mt-4"
-            onAuthenticatedClick={() => {
-              setDialogOpen(true);
-            }}
-          />
-
-          <TestimonialSubmitDialog
-            open={dialogOpen}
-            onOpenChange={setDialogOpen}
-            defaultName={userName}
+            onAuthenticatedClick={() => setDialogOpen(true)}
           />
         </div>
+
+        <TestimonialSubmitDialog
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+          defaultName={userName}
+        />
       </div>
     </section>
   );

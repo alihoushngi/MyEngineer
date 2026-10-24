@@ -1,12 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
   ChevronDownIcon,
   SlidersHorizontalIcon,
   UsersIcon,
   XIcon,
 } from "lucide-react";
+import { A11y, Keyboard } from "swiper/modules";
+import { Swiper, SwiperSlide } from "swiper/react";
+import type { Swiper as SwiperInstance } from "swiper";
+
+import "swiper/css";
 
 import { CitySelectorDialog } from "@/components/common/citySelectorDialog/citySelectorDialog";
 
@@ -29,6 +36,7 @@ import { type ServiceCategory } from "@/config/services.config/services.config";
 import { useHomeMarketplace } from "@/hooks/use-home-marketplace/use-home-marketplace";
 
 import { formatFaNumber } from "@/lib/format/format-fa-number/format-fa-number";
+import { isKnownDuplicateContentImage } from "@/lib/home/known-duplicate-content-image/known-duplicate-content-image";
 import { cn } from "@/lib/utils/cn/cn";
 
 import { type ExpertCardData } from "@/types/store/expert.types";
@@ -47,57 +55,27 @@ export function HomeMarketplace({
 }: HomeMarketplaceProps) {
   const marketplace = useHomeMarketplace(experts, serviceCategories);
   const [cityDialogOpen, setCityDialogOpen] = useState(false);
+  const [carouselState, setCarouselState] = useState({
+    canGoPrevious: false,
+    canGoNext: false,
+  });
+  const swiperRef = useRef<SwiperInstance | null>(null);
+
+  function updateCarouselState(swiper: SwiperInstance) {
+    setCarouselState({
+      canGoPrevious: !swiper.isBeginning,
+      canGoNext: !swiper.isEnd,
+    });
+  }
 
   return (
     <section
       id="home-marketplace"
       aria-labelledby="home-marketplace-heading"
-      className="
-        relative
-        isolate
-        scroll-mt-[calc(5.75rem+env(safe-area-inset-top))]
-        overflow-hidden
-        bg-background
-        py-section
-      "
+      className="scroll-mt-[calc(5.75rem+env(safe-area-inset-top))] bg-background py-5 sm:py-8"
     >
-      {/* ambient background */}
-      <div
-        aria-hidden="true"
-        className="
-          pointer-events-none
-          absolute
-          -inset-s-48
-          top-20
-          -z-10
-
-          size-136
-          rounded-full
-
-          bg-primary/5
-          blur-[130px]
-        "
-      />
-
-      <div
-        aria-hidden="true"
-        className="
-          pointer-events-none
-          absolute
-          -inset-e-52
-          bottom-16
-          -z-10
-
-          size-144
-          rounded-full
-
-          bg-secondary/5
-          blur-[140px]
-        "
-      />
-
       <div className="container-app">
-        <div className="flex flex-col gap-8 sm:gap-10">
+        <div className="flex flex-col gap-5 sm:gap-7">
           {/* Heading */}
           <div
             className="
@@ -111,37 +89,14 @@ export function HomeMarketplace({
             "
           >
             <div className="max-w-2xl space-y-3">
-              <p
-                className="
-                  inline-flex
-                  w-fit
-                  items-center
-
-                  rounded-full
-                  border
-                  border-primary/10
-
-                  bg-primary-subtle
-
-                  px-3
-                  py-1
-
-                  type-caption
-                  font-semibold
-                  text-primary
-                "
-              >
-                {homeMarketplaceCopy.eyebrow}
-              </p>
-
               <h2
                 id="home-marketplace-heading"
                 className="
-                  type-h1
+                  type-h3
                   text-foreground
                 "
               >
-                {homeMarketplaceCopy.title}
+                متخصصین ما
               </h2>
 
               <p
@@ -280,44 +235,20 @@ export function HomeMarketplace({
           {/* Filters */}
           <div
             className="
-              relative
-
               grid
               gap-3
 
-              rounded-3xl
-              border
+              border-y
               border-border-subtle
 
-              bg-surface
+              py-3
 
-              p-3
-
-              shadow-sm
-
-              sm:p-4
+              sm:py-4
 
               md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]
               md:items-center
             "
           >
-            <div
-              aria-hidden="true"
-              className="
-                pointer-events-none
-                absolute
-                inset-x-8
-                top-0
-
-                h-px
-
-                bg-linear-to-r
-                from-transparent
-                via-primary/20
-                to-transparent
-              "
-            />
-
             <Button
               type="button"
               variant="outline"
@@ -404,24 +335,80 @@ export function HomeMarketplace({
 
           {/* Results */}
           {marketplace.pagination.total > 0 ? (
-            <div className="flex flex-col gap-8">
-              <ul
+            <div className="flex flex-col gap-5">
+              {marketplace.pagination.items.length > 1 ? (
+                <div className="flex justify-end gap-2">
+                  <button
+                    type="button"
+                    aria-label="متخصص قبلی"
+                    disabled={!carouselState.canGoPrevious}
+                    onClick={() => swiperRef.current?.slidePrev()}
+                    className="
+                      flex size-10 items-center justify-center rounded-lg border border-border-subtle bg-surface text-foreground
+                      outline-none transition-colors duration-200 ease-in-out hover:bg-primary hover:text-primary-foreground
+                      focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2
+                      disabled:cursor-not-allowed disabled:opacity-40
+                    "
+                  >
+                    <ArrowRightIcon aria-hidden="true" className="size-4" />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="متخصص بعدی"
+                    disabled={!carouselState.canGoNext}
+                    onClick={() => swiperRef.current?.slideNext()}
+                    className="
+                      flex size-10 items-center justify-center rounded-lg border border-border-subtle bg-surface text-foreground
+                      outline-none transition-colors duration-200 ease-in-out hover:bg-primary hover:text-primary-foreground
+                      focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2
+                      disabled:cursor-not-allowed disabled:opacity-40
+                    "
+                  >
+                    <ArrowLeftIcon aria-hidden="true" className="size-4" />
+                  </button>
+                </div>
+              ) : null}
+
+              <Swiper
+                key={marketplace.pagination.items.map((expert) => expert.id).join(",")}
+                dir="rtl"
+                modules={[A11y, Keyboard]}
+                onSwiper={(swiper) => {
+                  swiperRef.current = swiper;
+                  updateCarouselState(swiper);
+                }}
+                onSlideChange={updateCarouselState}
+                slidesPerView={1.1}
+                spaceBetween={12}
+                keyboard={{ enabled: true, onlyInViewport: true }}
+                a11y={{
+                  enabled: true,
+                  containerMessage: "فهرست متخصصان",
+                }}
+                breakpoints={{
+                  640: { slidesPerView: 2, spaceBetween: 16 },
+                  1024: { slidesPerView: 3, spaceBetween: 16 },
+                }}
                 className="
-                  grid
-                  gap-4
-
-                  md:grid-cols-2
-                  md:gap-5
-
-                  xl:grid-cols-3
+                  w-full
+                  [&_.swiper-wrapper]:items-stretch
+                  [&_.swiper-slide]:h-auto
                 "
               >
-                {marketplace.pagination.items.map((expert) => (
-                  <li key={expert.id} className="min-w-0">
-                    <ExpertCard expert={expert} />
-                  </li>
-                ))}
-              </ul>
+                {marketplace.pagination.items.map((expert) => {
+                  const displayExpert = isKnownDuplicateContentImage(
+                    expert.avatarSrc,
+                  )
+                    ? { ...expert, avatarSrc: undefined }
+                    : expert;
+
+                  return (
+                    <SwiperSlide key={expert.id} className="h-auto">
+                      <ExpertCard expert={displayExpert} />
+                    </SwiperSlide>
+                  );
+                })}
+              </Swiper>
 
               <Pagination
                 page={marketplace.pagination.page}

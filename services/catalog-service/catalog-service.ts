@@ -144,8 +144,7 @@ export async function getHomeCatalog(): Promise<ExtendedHomeCatalogData> {
           title,
           description: stripHtml(service.description) || title,
           href: `/services/${service.slug}`,
-          imageSrc:
-            resolveMediaUrl(service.image) ?? "/images/services/surveying.png",
+          imageSrc: resolveMediaUrl(service.image) ?? undefined,
         };
       });
 
@@ -156,6 +155,7 @@ export async function getHomeCatalog(): Promise<ExtendedHomeCatalogData> {
           title,
           description: stripHtml(service.description) || title,
           href: `/services/${service.slug}`,
+          imageSrc: resolveMediaUrl(service.image) ?? undefined,
         };
       });
 

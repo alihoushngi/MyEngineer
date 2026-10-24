@@ -2,7 +2,6 @@
 
 import { useSyncExternalStore } from "react";
 import { HomeSlideImage } from "@/components/store/home/homeSlideImage/homeSlideImage";
-import { homeHeroSlides } from "@/lib/home/hero-slides/hero-slides";
 
 import { Autoplay, EffectFade } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -105,10 +104,6 @@ export function HomeHeroCarousel({ slides }: HomeHeroCarouselProps) {
           >
             <HomeSlideImage
               src={slide.imageSrc}
-              fallbackSrc={
-                homeHeroSlides[index % homeHeroSlides.length]?.imageSrc ??
-                slide.imageSrc
-              }
               alt=""
               fill
               loading={index === 0 ? "eager" : "lazy"}

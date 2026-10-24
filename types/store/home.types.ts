@@ -7,7 +7,7 @@ export type HomePopularService = {
   title: string;
   description: string;
   href: string;
-  imageSrc: string;
+  imageSrc?: string;
 };
 
 export type HomeDrawingService = {
@@ -15,6 +15,7 @@ export type HomeDrawingService = {
   title: string;
   description: string;
   href: string;
+  imageSrc?: string;
 };
 
 export type HomeKnowledgeTip = {

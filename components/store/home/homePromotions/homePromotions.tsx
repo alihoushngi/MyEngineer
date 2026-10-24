@@ -11,7 +11,6 @@ import "swiper/css/effect-fade";
 import { HomeSlideImage } from "@/components/store/home/homeSlideImage/homeSlideImage";
 import { homeHeroCopy } from "@/config/home.config/home.config";
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion/use-prefers-reduced-motion";
-import { homeHeroSlides } from "@/lib/home/hero-slides/hero-slides";
 import { formatFaNumber } from "@/lib/format/format-fa-number/format-fa-number";
 import { type HomeHeroSlide } from "@/types/store/home.types";
 
@@ -53,25 +52,19 @@ export function HomePromotions({
           onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
           className="aspect-[3.2/1] w-full overflow-hidden rounded-md bg-surface-muted shadow-sm"
         >
-          {slides.map((slide, index) => {
-            const fallback = homeHeroSlides[index % homeHeroSlides.length];
-
-            return (
-              <SwiperSlide key={slide.id}>
-                <HomeSlideImage
-                  src={slide.imageSrc}
-                  fallbackSrc={fallback?.imageSrc ?? slide.imageSrc}
-                  fallbackAlt={fallback?.imageAlt}
-                  alt={slide.imageAlt || slide.headline}
-                  fill
-                  loading={index === 0 ? "eager" : "lazy"}
-                  fetchPriority={index === 0 ? "high" : "auto"}
-                  sizes="(min-width: 992px) 752px, (min-width: 768px) calc(100vw - 120px), (min-width: 576px) calc(100vw - 108px), calc(100vw - 72px)"
-                  className="object-cover"
-                />
-              </SwiperSlide>
-            );
-          })}
+          {slides.map((slide, index) => (
+            <SwiperSlide key={slide.id}>
+              <HomeSlideImage
+                src={slide.imageSrc}
+                alt={slide.imageAlt || slide.headline}
+                fill
+                loading={index === 0 ? "eager" : "lazy"}
+                fetchPriority={index === 0 ? "high" : "auto"}
+                sizes="(min-width: 992px) 752px, (min-width: 768px) calc(100vw - 120px), (min-width: 576px) calc(100vw - 108px), calc(100vw - 72px)"
+                className="object-cover"
+              />
+            </SwiperSlide>
+          ))}
         </Swiper>
 
         {slides.length > 1 ? (

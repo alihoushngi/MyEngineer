@@ -457,7 +457,7 @@ export function mapPopularFromServices(
     title: string;
     description: string;
     href: string;
-    imageSrc: string;
+    imageSrc?: string;
   }[];
   drawingServices: {
     id: string;
@@ -473,8 +473,7 @@ export function mapPopularFromServices(
       title,
       description: stripHtml(service.description) || title,
       href: `/services/${service.slug}`,
-      imageSrc:
-        resolveMediaUrl(service.image) ?? "/images/services/surveying.png",
+      imageSrc: resolveMediaUrl(service.image) ?? undefined,
     };
   });
 
@@ -487,6 +486,7 @@ export function mapPopularFromServices(
     title: child.short_title || child.title,
     description: stripHtml(child.description) || child.title,
     href: `/services/${child.slug}`,
+    imageSrc: resolveMediaUrl(child.image) ?? undefined,
   }));
 
   return { popularServices: parents, drawingServices };

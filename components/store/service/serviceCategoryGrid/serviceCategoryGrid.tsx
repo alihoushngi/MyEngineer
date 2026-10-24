@@ -9,6 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { GlassInfoCard } from "@/components/common/glassInfoCard/glassInfoCard";
 import { type ServiceCategory } from "@/config/services.config/services.config";
 import { formatFaNumber } from "@/lib/format/format-fa-number/format-fa-number";
+import { isKnownDuplicateContentImage } from "@/lib/home/known-duplicate-content-image/known-duplicate-content-image";
 import {
   getHomeServiceCategoryHref,
   getHomeServiceCategoryImageSource,
@@ -260,7 +261,8 @@ function ServiceCategoryDirectoryItem({
   onServiceSelect?: () => void;
 }) {
   const [failedSource, setFailedSource] = useState<string>();
-  const imageSource = getHomeServiceCategoryImageSource(service, failedSource);
+  const source = getHomeServiceCategoryImageSource(service, failedSource);
+  const imageSource = isKnownDuplicateContentImage(source) ? undefined : source;
   const href = getHomeServiceCategoryHref(service);
   const label = getHomeServiceCategoryLabel(service);
   const content = (
