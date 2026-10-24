@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeftIcon } from "lucide-react";
+import { ArrowLeftIcon, ImageOff } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useSyncExternalStore } from "react";
@@ -266,7 +266,9 @@ function ServiceCategoryDirectoryItem({
   const content = (
     <>
       <span
-        aria-hidden="true"
+        aria-hidden={imageSource ? "true" : undefined}
+        role={imageSource ? undefined : "img"}
+        aria-label={imageSource ? undefined : "تصویر خدمت در دسترس نیست"}
         className="mx-auto mb-client-xs flex size-[75px] items-center justify-center min-[576px]:size-[87px] md:size-[100px]"
       >
         {imageSource ? (
@@ -279,7 +281,9 @@ function ServiceCategoryDirectoryItem({
             className="block h-auto max-h-full w-full max-w-full object-contain"
             onError={() => setFailedSource(imageSource)}
           />
-        ) : null}
+        ) : (
+          <ImageOff aria-hidden="true" className="size-8 text-client-text-muted" />
+        )}
       </span>
       <span className="mb-2 block wrap-anywhere text-center text-client-12 leading-[1.2] text-client-text-muted">
         {label}

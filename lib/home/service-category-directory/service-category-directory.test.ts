@@ -6,7 +6,6 @@ import {
   getHomeServiceCategoryHref,
   getHomeServiceCategoryImageSource,
   getHomeServiceCategoryLabel,
-  homeServiceCategoryArtworkBySlug,
   orderHomeServiceCategories,
 } from "./service-category-directory.ts";
 
@@ -32,10 +31,9 @@ test("orders known services like the reference and keeps additional API order", 
     orderHomeServiceCategories(input).map(({ slug }) => slug),
     ["نقشه-برداری", "خدمات-اداری", "custom-first", "custom-second"],
   );
-  assert.equal(Object.keys(homeServiceCategoryArtworkBySlug).length, 6);
 });
 
-test("preserves valid server artwork and falls back by stable slug", () => {
+test("uses only API artwork and suppresses missing or failed images", () => {
   const surveying = category("نقشه-برداری", "https://media.example/surveying.jpg");
 
   assert.equal(
@@ -43,15 +41,15 @@ test("preserves valid server artwork and falls back by stable slug", () => {
     "https://media.example/surveying.jpg",
   );
   assert.equal(
-    getHomeServiceCategoryImageSource(category("نقشه-برداری")),
-    "/images/services/surveying.png",
-  );
-  assert.equal(
     getHomeServiceCategoryImageSource(surveying, surveying.imageSrc),
-    "/images/services/surveying.png",
+    undefined,
   );
   assert.equal(
-    getHomeServiceCategoryImageSource(category("custom-service")),
+    getHomeServiceCategoryImageSource(category("نقشه-برداری")),
+    undefined,
+  );
+  assert.equal(
+    getHomeServiceCategoryImageSource(category("custom-service", "  ")),
     undefined,
   );
 });

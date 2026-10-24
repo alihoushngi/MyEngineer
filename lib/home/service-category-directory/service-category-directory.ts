@@ -1,19 +1,16 @@
 import type { ServiceCategory } from "../../../config/services.config/services.config";
 
-export const homeServiceCategoryArtworkBySlug: Readonly<Record<string, string>> = {
-  "نقشه-برداری": "/images/services/surveying.png",
-  "استادکار-ساختمان": "/images/services/contractor.png",
-  "ترسیم-نقشه": "/images/services/engineeringservice.png",
-  "طراحی-داخلی-طراحی-نما": "/images/services/designer.png",
-  "اخذ-پروانه-ساخت-اخد-پایان-کار": "/images/services/license.png",
-  "خدمات-اداری": "/images/services/adminastrative.png",
-};
+const referenceCategoryOrder = [
+  "نقشه-برداری",
+  "استادکار-ساختمان",
+  "ترسیم-نقشه",
+  "طراحی-داخلی-طراحی-نما",
+  "اخذ-پروانه-ساخت-اخد-پایان-کار",
+  "خدمات-اداری",
+] as const;
 
-const referencePosition = new Map(
-  Object.keys(homeServiceCategoryArtworkBySlug).map((slug, index) => [
-    slug,
-    index,
-  ]),
+const referencePosition = new Map<string, number>(
+  referenceCategoryOrder.map((slug, index) => [slug, index]),
 );
 
 export function orderHomeServiceCategories(
@@ -34,14 +31,9 @@ export function getHomeServiceCategoryImageSource(
   failedSource?: string,
 ): string | undefined {
   const serverSource = category.imageSrc?.trim();
-  const presentationFallback = homeServiceCategoryArtworkBySlug[category.slug];
 
   if (serverSource && serverSource !== failedSource) {
     return serverSource;
-  }
-
-  if (presentationFallback && presentationFallback !== failedSource) {
-    return presentationFallback;
   }
 
   return undefined;

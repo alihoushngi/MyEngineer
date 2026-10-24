@@ -13,7 +13,7 @@ export const homeHeroCopy = {
 } as const;
 
 export const homeServicesCopy = {
-  title: "به‌دنبال چه خدمتی هستید؟",
+  title: "بدنبال چه خدمتی هستید؟",
   description: "بهترین مهندسان و متخصصان خدمات ساختمانی در مهندس من!",
   faqLabel: "سوالات متداول",
 } as const;

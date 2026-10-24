@@ -27,6 +27,11 @@
     line-height: 1.5;
   }
 
+  .page :global(#service-categories h2) {
+    font-size: var(--client-font-size-12);
+    line-height: 1.2;
+  }
+
   .page :global([data-home-part="hero"]) {
     min-height: 0;
     padding: 0;
